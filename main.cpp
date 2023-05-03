@@ -19,6 +19,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		RESULT
 	};
 
+	//サウンドの読み込み
+	int fanfareBH = Novice::LoadAudio("./Sounds/fanfare.wav");
+	int mokugyoBH = Novice::LoadAudio("./Sounds/mokugyo.wav");
+	int startBH = Novice::LoadAudio("./Sounds/start.wav");
+
 	Scene scene = TITLE;
 
 	// ウィンドウの×ボタンが押されるまでループ
@@ -51,7 +56,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				scene = TITLE;
 			}
 			break;
-
 		}
 
 		///
@@ -62,34 +66,46 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓描画処理ここから
 		///
 
-		//シーン毎の描画
+		//シーン毎の背景描画と音の再生
 		switch (scene) {
 		case TITLE:
 			Novice::DrawBox(
 				0, 0,
 				1280, 720,
 				0.0f,
-				0xEFC1C1FF,
+				0xD86666FF,
 				kFillModeSolid
 			);
+			Novice::StopAudio(startBH); //RESULT時の音を停止
+			if (!Novice::IsPlayingAudio(fanfareBH)) {
+				Novice::PlayAudio(fanfareBH, true, 0.1f);
+			}
 			break;
 		case GAME:
 			Novice::DrawBox(
 				0, 0,
 				1280, 720,
 				0.0f,
-				0xC1EFC1FF,
+				0x66D866FF,
 				kFillModeSolid
 			);
+			Novice::StopAudio(fanfareBH); //TITLE時の音を停止
+			if (!Novice::IsPlayingAudio(mokugyoBH)) {
+				Novice::PlayAudio(mokugyoBH, true, 0.1f);
+			}
 			break;
 		case RESULT:
 			Novice::DrawBox(
 				0, 0,
 				1280, 720,
 				0.0f,
-				0xC1EFC1FF,
+				0x6666D8FF,
 				kFillModeSolid
 			);
+			Novice::StopAudio(mokugyoBH); //GAME時の音を停止
+			if (!Novice::IsPlayingAudio(startBH)) {
+				Novice::PlayAudio(startBH, true, 0.1f);
+			}
 			break;
 		}
 
