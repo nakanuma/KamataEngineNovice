@@ -25,6 +25,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	int startBH = Novice::LoadAudio("./Sounds/start.wav");
 
 	Scene scene = TITLE;
+	Novice::PlayAudio(fanfareBH, true, 0.1f);
 
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
@@ -76,8 +77,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				0xD86666FF,
 				kFillModeSolid
 			);
-			Novice::StopAudio(startBH); //RESULT時の音を停止
-			if (!Novice::IsPlayingAudio(fanfareBH)) {
+			if (keys[DIK_SPACE] && !preKeys[DIK_SPACE]) {
+				Novice::StopAudio(startBH); 
 				Novice::PlayAudio(fanfareBH, true, 0.1f);
 			}
 			break;
@@ -89,8 +90,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				0x66D866FF,
 				kFillModeSolid
 			);
-			Novice::StopAudio(fanfareBH); //TITLE時の音を停止
-			if (!Novice::IsPlayingAudio(mokugyoBH)) {
+			if (keys[DIK_SPACE] && !preKeys[DIK_SPACE]) {
+				Novice::StopAudio(fanfareBH);
 				Novice::PlayAudio(mokugyoBH, true, 0.1f);
 			}
 			break;
@@ -102,12 +103,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				0x6666D8FF,
 				kFillModeSolid
 			);
-			Novice::StopAudio(mokugyoBH); //GAME時の音を停止
-			if (!Novice::IsPlayingAudio(startBH)) {
+			if (keys[DIK_SPACE] && !preKeys[DIK_SPACE]) {
+				Novice::StopAudio(mokugyoBH);
 				Novice::PlayAudio(startBH, true, 0.1f);
 			}
 			break;
 		}
+
+		//シーン切り替えのキーとBGMの番号を表す文字列
+		Novice::ScreenPrintf(100, 360, "SceneNo: %d   Push Space to change scene", scene);
+		Novice::ScreenPrintf(100, 390, "is playing sound %d", Novice::IsPlayingAudio(fanfareBH));
 
 		///
 		/// ↑描画処理ここまで
