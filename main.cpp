@@ -42,6 +42,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓更新処理ここから
 		///
 
+		//シーン毎の更新処理
 		switch (scene) {
 		case TITLE:
 			if (keys[DIK_SPACE] && !preKeys[DIK_SPACE]) {
@@ -49,15 +50,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			}
 			break;
 		case GAME:
+			bg2Y += 5;
+			bg1Y += 5;
+			if (bg2Y >= 0 && bg1Y >= 720) {
+				bg2Y = -720;
+				bg1Y = 0;
+			}
 			if (keys[DIK_SPACE] && !preKeys[DIK_SPACE]) {
 				scene = RESULT;
-				bg2Y++;
-				bg1Y++;
-				if (bg2Y >= 0 && bg1Y >= 720) {
-					bg2Y = -720;
-					bg1Y = 0;
 				}
-			}
 			break;
 		case RESULT:
 			if (keys[DIK_SPACE] && !preKeys[DIK_SPACE]) {
@@ -74,6 +75,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓描画処理ここから
 		///
 
+		//シーン毎の描画
 		switch (scene) {
 		case TITLE:
 			Novice::DrawBox(
@@ -110,6 +112,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			);
 			break;
 		}
+
+		//シーンナンバーと切り替えのキーを表す文字列
+		Novice::ScreenPrintf(20, 300, "SceneNo = %d",scene);
+		Novice::ScreenPrintf(20, 320, "Push Space to change scene");
 
 		///
 		/// ↑描画処理ここまで
