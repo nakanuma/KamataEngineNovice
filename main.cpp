@@ -66,6 +66,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			break;
 
 		}
+
 		///
 		/// ↑更新処理ここまで
 		///
