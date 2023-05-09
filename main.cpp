@@ -139,15 +139,33 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			break;
 		}
 
-		//移動処理
-		playerX += (Novice::CheckHitKey(DIK_D) - Novice::CheckHitKey(DIK_A)) * playerSpd;
-
-		playerY += (Novice::CheckHitKey(DIK_S) - Novice::CheckHitKey(DIK_W)) * playerSpd;
+		//自機のキー移動
+		if (Novice::CheckHitKey(DIK_W)) {
+			playerY -= playerSpd;
+		}
+		if (Novice::CheckHitKey(DIK_A)) {
+			playerX -= playerSpd;
+		}
+		if (Novice::CheckHitKey(DIK_S)) {
+			playerY += playerSpd;
+		}
+		if (Novice::CheckHitKey(DIK_D)) {
+			playerX += playerSpd;
+		}
 
 		//画面端で停止
-		playerX = min(max(playerX, 0), 1280 - 128);
-
-		playerY = min(max(playerY, 0), 720 - 164);
+		if (playerX < 0) {
+			playerX = 0;
+		}
+		if (playerX > 1280 - 128) {
+			playerX = 1280 - 128;
+		}
+		if (playerY < 0) {
+			playerY = 0;
+		}
+		if (playerY > 720 - 164) {
+			playerY = 720 - 164;
+		}
 
 		///
 		/// ↑更新処理ここまで
