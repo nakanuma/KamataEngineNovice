@@ -26,7 +26,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	int bg1Y = 0;
 	int bg2Y = -720;
 
-
 	Scene scene = TITLE;
 
 	// ウィンドウの×ボタンが押されるまでループ
