@@ -20,8 +20,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	float radius = 32.0f;
 
 	//円の速度
-	float vx = 4.0f;
-	float vy = 4.0f;
+	float velX = 4.0f;
+	float velY = 4.0f;
 
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
@@ -38,15 +38,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		//画面端で跳ね返る処理
 		if (posX < radius || posX > 1280 - radius) {
-			vx = -vx;
+			velX = -velX;
 		}
+
 		if (posY < radius || posY > 720 - radius) {
-			vy = -vy;
+			velY = -velY;
 		}
 
 		//座標の更新
-		posX += vx * 0.7f;
-		posY += vy * 0.7f;
+		posX += velX * 0.7f;
+		posY += velY * 0.7f;
 
 		///
 		/// ↑更新処理ここまで
@@ -57,7 +58,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 
 		//円の描画
-		Novice::DrawEllipse((int)posX, (int)posY, (int)radius, (int)radius, 0.0f, WHITE, kFillModeSolid);
+		Novice::DrawEllipse(
+			(int)posX,        //X座標
+			(int)posY,        //Y座標
+			(int)radius,      //X半径
+			(int)radius,      //Y半径
+			0.0f,             //回転角
+			WHITE,            //色
+			kFillModeSolid    //塗りつぶし
+		);
 
 		///
 		/// ↑描画処理ここまで
