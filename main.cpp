@@ -9,8 +9,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Novice::Initialize(kWindowTitle, 1280, 720);
 
 	// キー入力結果を受け取る箱
-	char keys[256] = {0};
-	char preKeys[256] = {0};
+	char keys[256] = { 0 };
+	char preKeys[256] = { 0 };
+
+	//円の初期位置
+	float posX = 640.0f;
+	float posY = 360.0f;
+
+	//円の半径
+	float radius = 32.0f;
+
+	//円の速度
+	float vx = 4.0f;
+	float vy = 4.0f;
 
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
@@ -25,6 +36,18 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓更新処理ここから
 		///
 
+		//画面端で跳ね返る処理
+		if (posX < radius || posX > 1280 - radius) {
+			vx = -vx;
+		}
+		if (posY < radius || posY > 720 - radius) {
+			vy = -vy;
+		}
+
+		//座標の更新
+		posX += vx * 0.7f;
+		posY += vy * 0.7f;
+
 		///
 		/// ↑更新処理ここまで
 		///
@@ -32,6 +55,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 		/// ↓描画処理ここから
 		///
+
+		//円の描画
+		Novice::DrawEllipse((int)posX, (int)posY, (int)radius, (int)radius, 0.0f, WHITE, kFillModeSolid);
 
 		///
 		/// ↑描画処理ここまで
