@@ -94,48 +94,60 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			if (keys[DIK_S]) {
 				playerState = FRONT;
 			}
+
 			if (keys[DIK_A]) {
 				playerState = LEFT;
 			}
+
 			if (keys[DIK_D]) {
 				playerState = RIGHT;
 			}
+
 			break;
 
 		case FRONT:
 			if (keys[DIK_W]) {
 				playerState = BACK;
 			}
+
 			if (keys[DIK_A]) {
 				playerState = LEFT;
 			}
+
 			if (keys[DIK_D]) {
 				playerState = RIGHT;
 			}
+
 			break;
 
 		case LEFT:
 			if (keys[DIK_W]) {
 				playerState = BACK;
 			}
+
 			if (keys[DIK_S]) {
 				playerState = FRONT;
 			}
+
 			if (keys[DIK_D]) {
 				playerState = RIGHT;
 			}
+
 			break;
 
 		case RIGHT:
 			if (keys[DIK_W]) {
 				playerState = BACK;
 			}
+
 			if (keys[DIK_A]) {
 				playerState = LEFT;
 			}
+
 			if (keys[DIK_S]) {
 				playerState = FRONT;
 			}
+
 			break;
 		}
 
@@ -143,12 +155,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		if (Novice::CheckHitKey(DIK_W)) {
 			playerY -= playerSpd;
 		}
+
 		if (Novice::CheckHitKey(DIK_A)) {
 			playerX -= playerSpd;
 		}
+
 		if (Novice::CheckHitKey(DIK_S)) {
 			playerY += playerSpd;
 		}
+
 		if (Novice::CheckHitKey(DIK_D)) {
 			playerX += playerSpd;
 		}
@@ -157,12 +172,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		if (playerX < 0) {
 			playerX = 0;
 		}
+
 		if (playerX > 1280 - 128) {
 			playerX = 1280 - 128;
 		}
+
 		if (playerY < 0) {
 			playerY = 0;
 		}
+
 		if (playerY > 720 - 164) {
 			playerY = 720 - 164;
 		}
