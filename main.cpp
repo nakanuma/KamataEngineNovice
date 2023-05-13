@@ -92,24 +92,24 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		//ゲーム背景（デバッグ用）
 		Novice::DrawBox(
-			40,             //左上X座標
-			20,             //左上Y座標
-			600,            //横幅
-			680,            //縦幅
-			0.0f,           //回転角
-			0x444444FF,     //色
-			kFillModeSolid  //塗りつぶし
+			40,              //左上X座標
+			20,              //左上Y座標
+			600,             //横幅
+			680,             //縦幅
+			0.0f,            //回転角
+			0x444444FF,      //色
+			kFillModeSolid   //塗りつぶし
 		);
 
 		//自機を描画
 		Novice::DrawSprite(
-			(int)playerPosX - (int)playerR, //左上X座標(半径を引いて中心位置を調整)
-			(int)playerPosY - (int)playerR, //左上Y座標(半径を引いて中心位置を調整)
-			playerGH,                       //ハンドル
-			1,                              //X倍率
-			1,                              //Y倍率                
-			0.0f,                           //回転角
-			0xFFFFFFFF                      //色
+			(int)playerPosX - (int)playerR,  //左上X座標(半径を引いて中心位置を調整)
+			(int)playerPosY - (int)playerR,  //左上Y座標(半径を引いて中心位置を調整)
+			playerGH,                        //ハンドル
+			1,                               //X倍率
+			1,                               //Y倍率                
+			0.0f,                            //回転角
+			0xFFFFFFFF                       //色
 		);
 
 		//自機の座標を表示（デバッグ用）
