@@ -14,14 +14,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	char keys[256] = { 0 };
 	char preKeys[256] = { 0 };
 
-	//円の初期位置と半径
-	float posX = 640.0f;
-	float posY = 360.0f;
-	float radius = 32.0f;
+	//画像読み込み
+	int playerGH = Novice::LoadTexture("./images/player.png"); 
 
-	//白い矩形の速さ
-	float playerSpd = 2.0f;
-
+	//プレイヤーの情報
+	float playerPosX = 640.0f;   //X座標
+	float playerPosY = 360.0f;   //Y座標
+	float playerR = 16.0f;       //半径
+	float playerSpd = 6.0f;      //速度
+						    
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
 		// フレームの開始
@@ -35,50 +36,50 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓更新処理ここから
 		///
 
-		//白い矩形のキー移動
-		float speedX = 0;
-		float speedY = 0;
+		//プレイヤーのキー移動
+		float velX = 0;
+		float velY = 0;
 
-		if (Novice::CheckHitKey(DIK_A)|| Novice::CheckHitKey(DIK_LEFT)) {
-			speedX -= playerSpd;
+		if (Novice::CheckHitKey(DIK_W)) {
+			velY -= playerSpd;
 		}
 
-		if (Novice::CheckHitKey(DIK_D)|| Novice::CheckHitKey(DIK_RIGHT)) {
-			speedX += playerSpd;
+		if (Novice::CheckHitKey(DIK_A)) {
+			velX -= playerSpd;
 		}
 
-		if (Novice::CheckHitKey(DIK_W)|| Novice::CheckHitKey(DIK_UP)) {
-			speedY -= playerSpd;
+		if (Novice::CheckHitKey(DIK_S)) {
+			velY += playerSpd;
 		}
 
-		if (Novice::CheckHitKey(DIK_S)|| Novice::CheckHitKey(DIK_DOWN)) {
-			speedY += playerSpd;
+		if (Novice::CheckHitKey(DIK_D)) {
+			velX += playerSpd;
 		}
 
-		//斜め移動時の速度を調整
-		if (speedX && speedY) {
-			speedX *= 0.7f;
-			speedY *= 0.7f;
+		//プレイヤーの斜め移動時の速度を調整
+		if (velX && velY) {
+			velX *= cosf((float)M_PI / 4.f);
+			velY *= sinf((float)M_PI / 4.f);
 		}
 
-		posX += speedX;
-		posY += speedY;
+		playerPosX += velX;
+		playerPosY += velY;
 
-		//画面外に出ないように画面端で座標を固定
-		if (posX < radius) {
-			posX = radius;
+		//プレイヤーが画面外に出ないように画面端で座標を固定
+		if (playerPosX < playerR) {
+			playerPosX = playerR;
 		}
 
-		if (posX > 1280 - radius) {
-			posX = 1280 - radius;
+		if (playerPosX > 1280 - playerR) {
+			playerPosX = 1280 - playerR;
 		}
 
-		if (posY < radius) {
-			posY = radius;
+		if (playerPosY < playerR) {
+			playerPosY = playerR;
 		}
 
-		if (posY > 720 - radius) {
-			posY = 720 - radius;
+		if (playerPosY > 720 - playerR) {
+			playerPosY = 720 - playerR;
 		}
 
 		///
@@ -90,16 +91,20 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 
 		//自機を描画
-		Novice::DrawEllipse((int)posX, (int)posY, (int)radius, (int)radius, 0.0f, WHITE, kFillModeSolid);
-
-		//キー操作を表す文字列
-		Novice::ScreenPrintf(20, 20, "W||ArrowUp:Up A||ArrowLeft:Left S||ArrowDown:Down D||ArrowRight:Right");
+		Novice::DrawSprite(
+			(int)playerPosX - (int)playerR,
+			(int)playerPosY - (int)playerR,
+			playerGH,
+			1, 1,
+			0.0f,
+			0xFFFFFFFF
+		);
 
 		//自機の座標を表示
-		Novice::ScreenPrintf(20, 60, "  posX:%7.1f /   posY:%7.1f", posX, posY);
+		Novice::ScreenPrintf(20, 20, "%.1f,%.1f,", playerPosX, playerPosY);
 
 		//自機の速度を表示
-		Novice::ScreenPrintf(20, 80, "speedX:%7.1f / speedY:%7.1f", speedX, speedY);
+		Novice::ScreenPrintf(20, 40, "%.1f,%.1f", velX, velY);
 
 		///
 		/// ↑描画処理ここまで
