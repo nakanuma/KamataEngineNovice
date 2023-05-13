@@ -8,21 +8,21 @@ const char kWindowTitle[] = "LC1B_24_ナカヌマカツシ_タイトル";
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	// ライブラリの初期化
-	Novice::Initialize(kWindowTitle, 1280, 720);
+	Novice::Initialize(kWindowTitle, 960, 720);
 
 	// キー入力結果を受け取る箱
 	char keys[256] = { 0 };
 	char preKeys[256] = { 0 };
 
 	//画像読み込み
-	int playerGH = Novice::LoadTexture("./images/player.png"); 
+	int playerGH = Novice::LoadTexture("./images/player.png");
 
 	//プレイヤーの情報
-	float playerPosX = 640.0f;   //X座標
-	float playerPosY = 360.0f;   //Y座標
+	float playerPosX = 340.0f;   //X座標
+	float playerPosY = 640.0f;   //Y座標
 	float playerR = 16.0f;       //半径
-	float playerSpd = 6.0f;      //速度
-						    
+	float playerSpd = 8.0f;      //速度
+
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
 		// フレームの開始
@@ -66,20 +66,20 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		playerPosY += velY;
 
 		//プレイヤーが画面外に出ないように画面端で座標を固定
-		if (playerPosX < playerR) {
-			playerPosX = playerR;
+		if (playerPosX < 40 + playerR) {    
+			playerPosX = 40 + playerR;
 		}
 
-		if (playerPosX > 1280 - playerR) {
-			playerPosX = 1280 - playerR;
+		if (playerPosX > 640 - playerR) {    
+			playerPosX = 640 - playerR;
 		}
 
-		if (playerPosY < playerR) {
-			playerPosY = playerR;
+		if (playerPosY < 20 + playerR) {
+			playerPosY = 20 + playerR;
 		}
 
-		if (playerPosY > 720 - playerR) {
-			playerPosY = 720 - playerR;
+		if (playerPosY > 700 - playerR) {
+			playerPosY = 700 - playerR;
 		}
 
 		///
@@ -90,21 +90,33 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓描画処理ここから
 		///
 
-		//自機を描画
-		Novice::DrawSprite(
-			(int)playerPosX - (int)playerR,
-			(int)playerPosY - (int)playerR,
-			playerGH,
-			1, 1,
-			0.0f,
-			0xFFFFFFFF
+		//ゲーム背景（デバッグ用）
+		Novice::DrawBox(
+			40,             //左上X座標
+			20,             //左上Y座標
+			600,            //横幅
+			680,            //縦幅
+			0.0f,           //回転角
+			0x444444FF,     //色
+			kFillModeSolid  //塗りつぶし
 		);
 
-		//自機の座標を表示
-		Novice::ScreenPrintf(20, 20, "%.1f,%.1f,", playerPosX, playerPosY);
+		//自機を描画
+		Novice::DrawSprite(
+			(int)playerPosX - (int)playerR, //左上X座標(半径を引いて中心位置を調整)
+			(int)playerPosY - (int)playerR, //左上Y座標(半径を引いて中心位置を調整)
+			playerGH,                       //ハンドル
+			1,                              //X倍率
+			1,                              //Y倍率                
+			0.0f,                           //回転角
+			0xFFFFFFFF                      //色
+		);
 
-		//自機の速度を表示
-		Novice::ScreenPrintf(20, 40, "%.1f,%.1f", velX, velY);
+		//自機の座標を表示（デバッグ用）
+		Novice::ScreenPrintf(700, 640, "%.1f,%.1f,", playerPosX, playerPosY);
+
+		//自機の速度を表示（デバッグ用）
+		Novice::ScreenPrintf(700, 660, "%.1f,%.1f", velX, velY);
 
 		///
 		/// ↑描画処理ここまで
