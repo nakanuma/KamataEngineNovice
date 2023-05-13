@@ -1,6 +1,6 @@
 #include <Novice.h>
 
-const char kWindowTitle[] = "LC1B_24_ナカヌマカツシ_タイトル";
+const char kWindowTitle[] = "AL1_07_確認課題";
 
 // Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
@@ -12,12 +12,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	char keys[256] = {0};
 	char preKeys[256] = {0};
 
-	//自機の初期位置
-	int playerX = 640;
-	int playerY = 360;
-
-	//自機の移動速度
-	int playerSpd = 5;
+	//自機の情報
+	int playerX = 640;   //X座標
+	int playerY = 360;   //Y座標
+	int playerSpd = 5;   //速度
 
 	//アニメーションタイマー
 	int animationTimer = 0;
