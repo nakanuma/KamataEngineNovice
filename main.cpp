@@ -14,12 +14,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	char keys[256] = { 0 };
 	char preKeys[256] = { 0 };
 
-	//円の初期位置と半径
+	//自機の初期位置と半径
 	float posX = 640.0f;
 	float posY = 360.0f;
 	float radius = 32.0f;
 
-	//白い矩形の速さ
+	//自機の速度
 	float playerSpd = 2.0f;
 
 	// ウィンドウの×ボタンが押されるまでループ
@@ -35,7 +35,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓更新処理ここから
 		///
 
-		//白い矩形のキー移動
+		//自機のキー移動
 		float speedX = 0;
 		float speedY = 0;
 
