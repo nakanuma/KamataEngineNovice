@@ -9,8 +9,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Novice::Initialize(kWindowTitle, 1280, 720);
 
 	// キー入力結果を受け取る箱
-	char keys[256] = {0};
-	char preKeys[256] = {0};
+	char keys[256] = { 0 };
+	char preKeys[256] = { 0 };
 
 	//自機の半径
 	int playerR = 16;
@@ -96,7 +96,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 		/// ↓描画処理ここから
 		///
-	
+
 		//弾を発射中、弾を描画
 		for (i = 0; i <= bulletNum; i++) {
 			Novice::DrawSprite(bulletX[i] - bulletR, bulletY[i] - bulletR, bullet, 1, 1, 0.0f, 0xFFFFFFFF);
@@ -119,7 +119,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		for (i = 0; i < 8; i++) {
 			Novice::ScreenPrintf(0, 100 + i * 20, "isBulletShot[%d]:%2d", i, isBulletShot[i]);
 		}
-		
+
 		///
 		/// ↑描画処理ここまで
 		///
