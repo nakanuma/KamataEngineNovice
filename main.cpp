@@ -3,7 +3,6 @@
 #include <math.h>
 
 #define PLAYER_BULLET_NUM 20  //プレイヤーが発射する弾の最大数
-#define ENEMY_BULLET_NUM  50  //敵が発射する弾の最大数
 
 const char kWindowTitle[] = "shooting";
 
@@ -21,12 +20,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	int playerGH = Novice::LoadTexture("./images/player.png");           //プレイヤー画像
 	int playerBulletGH = Novice::LoadTexture("./images/bullet.png");     //プレイヤーの弾画像
 	int backgroundGH = Novice::LoadTexture("./images/background.png");   //背景画像
-	int enemyGH[] = {                                                    //敵の画像0~2まで
-		Novice::LoadTexture("./images/enemy0.png"),
-	    Novice::LoadTexture("./images/enemy1.png"),
-	    Novice::LoadTexture("./images/enemy2.png"),
-		Novice::LoadTexture("./images/enemy1.png"),
-	};
 
 	//プレイヤーの情報
 	float playerPosX = 330.0f;   //X座標
@@ -48,24 +41,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		isPlayerBulletShot[i] = false;
 	}
 
-	//敵の情報
-	float enemyPosX = 50.0f;    //X座標
-	float enemyPosY = -50.0f;   //Y座標
-	float enemyR = 16.0f;       //半径
-	int in_time = 180;          //敵が出てくるフレーム
-	int stop_time = 300;        //敵が止まるフレーム
-	int out_time = 420;         //敵が帰還するフレーム
-	bool isEnemyReturn = false; //敵が帰還し終わったかのフラグ
-
 	//アニメーション背景のY座標
 	int bgTopY = -720;
 	int bgMidY = 0;
 
 	//ゲームの経過フレームをカウント（仮置き、後でシーン切り替えする時に開始に変更する）
 	long long gameCount = 0;
-
-	//敵のアニメーションタイマー
-	int enemyAnimationTimer = 0;
 
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
@@ -151,26 +132,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			}
 		}
 
-		//10フレーム毎に敵のアニメーションタイマーをインクリメント
-		if (gameCount % 10 == 0) {
-			enemyAnimationTimer++;
-			//4を超えたら0に戻す
-			if (enemyAnimationTimer >= 4) {
-				enemyAnimationTimer = 0;
-			}
-		}
-
-		//敵が出てきてから止まるまでの間、下に移動
-		if (in_time < gameCount && stop_time > gameCount) {
-			enemyPosY += 2;
-			//帰還時間を過ぎたら戻る
-		} else if (gameCount > out_time) {
-			enemyPosY -= 2;
-			if (enemyPosY < -40) {
-				isEnemyReturn = true;
-			}
-		}
-
 		//アニメーション背景のY座標を増加
 		bgTopY += 5;
 		bgMidY += 5;
@@ -194,7 +155,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		Novice::ScreenPrintf(700, 640, "%.1f,%.1f,", playerPosX, playerPosY); //自機の座標
 		Novice::ScreenPrintf(700, 660, "%.1f,%.1f", velX, velY);              //自機の速度
 		Novice::ScreenPrintf(700, 680, "%d", gameCount);                      //経過フレーム
-		Novice::ScreenPrintf(700, 700, "%f:%f", enemyPosX, enemyPosY);        //敵の座標
 
 		//アニメーション背景の描画
 		Novice::DrawSprite(
@@ -222,19 +182,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			0.0f,                                                       //回転角
 			0xFFFFFFFF                                                  //色
 		);
-
-		//敵の描画
-		if (!isEnemyReturn) {
-			Novice::DrawSprite(
-				static_cast<int>(enemyPosX) - static_cast<int>(enemyR), //左上X座標(半径を引いて中心位置を調整)
-				static_cast<int>(enemyPosY) - static_cast<int>(enemyR), //左上Y座標(半径を引いて中心位置を調整)
-				enemyGH[enemyAnimationTimer],                           //ハンドル
-				1,							                            //X倍率
-				1,							                            //Y倍率  
-				0.0f,						                            //回転角
-				0xFFFFFFFF					                            //色
-			);
-		}
 
 		//発射した弾の描画
 		for (int i = 0; i < PLAYER_BULLET_NUM; i++) {
