@@ -2,7 +2,7 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 
-const char kWindowTitle[] = "LC1B_24_ナカヌマカツシ_タイトル";
+const char kWindowTitle[] = "shooting";
 
 // Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
@@ -16,30 +16,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	//画像読み込み
 	int playerGH = Novice::LoadTexture("./images/player.png"); //プレイヤー画像
-	int enemyGH = Novice::LoadTexture("./images/enemy.png");   //敵画像
-	int bulletGH = Novice::LoadTexture("./images/bullet.png"); //弾画像
 
 	//プレイヤーの情報
-	float playerPosX = 340.0f;   //X座標
+	float playerPosX = 330.0f;   //X座標
 	float playerPosY = 640.0f;   //Y座標
 	float playerR = 16.0f;       //半径
 	float playerSpd = 6.0f;      //速度
-
-	//敵の情報
-	float enemyPosX = 340.0f;    //X座標
-	float enemyPosY = 80.0f;     //Y座標
-	float enemyR = 16.0f;        //半径
-	bool isEnemyAlive = true;    //生存しているかのフラグ
-
-	//弾の情報
-	float bulletPosX = 0.0f;     //X座標
-	float bulletPosY = 0.0f;     //Y座標
-	float bulletR = 8.0f;        //半径
-	float bulletSpd = 16.0f;     //速度
-	bool isBulletShot = false;   //弾が撃たれているかのフラグ
-
-	//敵と弾の距離
-	float e2bR = enemyR + bulletR;
 
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
@@ -58,19 +40,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		float velX = 0;
 		float velY = 0;
 
-		if (Novice::CheckHitKey(DIK_W)) {
+		if (Novice::CheckHitKey(DIK_UP)) {
 			velY -= playerSpd;
 		}
 
-		if (Novice::CheckHitKey(DIK_A)) {
+		if (Novice::CheckHitKey(DIK_LEFT)) {
 			velX -= playerSpd;
 		}
 
-		if (Novice::CheckHitKey(DIK_S)) {
+		if (Novice::CheckHitKey(DIK_DOWN)) {
 			velY += playerSpd;
 		}
 
-		if (Novice::CheckHitKey(DIK_D)) {
+		if (Novice::CheckHitKey(DIK_RIGHT)) {
 			velX += playerSpd;
 		}
 
@@ -84,47 +66,20 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		playerPosY += velY;
 
 		//プレイヤーが画面外に出ないように画面端で座標を固定
-		if (playerPosX < 40 + playerR) {    
-			playerPosX = 40 + playerR;
+		if (playerPosX <  playerR) {
+			playerPosX =  playerR;
 		}
 
-		if (playerPosX > 640 - playerR) {    
-			playerPosX = 640 - playerR;
+		if (playerPosX > 660 - playerR) {
+			playerPosX = 660 - playerR;
 		}
 
-		if (playerPosY < 20 + playerR) {
-			playerPosY = 20 + playerR;
+		if (playerPosY < playerR) {
+			playerPosY = playerR;
 		}
 
-		if (playerPosY > 700 - playerR) {
-			playerPosY = 700 - playerR;
-		}
-
-		//スペースキーを押した瞬間に弾を発射
-		if (keys[DIK_SPACE] && !preKeys[DIK_SPACE]) {
-			if (!isBulletShot) {
-				isBulletShot = true;
-				bulletPosX = playerPosX;
-				bulletPosY = playerPosY;
-			}
-		}
-
-		//弾の移動と画面外に出た際の処理
-		if (isBulletShot) {
-			bulletPosY -= bulletSpd;
-			if (bulletPosY < 20) {
-				isBulletShot = false;
-			}
-		}
-
-		//弾と敵の中心間の距離を求める
-		float difX = enemyPosX - bulletPosX;
-		float difY = enemyPosY - bulletPosY;
-		float diff = difX * difX + difY * difY;
-
-		//弾が敵に衝突した場合、敵の生存フラグをfalseに変更
-		if (diff <= e2bR * e2bR) {
-			isEnemyAlive = false;
+		if (playerPosY > 720 - playerR) {
+			playerPosY = 720 - playerR;
 		}
 
 		///
@@ -135,31 +90,22 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓描画処理ここから
 		///
 
-		//ゲーム背景（デバッグ用）
+		//デバッグ用文字列
+		Novice::ScreenPrintf(700, 640, "%.1f,%.1f,", playerPosX, playerPosY); //自機の座標
+		Novice::ScreenPrintf(700, 660, "%.1f,%.1f", velX, velY);              //自機の速度
+
+		//ゲーム背景（仮）
 		Novice::DrawBox(
-			40,              //左上X座標
-			20,              //左上Y座標
-			600,             //横幅
-			680,             //縦幅
+			0,              //左上X座標
+			0,              //左上Y座標
+			660,             //横幅
+			720,             //縦幅
 			0.0f,            //回転角
 			0x444444FF,      //色
 			kFillModeSolid   //塗りつぶし
 		);
 
-		//弾の発射中、弾を描画
-		if (isBulletShot) {
-			Novice::DrawSprite(
-				static_cast<int>(bulletPosX) - static_cast<int>(bulletR),   //左上X座標(半径を引いて中心位置を調整)
-				static_cast<int>(bulletPosY) - static_cast<int>(bulletR),   //左上Y座標(半径を引いて中心位置を調整)
-				bulletGH,                                                   //ハンドル
-				1,                                                          //X倍率
-				1,                                                          //Y倍率
-				0.0f,                                                       //回転角
-				0xFFFFFFFF                                                  //色
-			);
-		}
-
-		//自機を描画
+		//プレイヤーの描画
 		Novice::DrawSprite(
 			static_cast<int>(playerPosX) - static_cast<int>(playerR),   //左上X座標(半径を引いて中心位置を調整)
 			static_cast<int>(playerPosY) - static_cast<int>(playerR),   //左上Y座標(半径を引いて中心位置を調整)
@@ -169,25 +115,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			0.0f,                                                       //回転角
 			0xFFFFFFFF                                                  //色
 		);
-
-		//敵が生存中、敵を描画
-		if (isEnemyAlive) {
-			Novice::DrawSprite(
-				static_cast<int>(enemyPosX) - static_cast<int>(enemyR),   //左上X座標(半径を引いて中心位置を調整)
-				static_cast<int>(enemyPosY) - static_cast<int>(enemyR),   //左上Y座標(半径を引いて中心位置を調整)
-				enemyGH,                                                  //ハンドル
-				1,                                                        //X倍率
-				1,                                                        //Y倍率                
-				0.0f,                                                     //回転角
-				0xFFFFFFFF                                                //色
-			);
-		}
-
-		//自機の座標文字列を表示（デバッグ用）
-		Novice::ScreenPrintf(700, 640, "%.1f,%.1f,", playerPosX, playerPosY);
-
-		//自機の速度文字列を表示（デバッグ用）
-		Novice::ScreenPrintf(700, 660, "%.1f,%.1f", velX, velY);
 
 		///
 		/// ↑描画処理ここまで
