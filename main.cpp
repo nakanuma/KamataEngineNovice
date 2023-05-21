@@ -59,7 +59,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	float enemyPosY[ENEMY_NUM];      //Y座標
 	bool isEnemyAlive[ENEMY_NUM];    //敵が生存しているかのフラグ
 	float enemyR = 16.0f;            //半径
-	float enemyLife[ENEMY_NUM];      //敵の体力
+	int enemyLife[ENEMY_NUM];      //敵の体力
 
 	//敵の情報の配列を初期化
 	for (int i = 0; i < ENEMY_NUM; i++) {
@@ -138,7 +138,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			playerPosY = 720 - playerR;
 		}
 
-		//Zキーを押しているかつ6ループに一回、弾を発射
+		//Zキーを押しているかつ6ループに一回、プレイヤーが弾を発射
 		if (keys[DIK_Z]) {
 			if (gameCount % 6 == 0) {
 				for (int i = 0; i < PLAYER_BULLET_NUM; i++) {
@@ -152,7 +152,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			}
 		}
 
-		//弾を移動させる処理
+		//プレイヤーの弾を移動させる処理
 		for (int i = 0; i < PLAYER_BULLET_NUM; i++) {
 			if (isPlayerBulletShot[i]) {
 				playerBulletPosY[i] -= playerBulletSpd;
@@ -163,7 +163,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			}
 		}
 
-		//敵を下に移動させる
+		//敵を下方向に移動させる
 		for (int i = 0; i < ENEMY_NUM; i++) {
 			enemyPosY[i] += 1;
 		}
@@ -182,7 +182,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 						//敵の体力が0になったら敵を消滅させる
 						if (enemyLife[j] < 0) {
 							isEnemyAlive[j] = false;
-							//スコアを加算
+							//敵を倒す度にスコアを加算
 							playerScore += 500;
 						}
 					}
@@ -213,7 +213,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		Novice::ScreenPrintf(700, 640, "%.1f,%.1f,", playerPosX, playerPosY); //自機の座標
 		Novice::ScreenPrintf(700, 660, "%.1f,%.1f", velX, velY);              //自機の速度
 		Novice::ScreenPrintf(700, 680, "%d", gameCount);                      //経過フレーム
-		Novice::ScreenPrintf(700, 40, "SCORE:%d", playerScore);
+		Novice::ScreenPrintf(700, 40, "SCORE:%d", playerScore);               //スコアを表示
+		for (int a = 0; a < ENEMY_NUM; a++) {
+			Novice::ScreenPrintf(700, 80 + a * 20, "%d.life:%d", a, enemyLife[a]);     //敵の体力を表示
+		}
 
 		//アニメーション背景の描画
 		Novice::DrawSprite(
