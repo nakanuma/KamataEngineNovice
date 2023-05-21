@@ -5,7 +5,8 @@
 #include <time.h>
 
 #define PLAYER_BULLET_NUM 20  //プレイヤーが発射する弾の最大数
-#define ENEMY_NUM 10          //敵の最大数
+#define ENEMY_NUM 20          //敵の最大数
+#define ENEMY_LIFE 20         //敵の体力
 
 const char kWindowTitle[] = "shooting";
 
@@ -30,6 +31,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	float playerPosY = 640.0f;   //Y座標
 	float playerR = 16.0f;       //半径
 	float playerSpd = 6.0f;      //速度
+	int playerScore = 0;         //現在のスコア
 
 	//プレイヤーの弾の情報
 	float playerBulletPosX[PLAYER_BULLET_NUM];          //X座標
@@ -57,6 +59,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	float enemyPosY[ENEMY_NUM];      //Y座標
 	bool isEnemyAlive[ENEMY_NUM];    //敵が生存しているかのフラグ
 	float enemyR = 16.0f;            //半径
+	float enemyLife[ENEMY_NUM];      //敵の体力
 
 	//敵の情報の配列を初期化
 	for (int i = 0; i < ENEMY_NUM; i++) {
@@ -66,6 +69,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		//Y座標を80ずつ上にずらして生成
 		enemyPosY[i] = -80.0f * i;
 		isEnemyAlive[i] = true;
+		enemyLife[i] = ENEMY_LIFE;
 	}
 
 	//アニメーション背景のY座標
@@ -164,6 +168,28 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			enemyPosY[i] += 1;
 		}
 
+		//プレイヤーの弾が敵に衝突した時の処理
+		for (int i = 0; i < PLAYER_BULLET_NUM; i++) {
+			for (int j = 0; j < ENEMY_NUM; j++) {
+				float x = playerBulletPosX[i] - enemyPosX[j];
+				float y = playerBulletPosY[i] - enemyPosY[j];
+				float r = playerBulletR + enemyR;
+				if (x * x + y * y < r * r) {
+					//プレイヤーの弾が敵に衝突した場合、衝突した弾を消して敵の体力を減らす
+					if (isEnemyAlive[j]) {
+						isPlayerBulletShot[i] = false;
+						enemyLife[j]--;
+						//敵の体力が0になったら敵を消滅させる
+						if (enemyLife[j] < 0) {
+							isEnemyAlive[j] = false;
+							//スコアを加算
+							playerScore += 500;
+						}
+					}
+				}
+			}
+		}
+
 		//アニメーション背景のY座標を増加
 		bgTopY += 5;
 		bgMidY += 5;
@@ -187,6 +213,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		Novice::ScreenPrintf(700, 640, "%.1f,%.1f,", playerPosX, playerPosY); //自機の座標
 		Novice::ScreenPrintf(700, 660, "%.1f,%.1f", velX, velY);              //自機の速度
 		Novice::ScreenPrintf(700, 680, "%d", gameCount);                      //経過フレーム
+		Novice::ScreenPrintf(700, 40, "SCORE:%d", playerScore);
 
 		//アニメーション背景の描画
 		Novice::DrawSprite(
