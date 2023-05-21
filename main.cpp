@@ -1,8 +1,11 @@
 #include <Novice.h>
 #define _USE_MATH_DEFINES
 #include <math.h>
+#include <stdlib.h>
+#include <time.h>
 
 #define PLAYER_BULLET_NUM 20  //プレイヤーが発射する弾の最大数
+#define ENEMY_NUM 10          //敵の最大数
 
 const char kWindowTitle[] = "shooting";
 
@@ -20,6 +23,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	int playerGH = Novice::LoadTexture("./images/player.png");           //プレイヤー画像
 	int playerBulletGH = Novice::LoadTexture("./images/bullet.png");     //プレイヤーの弾画像
 	int backgroundGH = Novice::LoadTexture("./images/background.png");   //背景画像
+	int enemyGH = Novice::LoadTexture("./images/enemy.png");            //敵画像
 
 	//プレイヤーの情報
 	float playerPosX = 330.0f;   //X座標
@@ -41,11 +45,34 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		isPlayerBulletShot[i] = false;
 	}
 
+	//敵の座標を決める為の乱数の最小値と最大値
+	int lower = 20;
+	int upper = 640;
+
+	// 乱数のシードを設定
+	srand((unsigned)time(NULL));
+
+	//敵の情報
+	float enemyPosX[ENEMY_NUM];      //X座標
+	float enemyPosY[ENEMY_NUM];      //Y座標
+	bool isEnemyAlive[ENEMY_NUM];    //敵が生存しているかのフラグ
+	float enemyR = 16.0f;            //半径
+
+	//敵の情報の配列を初期化
+	for (int i = 0; i < ENEMY_NUM; i++) {
+		//敵のX座標を決めるための乱数（20~640）を生成
+		int random_number = (rand() % (upper - lower + 1)) + lower;
+		enemyPosX[i] = (float)random_number;
+		//Y座標を80ずつ上にずらして生成
+		enemyPosY[i] = -80.0f * i;
+		isEnemyAlive[i] = true;
+	}
+
 	//アニメーション背景のY座標
 	int bgTopY = -720;
 	int bgMidY = 0;
 
-	//ゲームの経過フレームをカウント（仮置き、後でシーン切り替えする時に開始に変更する）
+	//ゲームの経過フレームをカウント
 	long long gameCount = 0;
 
 	// ウィンドウの×ボタンが押されるまでループ
@@ -132,6 +159,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			}
 		}
 
+		//敵を下に移動させる
+		for (int i = 0; i < ENEMY_NUM; i++) {
+			enemyPosY[i] += 1;
+		}
+
 		//アニメーション背景のY座標を増加
 		bgTopY += 5;
 		bgMidY += 5;
@@ -140,7 +172,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			bgMidY = 0;
 		}
 
-		//ゲームカウントを増加
+		//ゲームカウントを増加（仮置き、後でシーン切り替えする時に開始に変更する）
 		gameCount++;
 
 		///
@@ -189,11 +221,26 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				Novice::DrawSprite(
 					static_cast<int>(playerBulletPosX[i]) - static_cast<int>(playerBulletR),   //左上X座標(半径を引いて中心位置を調整)
 					static_cast<int>(playerBulletPosY[i]) - static_cast<int>(playerBulletR),   //左上Y座標(半径を引いて中心位置を調整)
-					playerBulletGH,                                                                  //ハンドル
+					playerBulletGH,                                                            //ハンドル
 					1,                                                                         //X倍率
 					1,                                                                         //Y倍率
 					0.0f,                                                                      //回転角
 					0xFFFFFFFF                                                                 //色
+				);
+			}
+		}
+
+		//生存している敵を描画
+		for (int i = 0; i < ENEMY_NUM; i++) {
+			if (isEnemyAlive[i]) {
+				Novice::DrawSprite(
+					static_cast<int>(enemyPosX[i]) - static_cast<int>(enemyR),
+					static_cast<int>(enemyPosY[i]) - static_cast<int>(enemyR),
+					enemyGH,
+					1,
+					1,
+					0.0f,
+					0xFFFFFFFF
 				);
 			}
 		}
