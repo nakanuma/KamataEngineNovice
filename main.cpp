@@ -87,8 +87,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	}
 
 	//アニメーション背景のY座標
-	int bgTopY = -720;
-	int bgMidY = 0;
+	int bgTopY = -720;       //上（画面外）にあるアニメーション背景
+	int bgMidY = 0;          //下（画面内）にあるアニメーション背景
 
 	//ゲームの経過フレームをカウント
 	long long gameCount = 0;
@@ -222,6 +222,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		//敵の弾の移動処理
 		for (int i = 0; i < ENEMY_BULLET_NUM; i++) {
 			if (isEnemyBulletShot[i]) {
+				//Y方向に速度を加算している
 				enemyBulletPosY[i] += enemyBulletSpd;
 				//敵の弾が画面外に出たらフラグをfalseに
 				if (enemyBulletPosY[i] > 720) {
@@ -253,8 +254,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		Novice::ScreenPrintf(700, 640, "%.1f,%.1f,", playerPosX, playerPosY); //自機の座標
 		Novice::ScreenPrintf(700, 660, "%.1f,%.1f", velX, velY);              //自機の速度
 		Novice::ScreenPrintf(700, 680, "%d", gameCount);                      //経過フレーム
-		Novice::ScreenPrintf(700, 40, "SCORE:%d", playerScore);               //スコアを表示
-		Novice::ScreenPrintf(700, 80, "ENEMYS LEFT:%d", enemysLeft);          //残りの敵の数
+		Novice::ScreenPrintf(700, 40, "score:%d", playerScore);               //スコアを表示
+		Novice::ScreenPrintf(700, 80, "enemys left:%d", enemysLeft);          //残りの敵の数
 
 		//アニメーション背景の描画
 		Novice::DrawSprite(
