@@ -5,7 +5,8 @@
 #include <time.h>
 
 #define PLAYER_BULLET_NUM 20  //プレイヤーが発射する弾の最大数
-#define ENEMY_NUM 20          //敵の最大数
+#define ENEMY_NUM 10          //敵の最大数
+#define ENEMY_BULLET_NUM 30   //敵が発射する弾の最大数
 
 const char kWindowTitle[] = "shooting";
 
@@ -22,8 +23,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	//画像読み込み
 	int playerGH = Novice::LoadTexture("./images/player.png");           //プレイヤー画像
 	int playerBulletGH = Novice::LoadTexture("./images/bullet.png");     //プレイヤーの弾画像
-	int backgroundGH = Novice::LoadTexture("./images/background.png");   //背景画像
-	int enemyGH = Novice::LoadTexture("./images/enemy.png");            //敵画像
+	int backgroundGH = Novice::LoadTexture("./images/background.png");   //アニメーション背景画像
+	int enemyGH = Novice::LoadTexture("./images/enemy.png");             //敵画像
+	int enemyBulletGH = Novice::LoadTexture("./images/enemyBullet.png");     //敵の弾画像
 
 	//プレイヤーの情報
 	float playerPosX = 330.0f;   //X座標
@@ -67,6 +69,20 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		//Y座標を80ずつ上にずらして生成
 		enemyPosY[i] = -80.0f * i;
 		isEnemyAlive[i] = true;
+	}
+
+	//敵の弾の情報
+	float enemyBulletPosX[ENEMY_BULLET_NUM];  //X座標
+	float enemyBulletPosY[ENEMY_BULLET_NUM];  //Y座標
+	bool isEnemyBulletShot[ENEMY_BULLET_NUM]; //弾が撃たれているかのフラグ
+	float enemyBulletR = 12.0f;               //半径
+	float enemyBulletSpd = 4.0f;              //速度
+
+	//敵の弾の情報を初期化
+	for (int i = 0; i < ENEMY_BULLET_NUM; i++) {
+		enemyBulletPosX[i] = 0.0f;
+		enemyBulletPosY[i] = 0.0f;
+		isEnemyBulletShot[i] = false;
 	}
 
 	//アニメーション背景のY座標
@@ -184,6 +200,28 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			}
 		}
 
+		//敵が弾を発射する
+		for (int i = 0; i < ENEMY_NUM; i++) {
+			for (int j = 0; j < ENEMY_BULLET_NUM; j++) {
+				//120フレームに1発
+				if (gameCount % 120 == 0) {
+					if (!isEnemyBulletShot[j]) {
+						enemyBulletPosX[j] = enemyPosX[i];
+						enemyBulletPosY[j] = enemyPosY[i];
+						isEnemyBulletShot[j] = true;
+						break;
+					}
+				}
+			}
+		}
+
+		//敵の弾の移動処理
+		for (int i = 0; i < ENEMY_BULLET_NUM; i++) {
+			if (isEnemyBulletShot[i]) {
+				enemyBulletPosY[i] += enemyBulletSpd;
+			}
+		}
+
 		//アニメーション背景のY座標を増加
 		bgTopY += 5;
 		bgMidY += 5;
@@ -262,6 +300,21 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 					1,
 					0.0f,
 					0xFFFFFFFF
+				);
+			}
+		}
+
+		//発射中の敵の弾を描画
+		for (int i = 0; i < ENEMY_BULLET_NUM;i++) {
+			if (isEnemyBulletShot[i]) {
+				Novice::DrawSprite(
+					static_cast<int>(enemyBulletPosX[i]) - static_cast<int>(enemyBulletR),     //左上X座標(半径を引いて中心位置を調整)
+					static_cast<int>(enemyBulletPosY[i]) - static_cast<int>(enemyBulletR),     //左上Y座標(半径を引いて中心位置を調整)
+					enemyBulletGH,                                                             //ハンドル
+					1,                                                                         //X倍率
+					1,                                                                         //Y倍率
+					0.0f,                                                                      //回転角
+					0xFFFFFFFF                                                                 //色
 				);
 			}
 		}
