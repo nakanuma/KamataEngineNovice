@@ -60,6 +60,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	float enemyPosY[ENEMY_NUM];      //Y座標
 	bool isEnemyAlive[ENEMY_NUM];    //敵が生存しているかのフラグ
 	float enemyR = 16.0f;            //半径
+	int enemysLeft = ENEMY_NUM;      //敵の残りカウント
 
 	//敵の情報の配列を初期化
 	for (int i = 0; i < ENEMY_NUM; i++) {
@@ -195,6 +196,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 						isEnemyAlive[j] = false;
 						//敵を倒す度にスコアを加算
 						playerScore += 500;
+						//敵を倒す度に敵の残りカウントを減らす
+						enemysLeft--;
 					}
 				}
 			}
@@ -203,10 +206,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		//敵が弾を発射する処理
 		for (int i = 0; i < ENEMY_NUM; i++) {
 			for (int j = 0; j < ENEMY_BULLET_NUM; j++) {
-				//120フレームに1発
-				if (gameCount % 120 == 0) {
-					//敵の弾が撃たれていないかつ敵が存在している場合のみ
-					if (!isEnemyBulletShot[j]&&isEnemyAlive[i]) {
+				//60フレームに1発
+				if (gameCount % 60 == 0) {
+					//敵の弾が撃たれていないかつ敵が存在しているかつ敵が画面内にいる場合のみ弾を発射
+					if (!isEnemyBulletShot[j] && isEnemyAlive[i] && enemyPosY[i] > 0) {
 						enemyBulletPosX[j] = enemyPosX[i];
 						enemyBulletPosY[j] = enemyPosY[i];
 						isEnemyBulletShot[j] = true;
@@ -251,6 +254,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		Novice::ScreenPrintf(700, 660, "%.1f,%.1f", velX, velY);              //自機の速度
 		Novice::ScreenPrintf(700, 680, "%d", gameCount);                      //経過フレーム
 		Novice::ScreenPrintf(700, 40, "SCORE:%d", playerScore);               //スコアを表示
+		Novice::ScreenPrintf(700, 80, "ENEMYS LEFT:%d", enemysLeft);          //残りの敵の数
 
 		//アニメーション背景の描画
 		Novice::DrawSprite(
@@ -294,6 +298,21 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			}
 		}
 
+		//発射中の敵の弾を描画
+		for (int i = 0; i < ENEMY_BULLET_NUM; i++) {
+			if (isEnemyBulletShot[i]) {
+				Novice::DrawSprite(
+					static_cast<int>(enemyBulletPosX[i]) - static_cast<int>(enemyBulletR),     //左上X座標(半径を引いて中心位置を調整)
+					static_cast<int>(enemyBulletPosY[i]) - static_cast<int>(enemyBulletR),     //左上Y座標(半径を引いて中心位置を調整)
+					enemyBulletGH,                                                             //ハンドル
+					1,                                                                         //X倍率
+					1,                                                                         //Y倍率
+					0.0f,                                                                      //回転角
+					0xFFFFFFFF                                                                 //色
+				);
+			}
+		}
+
 		//生存している敵を描画
 		for (int i = 0; i < ENEMY_NUM; i++) {
 			if (isEnemyAlive[i]) {
@@ -309,20 +328,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			}
 		}
 
-		//発射中の敵の弾を描画
-		for (int i = 0; i < ENEMY_BULLET_NUM; i++) {
-			if (isEnemyBulletShot[i]) {
-				Novice::DrawSprite(
-					static_cast<int>(enemyBulletPosX[i]) - static_cast<int>(enemyBulletR),     //左上X座標(半径を引いて中心位置を調整)
-					static_cast<int>(enemyBulletPosY[i]) - static_cast<int>(enemyBulletR),     //左上Y座標(半径を引いて中心位置を調整)
-					enemyBulletGH,                                                             //ハンドル
-					1,                                                                         //X倍率
-					1,                                                                         //Y倍率
-					0.0f,                                                                      //回転角
-					0xFFFFFFFF                                                                 //色
-				);
-			}
-		}
+		
 
 		///
 		/// ↑描画処理ここまで
