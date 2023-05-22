@@ -6,7 +6,7 @@
 
 #define PLAYER_BULLET_NUM 20  //プレイヤーが発射する弾の最大数
 #define ENEMY_NUM 10          //敵の最大数
-#define ENEMY_BULLET_NUM 30   //敵が発射する弾の最大数
+#define ENEMY_BULLET_NUM 100   //敵が発射する弾の最大数
 
 const char kWindowTitle[] = "shooting";
 
@@ -200,12 +200,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			}
 		}
 
-		//敵が弾を発射する
+		//敵が弾を発射する処理
 		for (int i = 0; i < ENEMY_NUM; i++) {
 			for (int j = 0; j < ENEMY_BULLET_NUM; j++) {
 				//120フレームに1発
 				if (gameCount % 120 == 0) {
-					if (!isEnemyBulletShot[j]) {
+					//敵の弾が撃たれていないかつ敵が存在している場合のみ
+					if (!isEnemyBulletShot[j]&&isEnemyAlive[i]) {
 						enemyBulletPosX[j] = enemyPosX[i];
 						enemyBulletPosY[j] = enemyPosY[i];
 						isEnemyBulletShot[j] = true;
@@ -219,6 +220,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		for (int i = 0; i < ENEMY_BULLET_NUM; i++) {
 			if (isEnemyBulletShot[i]) {
 				enemyBulletPosY[i] += enemyBulletSpd;
+				//敵の弾が画面外に出たらフラグをfalseに
+				if (enemyBulletPosY[i] > 720) {
+					isEnemyBulletShot[i] = false;
+				}
 			}
 		}
 
@@ -305,7 +310,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		}
 
 		//発射中の敵の弾を描画
-		for (int i = 0; i < ENEMY_BULLET_NUM;i++) {
+		for (int i = 0; i < ENEMY_BULLET_NUM; i++) {
 			if (isEnemyBulletShot[i]) {
 				Novice::DrawSprite(
 					static_cast<int>(enemyBulletPosX[i]) - static_cast<int>(enemyBulletR),     //左上X座標(半径を引いて中心位置を調整)
