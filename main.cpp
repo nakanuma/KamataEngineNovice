@@ -78,12 +78,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	bool isEnemyBulletShot[ENEMY_BULLET_NUM]; //弾が撃たれているかのフラグ
 	float enemyBulletR = 12.0f;               //半径
 	float enemyBulletSpd = 4.0f;              //速度
+	float enemyBulletVecX[ENEMY_BULLET_NUM];  //X方向のベクトル
+	float enemyBulletVecY[ENEMY_BULLET_NUM];  //Y方向のベクトル
 
 	//敵の弾の情報を初期化
 	for (int i = 0; i < ENEMY_BULLET_NUM; i++) {
 		enemyBulletPosX[i] = 0.0f;
 		enemyBulletPosY[i] = 0.0f;
 		isEnemyBulletShot[i] = false;
+		enemyBulletVecX[i] = 0.0f;
+		enemyBulletVecY[i] = 0.0f;
 	}
 
 	//アニメーション背景のY座標
@@ -222,8 +226,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		//敵の弾の移動処理
 		for (int i = 0; i < ENEMY_BULLET_NUM; i++) {
 			if (isEnemyBulletShot[i]) {
-				//Y方向に速度を加算している
-				enemyBulletPosY[i] += enemyBulletSpd;
+				//自機狙いをする処理
+				float xv = playerPosX - enemyBulletPosX[i];
+				float yv = playerPosY - enemyBulletPosY[i];
+				float v = sqrtf( xv* xv + yv * yv);
+				enemyBulletVecX[i] = (xv / v) * enemyBulletSpd;
+				enemyBulletVecY[i] = (yv / v) * enemyBulletSpd;
+				enemyBulletPosX[i] += enemyBulletVecX[i];
+				enemyBulletPosY[i] += enemyBulletVecY[i];
 				//敵の弾が画面外に出たらフラグをfalseに
 				if (enemyBulletPosY[i] > 720) {
 					isEnemyBulletShot[i] = false;
@@ -329,7 +339,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			}
 		}
 
-		
+
 
 		///
 		/// ↑描画処理ここまで
