@@ -4,8 +4,8 @@
 #include <stdlib.h>
 #include <time.h>
 
-#define PLAYER_BULLET_NUM 20  //プレイヤーが発射する弾の最大数
-#define ENEMY_NUM 10          //敵の最大数
+#define PLAYER_BULLET_NUM 20   //プレイヤーが発射する弾の最大数
+#define ENEMY_NUM 20           //敵の最大数
 #define ENEMY_BULLET_NUM 100   //敵が発射する弾の最大数
 
 const char kWindowTitle[] = "shooting";
@@ -77,13 +77,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	float enemyBulletPosY[ENEMY_BULLET_NUM];  //Y座標
 	bool isEnemyBulletShot[ENEMY_BULLET_NUM]; //弾が撃たれているかのフラグ
 	float enemyBulletR = 12.0f;               //半径
-	float enemyBulletSpd = 4.0f;              //速度
+	float enemyBulletSpd = 6.0f;              //速度
+	float enemyBulletVecX[ENEMY_BULLET_NUM];  //X方向のベクトル
+	float enemyBulletVecY[ENEMY_BULLET_NUM];  //Y方向のベクトル
 
 	//敵の弾の情報を初期化
 	for (int i = 0; i < ENEMY_BULLET_NUM; i++) {
 		enemyBulletPosX[i] = 0.0f;
 		enemyBulletPosY[i] = 0.0f;
 		isEnemyBulletShot[i] = false;
+		enemyBulletVecX[i] = 0.0f;
+		enemyBulletVecY[i] = 0.0f;
 	}
 
 	//アニメーション背景のY座標
@@ -192,7 +196,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 					//プレイヤーの弾が敵に衝突した場合、衝突した弾を消して敵を消滅させる
 					if (isEnemyAlive[j]) {
 						isPlayerBulletShot[i] = false;
-						//敵の体力が0になったら敵を消滅させる
 						isEnemyAlive[j] = false;
 						//敵を倒す度にスコアを加算
 						playerScore += 500;
@@ -206,10 +209,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		//敵が弾を発射する処理
 		for (int i = 0; i < ENEMY_NUM; i++) {
 			for (int j = 0; j < ENEMY_BULLET_NUM; j++) {
-				//60フレームに1発
-				if (gameCount % 60 == 0) {
+				//30フレームに1発
+				if (gameCount % 30 == 0) {
 					//敵の弾が撃たれていないかつ敵が存在しているかつ敵が画面内にいる場合のみ弾を発射
 					if (!isEnemyBulletShot[j] && isEnemyAlive[i] && enemyPosY[i] > 0) {
+						//プレイヤーに向かって移動するベクトルを計算
+						float xv = playerPosX - enemyPosX[i];
+						float yv = playerPosY - enemyPosY[i];
+						float v = sqrtf(xv * xv + yv * yv);
+						enemyBulletVecX[j] = (xv / v) * enemyBulletSpd;
+						enemyBulletVecY[j] = (yv / v) * enemyBulletSpd;
 						enemyBulletPosX[j] = enemyPosX[i];
 						enemyBulletPosY[j] = enemyPosY[i];
 						isEnemyBulletShot[j] = true;
@@ -222,17 +231,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		//敵の弾の移動処理
 		for (int i = 0; i < ENEMY_BULLET_NUM; i++) {
 			if (isEnemyBulletShot[i]) {
-				//発射された弾からプレイヤーへのベクトルを求める
-				float xv = playerPosX - enemyBulletPosX[i];
-				float yv = playerPosY - enemyBulletPosY[i];
-				float v = sqrtf( xv* xv + yv * yv);
-				float enemyBulletVecX = (xv / v) * enemyBulletSpd;
-				float enemyBulletVecY = (yv / v) * enemyBulletSpd;
-				//弾をプレイヤーの方向に移動させる
-				enemyBulletPosX[i] += enemyBulletVecX;
-				enemyBulletPosY[i] += enemyBulletVecY;
-				//敵の弾が画面外に出たらフラグをfalseに
-				if (enemyBulletPosY[i] > 720) {
+				//プレイヤーに向かって移動させる
+				enemyBulletPosX[i] += enemyBulletVecX[i];
+				enemyBulletPosY[i] += enemyBulletVecY[i];
+				//画面外に出たら削除
+				if (enemyBulletPosX[i] > 660 || enemyBulletPosX[i] < 0 || enemyBulletPosY[i] > 720 || enemyBulletPosY[i] < 0) {
 					isEnemyBulletShot[i] = false;
 				}
 			}
