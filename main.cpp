@@ -5,7 +5,7 @@
 #include <time.h>
 
 #define PLAYER_BULLET_NUM 20   //プレイヤーが発射する弾の最大数
-#define ENEMY_NUM 20           //敵の最大数
+#define ENEMY_NUM 10           //敵の最大数
 #define ENEMY_BULLET_NUM 100   //敵が発射する弾の最大数
 
 const char kWindowTitle[] = "shooting";
@@ -21,11 +21,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	char preKeys[256] = { 0 };
 
 	//画像読み込み
-	int playerGH = Novice::LoadTexture("./images/player.png");           //プレイヤー画像
-	int playerBulletGH = Novice::LoadTexture("./images/bullet.png");     //プレイヤーの弾画像
-	int backgroundGH = Novice::LoadTexture("./images/background.png");   //アニメーション背景画像
-	int enemyGH = Novice::LoadTexture("./images/enemy.png");             //敵画像
-	int enemyBulletGH = Novice::LoadTexture("./images/enemyBullet.png");     //敵の弾画像
+	int playerGH = Novice::LoadTexture("./images/player.png");           //プレイヤー
+	int playerBulletGH = Novice::LoadTexture("./images/bullet.png");     //プレイヤーの弾
+	int backgroundGH = Novice::LoadTexture("./images/background.png");   //アニメーション背景
+	int enemyGH = Novice::LoadTexture("./images/enemy.png");             //敵
+	int enemyBulletGH = Novice::LoadTexture("./images/enemyBullet.png"); //敵の弾
+	int explodeGH = Novice::LoadTexture("./images/explode.png");         //爆発
 
 	//プレイヤーの情報
 	float playerPosX = 330.0f;   //X座標
@@ -60,10 +61,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	float enemyPosY[ENEMY_NUM];      //Y座標
 	bool isEnemyAlive[ENEMY_NUM];    //敵が生存しているかのフラグ
 	float enemyR = 16.0f;            //半径
+	int enemyDeadCount[ENEMY_NUM];   //敵消滅時のカウント
 	int enemysLeft = ENEMY_NUM;      //敵の残りカウント
 
 	//敵の情報の配列を初期化
 	for (int i = 0; i < ENEMY_NUM; i++) {
+		enemyDeadCount[i] = 30;
 		//敵のX座標を決めるための乱数（20~640）を生成
 		int random_number = (rand() % (upper - lower + 1)) + lower;
 		enemyPosX[i] = (float)random_number;
@@ -156,9 +159,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			playerPosY = 720 - playerR;
 		}
 
-		//Zキーを押しているかつ6ループに一回、プレイヤーが弾を発射
+		//Zキーを押しているかつ12ループに一回、プレイヤーが弾を発射
 		if (keys[DIK_Z]) {
-			if (gameCount % 6 == 0) {
+			if (gameCount % 12 == 0) {
 				for (int i = 0; i < PLAYER_BULLET_NUM; i++) {
 					if (isPlayerBulletShot[i] == false) {
 						isPlayerBulletShot[i] = true;
@@ -183,7 +186,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		//敵を下方向に移動させる
 		for (int i = 0; i < ENEMY_NUM; i++) {
-			enemyPosY[i] += 1;
+			if (isEnemyAlive[i]) {
+				enemyPosY[i] += 1;
+			}
 		}
 
 		//プレイヤーの弾が敵に衝突した時の処理
@@ -206,11 +211,18 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			}
 		}
 
+		//敵が消滅した際、敵消滅時のカウントを減らす（爆発画像表示用）
+		for (int i = 0; i < ENEMY_NUM; i++) {
+			if (!isEnemyAlive[i]) {
+				enemyDeadCount[i]--;
+			}
+		}
+
 		//敵が弾を発射する処理
 		for (int i = 0; i < ENEMY_NUM; i++) {
 			for (int j = 0; j < ENEMY_BULLET_NUM; j++) {
-				//30フレームに1発
-				if (gameCount % 30 == 0) {
+				//20フレームに1発
+				if (gameCount % 20 == 0) {
 					//敵の弾が撃たれていないかつ敵が存在しているかつ敵が画面内にいる場合のみ弾を発射
 					if (!isEnemyBulletShot[j] && isEnemyAlive[i] && enemyPosY[i] > 0) {
 						//プレイヤーに向かって移動するベクトルを計算
@@ -339,7 +351,20 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			}
 		}
 
-
+		//敵が消滅した位置に爆発画像を描画
+		for (int i = 0; i < ENEMY_NUM; i++) {
+			if (!isEnemyAlive[i] && enemyDeadCount[i] > 0) {
+				Novice::DrawSprite(
+					static_cast<int>(enemyPosX[i]) - static_cast<int>(enemyR),
+					static_cast<int>(enemyPosY[i]) - static_cast<int>(enemyR),
+					explodeGH,
+					1,
+					1,
+					0.0f,
+					0xFFFFFFFF
+				);
+			}
+		}
 
 		///
 		/// ↑描画処理ここまで
@@ -347,7 +372,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		// フレームの終了
 		Novice::EndFrame();
-
+		Sleep(16);
 		// ESCキーが押されたらループを抜ける
 		if (preKeys[DIK_ESCAPE] == 0 && keys[DIK_ESCAPE] != 0) {
 			break;
