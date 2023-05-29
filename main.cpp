@@ -21,19 +21,23 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	char preKeys[256] = { 0 };
 
 	//画像読み込み
-	int playerGH = Novice::LoadTexture("./images/player.png");           //プレイヤー
-	int playerBulletGH = Novice::LoadTexture("./images/bullet.png");     //プレイヤーの弾
-	int backgroundGH = Novice::LoadTexture("./images/background.png");   //アニメーション背景
-	int enemyGH = Novice::LoadTexture("./images/enemy.png");             //敵
-	int enemyBulletGH = Novice::LoadTexture("./images/enemyBullet.png"); //敵の弾
-	int explodeGH = Novice::LoadTexture("./images/explode.png");         //爆発
+	int playerGH = Novice::LoadTexture("./images/player.png");                     //プレイヤー
+	int playerInvincible = Novice::LoadTexture("./images/playerInvincible.png");   //プレイヤー（被弾時）
+	int playerBulletGH = Novice::LoadTexture("./images/bullet.png");               //プレイヤーの弾
+	int backgroundGH = Novice::LoadTexture("./images/background.png");             //アニメーション背景
+	int enemyGH = Novice::LoadTexture("./images/enemy.png");                       //敵
+	int enemyBulletGH = Novice::LoadTexture("./images/enemyBullet.png");           //敵の弾
+	int explodeGH = Novice::LoadTexture("./images/explode.png");                   //爆発
 
 	//プレイヤーの情報
-	float playerPosX = 330.0f;   //X座標
-	float playerPosY = 640.0f;   //Y座標
-	float playerR = 16.0f;       //半径
-	float playerSpd = 6.0f;      //速度
-	int playerScore = 0;         //現在のスコア
+	float playerPosX = 330.0f;         //X座標
+	float playerPosY = 640.0f;         //Y座標
+	float playerR = 6.0f;             //半径
+	float playerSpd = 6.0f;            //速度
+	int playerScore = 0;               //現在のスコア
+	int playerHP = 3;                  //プレイヤーの体力
+	bool isPlayerInvincible = false;   //プレイヤーが無敵状態かのフラグ
+	int playerInvincibleCount = 0;     //プレイヤーの無敵時間カウント
 
 	//プレイヤーの弾の情報
 	float playerBulletPosX[PLAYER_BULLET_NUM];          //X座標
@@ -61,6 +65,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	float enemyPosY[ENEMY_NUM];      //Y座標
 	bool isEnemyAlive[ENEMY_NUM];    //敵が生存しているかのフラグ
 	float enemyR = 16.0f;            //半径
+	float enemySpd = 1.0f;           //速度
 	int enemyDeadCount[ENEMY_NUM];   //敵消滅時のカウント
 	int enemysLeft = ENEMY_NUM;      //敵の残りカウント
 	int enemyHP[ENEMY_NUM];          //敵の体力
@@ -163,14 +168,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		}
 
 		//Zキーを押しているかつ10ループに一回、プレイヤーが弾を発射
-		if (keys[DIK_Z]) {
-			if (gameCount % 5 == 0) {
-				for (int i = 0; i < PLAYER_BULLET_NUM; i++) {
-					if (isPlayerBulletShot[i] == false) {
-						isPlayerBulletShot[i] = true;
-						playerBulletPosX[i] = playerPosX;
-						playerBulletPosY[i] = playerPosY;
-						break;
+		if (!isPlayerInvincible) {
+			if (keys[DIK_Z]) {
+				if (gameCount % 5 == 0) {
+					for (int i = 0; i < PLAYER_BULLET_NUM; i++) {
+						if (isPlayerBulletShot[i] == false) {
+							isPlayerBulletShot[i] = true;
+							playerBulletPosX[i] = playerPosX;
+							playerBulletPosY[i] = playerPosY;
+							break;
+						}
 					}
 				}
 			}
@@ -190,7 +197,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		//敵を下方向に移動させる
 		for (int i = 0; i < ENEMY_NUM; i++) {
 			if (isEnemyAlive[i]) {
-				enemyPosY[i] += 1;
+				enemyPosY[i] += enemySpd;
 			}
 		}
 
@@ -261,6 +268,42 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			}
 		}
 
+		//敵の弾がプレイヤーに衝突した時の処理
+		for (int i = 0; i < ENEMY_BULLET_NUM; i++) {
+			float x = enemyBulletPosX[i] - playerPosX;
+			float y = enemyBulletPosY[i] - playerPosY;
+			float r = enemyBulletR + playerR;
+			if (x * x + y * y < r * r && isEnemyBulletShot[i]&&!isPlayerInvincible) {
+				//プレイヤーが敵の弾に衝突した場合、プレイヤーの体力を減少させてプレイヤーを無敵にする
+				playerHP--;
+				isPlayerInvincible = true;
+				//無敵時間を120にする
+				playerInvincibleCount = 120;
+				break;
+			}
+		}
+
+		//プレイヤーが無敵時間の時、敵の弾を全て消滅させる
+		if (isPlayerInvincible) {
+			for (int i = 0; i < ENEMY_BULLET_NUM; i++) {
+				isEnemyBulletShot[i] = false;
+				enemySpd = 0;
+			}
+		} else {
+			enemySpd = 1.0f;
+		}
+
+		//プレイヤーが無敵状態かつ無敵時間が残っている場合の処理
+		if (isPlayerInvincible && playerInvincibleCount > 0) {
+			//無敵時間のカウントを減らす
+			playerInvincibleCount--;
+			//無敵時間が終わった場合、無敵状態を解除する
+			if (playerInvincibleCount <= 0) {
+				isPlayerInvincible = false; 
+				playerInvincibleCount = 120;
+			}
+		}
+
 		//アニメーション背景のY座標を増加
 		bgTopY += 5;
 		bgMidY += 5;
@@ -286,6 +329,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		Novice::ScreenPrintf(700, 680, "%d", gameCount);                      //経過フレーム
 		Novice::ScreenPrintf(700, 40, "score:%d", playerScore);               //スコアを表示
 		Novice::ScreenPrintf(700, 80, "enemys left:%d", enemysLeft);          //残りの敵の数
+		Novice::ScreenPrintf(700, 120, "playerHP:%d", playerHP);          //残りの敵の数
 
 		//アニメーション背景の描画
 		Novice::DrawSprite(
@@ -304,15 +348,30 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		);
 
 		//プレイヤーの描画
-		Novice::DrawSprite(
-			static_cast<int>(playerPosX) - static_cast<int>(playerR),   //左上X座標(半径を引いて中心位置を調整)
-			static_cast<int>(playerPosY) - static_cast<int>(playerR),   //左上Y座標(半径を引いて中心位置を調整)
-			playerGH,                                                   //ハンドル
-			1,                                                          //X倍率
-			1,                                                          //Y倍率                
-			0.0f,                                                       //回転角
-			0xFFFFFFFF                                                  //色
-		);
+		if (!isPlayerInvincible) {
+			Novice::DrawSprite(
+				static_cast<int>(playerPosX) - static_cast<int>(playerR),   //左上X座標(半径を引いて中心位置を調整)
+				static_cast<int>(playerPosY) - static_cast<int>(playerR),   //左上Y座標(半径を引いて中心位置を調整)
+				playerGH,                                                   //ハンドル
+				1,                                                          //X倍率
+				1,                                                          //Y倍率                
+				0.0f,                                                       //回転角
+				0xFFFFFFFF                                                  //色
+			);
+		}
+
+		//プレイヤー被弾時の描画
+		if (isPlayerInvincible) {
+			Novice::DrawSprite(
+				static_cast<int>(playerPosX) - static_cast<int>(playerR),   //左上X座標(半径を引いて中心位置を調整)
+				static_cast<int>(playerPosY) - static_cast<int>(playerR),   //左上Y座標(半径を引いて中心位置を調整)
+				playerInvincible,                                                   //ハンドル
+				1,                                                          //X倍率
+				1,                                                          //Y倍率                
+				0.0f,                                                       //回転角
+				0xFFFFFFFF                                                  //色
+			);
+		}
 
 		//発射した弾の描画
 		for (int i = 0; i < PLAYER_BULLET_NUM; i++) {
