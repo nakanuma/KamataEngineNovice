@@ -40,7 +40,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	float playerBulletPosY[PLAYER_BULLET_NUM];          //Y座標
 	bool isPlayerBulletShot[PLAYER_BULLET_NUM];         //プレイヤーの弾が撃たれているかのフラグ
 	float playerBulletR = 8.0f;                         //半径
-	float playerBulletSpd = 24.0f;                      //速度
+	float playerBulletSpd = 32.0f;                      //速度
 
 	//プレイヤーの弾の情報の配列を初期化
 	for (int i = 0; i < PLAYER_BULLET_NUM; i++) {
@@ -63,10 +63,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	float enemyR = 16.0f;            //半径
 	int enemyDeadCount[ENEMY_NUM];   //敵消滅時のカウント
 	int enemysLeft = ENEMY_NUM;      //敵の残りカウント
+	int enemyHP[ENEMY_NUM];          //敵の体力
 
 	//敵の情報の配列を初期化
 	for (int i = 0; i < ENEMY_NUM; i++) {
 		enemyDeadCount[i] = 30;
+		//敵の体力を設定
+		enemyHP[i] = 4;
 		//敵のX座標を決めるための乱数（20~640）を生成
 		int random_number = (rand() % (upper - lower + 1)) + lower;
 		enemyPosX[i] = (float)random_number;
@@ -159,9 +162,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			playerPosY = 720 - playerR;
 		}
 
-		//Zキーを押しているかつ12ループに一回、プレイヤーが弾を発射
+		//Zキーを押しているかつ10ループに一回、プレイヤーが弾を発射
 		if (keys[DIK_Z]) {
-			if (gameCount % 12 == 0) {
+			if (gameCount % 5 == 0) {
 				for (int i = 0; i < PLAYER_BULLET_NUM; i++) {
 					if (isPlayerBulletShot[i] == false) {
 						isPlayerBulletShot[i] = true;
@@ -197,16 +200,21 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				float x = playerBulletPosX[i] - enemyPosX[j];
 				float y = playerBulletPosY[i] - enemyPosY[j];
 				float r = playerBulletR + enemyR;
-				if (x * x + y * y < r * r) {
-					//プレイヤーの弾が敵に衝突した場合、衝突した弾を消して敵を消滅させる
-					if (isEnemyAlive[j]) {
-						isPlayerBulletShot[i] = false;
-						isEnemyAlive[j] = false;
-						//敵を倒す度にスコアを加算
-						playerScore += 500;
-						//敵を倒す度に敵の残りカウントを減らす
-						enemysLeft--;
+				if (x * x + y * y < r * r && isEnemyAlive[j] && isPlayerBulletShot[i]) {
+					//プレイヤーの弾が敵に衝突した場合、衝突した弾を消して敵の体力を減少させる
+					isPlayerBulletShot[i] = false;
+					if (enemyHP[j] > 0) {
+						enemyHP[j]--;
+						//敵の体力が0になったら敵を消滅させる
+						if (enemyHP[j] <= 0) {
+							isEnemyAlive[j] = false;
+							//プレイヤーのスコアを加算
+							playerScore += 500;
+							//敵の残りカウントを減らす
+							enemysLeft--;
+						}
 					}
+					break; //衝突判定が発生した場合、内側のループを抜ける
 				}
 			}
 		}
