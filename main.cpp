@@ -66,9 +66,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	bool isEnemyAlive[ENEMY_NUM];    //敵が生存しているかのフラグ
 	float enemyR = 16.0f;            //半径
 	float enemySpd[ENEMY_NUM];       //速度
+	float enemyReturnSpd[ENEMY_NUM]; //帰還する時の速度
 	int enemyDeadCount[ENEMY_NUM];   //敵消滅時のカウント
 	int enemyHP[ENEMY_NUM];          //敵の体力
-	int enemyRapidCount = 60;        //敵の射撃間隔
+	int enemyTimeCount[ENEMY_NUM];   //敵が出現した後のカウント
+	int enemyRapidCount = 60;        //敵の射撃間隔のカウント
 	int enemyReturnCount[ENEMY_NUM]; //帰還カウント
 
 	//敵の情報の配列を初期化
@@ -83,7 +85,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		enemyPosY[i] = -80 + (-80.0f * i);
 		isEnemyAlive[i] = true;
 		enemySpd[i] = 2.0f;
+		enemyReturnSpd[i] = 4.0f;
 		enemyReturnCount[i] = 120;
+		enemyTimeCount[i] = 0;
 	}
 
 	//敵の弾の情報
@@ -181,6 +185,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			playerPosY = 720 - playerR;
 		}
 
+		//シフトキーを押している間は速度が半分になる
+		if (keys[DIK_LSHIFT]) {
+			playerSpd = 3.0f;
+		} else {
+			playerSpd = 6.0f;
+		}
+
 		//Zキーを押しているかつ10ループに一回、プレイヤーが弾を発射
 		if (keys[DIK_Z]) {
 			if (gameCount % 5 == 0) {
@@ -203,19 +214,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				//弾が画面外に出たらフラグをfalseにする
 				if (playerBulletPosY[i] < 0) {
 					isPlayerBulletShot[i] = false;
-				}
-			}
-		}
-
-		for (int i = 0; i < ENEMY_NUM; i++) {
-			enemyPosY[i] += enemySpd[i];
-			//敵0のY座標が140に到達したら止まり、帰還カウントを減らす
-			if (enemyPosY[i] == 140) {
-				enemySpd[i] = 0;
-				enemyReturnCount[i]--;
-				//帰還カウントが0になったら、敵0を帰還させる
-				if (enemyReturnCount[i] == 0) {
-					enemySpd[i] = -4.0f;
 				}
 			}
 		}
@@ -250,11 +248,40 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			}
 		}
 
+		//敵の移動処理
+		for (int i = 0; i < ENEMY_NUM; i++) {
+			enemyPosY[i] += enemySpd[i];
+			//敵0のY座標が140に到達したら止まり、帰還カウントを減らす
+			if (enemyPosY[i] == 140) {
+				enemySpd[i] = 0;
+				enemyReturnCount[i]--;
+				//帰還カウントが0になったら、敵0を帰還させる
+				if (enemyReturnCount[i] == 0) {
+					enemySpd[i] = -enemyReturnSpd[i];
+				}
+			}
+		}
+
+		//敵の体力が0になった場合、敵の速度を0にして固定
+		for (int i = 0; i < ENEMY_NUM; i++) {
+			if (enemyHP[i] == 0) {
+				enemySpd[i] = 0;
+				enemyReturnSpd[i] = 0;
+			}
+		}
+
+		//敵が画面内に出現してから敵の保持カウントを増加させる
+		for (int i = 0; i < ENEMY_NUM; i++) {
+			if (enemyPosY[i] > 0) {
+				enemyTimeCount[i]++;
+			}
+		}
+
 		//敵が弾を発射する処理
 		for (int i = 0; i < ENEMY_NUM; i++) {
 			for (int j = 0; j < ENEMY_BULLET_NUM; j++) {
 				//敵の射撃間隔毎に1発
-				if (gameCount % enemyRapidCount == 0) {
+				if (enemyTimeCount[i] % enemyRapidCount == 0) {
 					//敵の弾が撃たれていないかつ敵が存在しているかつ敵が画面内にいる場合のみ弾を発射
 					if (!isEnemyBulletShot[j] && isEnemyAlive[i] && enemyPosY[i] > 0) {
 						//プレイヤーに向かって移動するベクトルを計算
