@@ -6,7 +6,7 @@
 
 #define PLAYER_BULLET_NUM 20   //プレイヤーが発射する弾の最大数
 #define ENEMY_NUM 100          //敵の最大数
-#define ENEMY_BULLET_NUM 100   //敵が発射する弾の最大数
+#define ENEMY_BULLET_NUM 1000  //敵が発射する弾の最大数
 
 const char kWindowTitle[] = "shooting";
 
@@ -52,9 +52,12 @@ float enemyBulletR = 12.0f;               //半径
 float enemyBulletSpd = 5.0f;              //速度
 float enemyBulletVecX[ENEMY_BULLET_NUM];  //X方向のベクトル
 float enemyBulletVecY[ENEMY_BULLET_NUM];  //Y方向のベクトル
+int enemyBulletGHindex[ENEMY_BULLET_NUM];
 
 //ゲームの残り時間
 int gameLeftTime = 60;
+
+
 
 void InitializeGameScene() {
 	//プレイヤーの情報
@@ -83,43 +86,178 @@ void InitializeGameScene() {
 	}
 
 	//敵の情報
-	 enemyR = 16.0f;            //半径
-	 enemyRapidCount = 60;        //敵の射撃間隔のカウント
+	enemyR = 16.0f;            //半径
+	enemyRapidCount = 60;        //敵の射撃間隔のカウント
 
-	 //敵の座標を決める為の乱数の最小値と最大値
-	 int lower = 20;
-	 int upper = 640;
+	//敵の座標を決める為の乱数の最小値と最大値
+	int lower = 20;
+	int upper = 640;
 
-	 //敵の情報の配列を初期化
-	 for (int i = 0; i < ENEMY_NUM; i++) {
-		 enemyDeadCount[i] = 30;
-		 //敵の体力を設定
-		 enemyHP[i] = 2;
-		 //敵のX座標を決めるための乱数（20~640）を生成
-		 int random_number = (rand() % (upper - lower + 1)) + lower;
-		 enemyPosX[i] = (float)random_number;
-		 //Y座標を80ずつ上にずらして生成
-		 enemyPosY[i] = -80 + (-80.0f * i);
-		 isEnemyAlive[i] = true;
-		 enemySpd[i] = 2.0f;
-		 enemyReturnSpd[i] = 4.0f;
-		 enemyReturnCount[i] = 120;
-		 enemyTimeCount[i] = 0;
-	 }
+	//敵の情報の配列を初期化
+	for (int i = 0; i < ENEMY_NUM; i++) {
+		enemyDeadCount[i] = 30;
+		//敵の体力を設定
+		enemyHP[i] = 2;
+		//敵のX座標を決めるための乱数（20~640）を生成
+		int random_number = (rand() % (upper - lower + 1)) + lower;
+		enemyPosX[i] = (float)random_number;
+		//Y座標を80ずつ上にずらして生成
+		enemyPosY[i] = -80 + (-80.0f * i);
+		isEnemyAlive[i] = true;
+		enemySpd[i] = 2.0f;
+		enemyReturnSpd[i] = 4.0f;
+		enemyReturnCount[i] = 120;
+		enemyTimeCount[i] = 0;
+	}
 
-	 //敵の弾の情報を初期化
-	 for (int i = 0; i < ENEMY_BULLET_NUM; i++) {
-		 enemyBulletPosX[i] = 0.0f;
-		 enemyBulletPosY[i] = 0.0f;
-		 isEnemyBulletShot[i] = false;
-		 enemyBulletVecX[i] = 0.0f;
-		 enemyBulletVecY[i] = 0.0f;
-	 }
+	//敵の弾の情報を初期化
+	for (int i = 0; i < ENEMY_BULLET_NUM; i++) {
+		enemyBulletPosX[i] = 0.0f;
+		enemyBulletPosY[i] = 0.0f;
+		isEnemyBulletShot[i] = false;
+		enemyBulletVecX[i] = 0.0f;
+		enemyBulletVecY[i] = 0.0f;
+		enemyBulletGHindex[i] = 0;
+	}
 
-	 //ゲームの残り時間
-	 gameLeftTime = 60;
+	//ゲームの残り時間
+	gameLeftTime = 60;
 
 	return;
+}
+
+void EnemyShot(float posX, float posY) {
+	for (int j = 0; j < ENEMY_BULLET_NUM; j++) {
+		//敵の弾が撃たれていないかつ敵が存在しているかつ敵が画面内にいる場合のみ弾を発射
+		if (!isEnemyBulletShot[j]) {
+			//プレイヤーに向かって移動するベクトルを計算
+			float xv = playerPosX - posX;
+			float yv = playerPosY - posY;
+			float v = sqrtf(xv * xv + yv * yv);
+			enemyBulletVecX[j] = (xv / v) * enemyBulletSpd;
+			enemyBulletVecY[j] = (yv / v) * enemyBulletSpd;
+			enemyBulletPosX[j] = posX;
+			enemyBulletPosY[j] = posY;
+			isEnemyBulletShot[j] = true;
+			enemyBulletGHindex[j] = 0;
+			break;
+		}
+	}
+}
+
+void Enemy3Way(float posX, float posY) {
+	//真ん中の一発を撃つ
+	for (int j = 0; j < ENEMY_BULLET_NUM; j++) {
+		//敵の弾が撃たれていないかつ敵が存在しているかつ敵が画面内にいる場合のみ弾を発射
+		if (!isEnemyBulletShot[j]) {
+			//プレイヤーに向かって移動するベクトルを計算
+			float xv = playerPosX - posX;
+			float yv = playerPosY - posY;
+			float v = sqrtf(xv * xv + yv * yv);
+			enemyBulletVecX[j] = (xv / v) * enemyBulletSpd;
+			enemyBulletVecY[j] = (yv / v) * enemyBulletSpd;
+			enemyBulletPosX[j] = posX;
+			enemyBulletPosY[j] = posY;
+			isEnemyBulletShot[j] = true;
+			enemyBulletGHindex[j] = 1;
+			break;
+		}
+	}
+
+	//弾の間の角度
+	float angle = 30.f * (float)M_PI / 180.f;
+
+	//左の弾を撃つ
+	for (int j = 0; j < ENEMY_BULLET_NUM; j++) {
+		//敵の弾が撃たれていないかつ敵が存在しているかつ敵が画面内にいる場合のみ弾を発射
+		if (!isEnemyBulletShot[j]) {
+			//プレイヤーに向かって移動するベクトルを計算
+
+			float vx, vy;
+			vx = playerPosX - posX;
+			vy = playerPosY - posY;
+			float xv = vx * cosf(angle) - vy * sinf(angle);
+			float yv = vy * cosf(angle) + vx * sinf(angle);
+			float v = sqrtf(xv * xv + yv * yv);
+			enemyBulletVecX[j] = (xv / v) * enemyBulletSpd;
+			enemyBulletVecY[j] = (yv / v) * enemyBulletSpd;
+			enemyBulletPosX[j] = posX;
+			enemyBulletPosY[j] = posY;
+			isEnemyBulletShot[j] = true;
+			enemyBulletGHindex[j] = 1;
+			break;
+		}
+	}
+
+	//右の弾を撃つ
+	for (int j = 0; j < ENEMY_BULLET_NUM; j++) {
+		//敵の弾が撃たれていないかつ敵が存在しているかつ敵が画面内にいる場合のみ弾を発射
+		if (!isEnemyBulletShot[j]) {
+			//プレイヤーに向かって移動するベクトルを計算
+
+			float vx, vy;
+			vx = playerPosX - posX;
+			vy = playerPosY - posY;
+			float xv = vx * cosf(-angle) - vy * sinf(-angle);
+			float yv = vy * cosf(-angle) + vx * sinf(-angle);
+			float v = sqrtf(xv * xv + yv * yv);
+			enemyBulletVecX[j] = (xv / v) * enemyBulletSpd;
+			enemyBulletVecY[j] = (yv / v) * enemyBulletSpd;
+			enemyBulletPosX[j] = posX;
+			enemyBulletPosY[j] = posY;
+			isEnemyBulletShot[j] = true;
+			enemyBulletGHindex[j] = 1;
+			break;
+		}
+	}
+}
+
+void EnemyRandom(float posX, float posY) {
+	for (int j = 0; j < ENEMY_BULLET_NUM; j++) {
+		//敵の弾が撃たれていないかつ敵が存在しているかつ敵が画面内にいる場合のみ弾を発射
+		if (!isEnemyBulletShot[j]) {
+			//プレイヤーに向かって移動するベクトルを計算
+			float xv = float(rand() - RAND_MAX / 2);
+			float yv = float(rand() - RAND_MAX / 2);
+			float v = sqrtf(xv * xv + yv * yv);
+			enemyBulletVecX[j] = (xv / v) * enemyBulletSpd;
+			enemyBulletVecY[j] = (yv / v) * enemyBulletSpd;
+			enemyBulletPosX[j] = posX;
+			enemyBulletPosY[j] = posY;
+			isEnemyBulletShot[j] = true;
+			enemyBulletGHindex[j] = 2;
+			break;
+		}
+	}
+}
+
+void EnemyAllDirection(float posX, float posY) {
+	//弾の間の角度
+	float angle = 15.f * (float)M_PI / 180.f;
+
+	//左の弾を撃つ
+	for (int i = 0; i < 24; i++) {
+		for (int j = 0; j < ENEMY_BULLET_NUM; j++) {
+			//敵の弾が撃たれていないかつ敵が存在しているかつ敵が画面内にいる場合のみ弾を発射
+			if (!isEnemyBulletShot[j]) {
+				//プレイヤーに向かって移動するベクトルを計算
+
+				float vx, vy;
+				vx = playerPosX - posX;
+				vy = playerPosY - posY;
+				float xv = vx * cosf(i*angle) - vy * sinf(i*angle);
+				float yv = vy * cosf(i*angle) + vx * sinf(i*angle);
+				float v = sqrtf(xv * xv + yv * yv);
+				enemyBulletVecX[j] = (xv / v) * enemyBulletSpd;
+				enemyBulletVecY[j] = (yv / v) * enemyBulletSpd;
+				enemyBulletPosX[j] = posX;
+				enemyBulletPosY[j] = posY;
+				isEnemyBulletShot[j] = true;
+				enemyBulletGHindex[j] = 3;
+				break;
+			}
+		}
+	}
 }
 
 // Windowsアプリでのエントリーポイント(main関数)
@@ -152,7 +290,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	int gameClearGH = Novice::LoadTexture("./images/gameClear.png");               //ゲームクリア画面
 	int gameOverGH = Novice::LoadTexture("./images/gameOver.png");                 //ゲームクリア画面
 	int enemyGH = Novice::LoadTexture("./images/enemy.png");                       //敵
-	int enemyBulletGH = Novice::LoadTexture("./images/enemyBullet.png");           //敵の弾
+	int enemyBulletGH[] = {
+		Novice::LoadTexture("./images/enemyBullet0.png"),
+		Novice::LoadTexture("./images/enemyBullet1.png"),
+		Novice::LoadTexture("./images/enemyBullet2.png"),
+		Novice::LoadTexture("./images/enemyBullet3.png"),
+	};
+	
 	int explodeGH = Novice::LoadTexture("./images/explode.png");                   //爆発
 	int hpGH = Novice::LoadTexture("./images/hp.png");                             //ハート
 	int numberGH[10] = {
@@ -351,41 +495,32 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 			//敵が弾を発射する処理
 			for (int i = 0; i < ENEMY_NUM; i++) {
-				for (int j = 0; j < ENEMY_BULLET_NUM; j++) {
-					//敵の射撃間隔毎に1発
-					if (enemyTimeCount[i] % enemyRapidCount == 0) {
-						//敵の弾が撃たれていないかつ敵が存在しているかつ敵が画面内にいる場合のみ弾を発射
-						if (!isEnemyBulletShot[j] && isEnemyAlive[i] && enemyPosY[i] > 0) {
-							//プレイヤーに向かって移動するベクトルを計算
-							float xv = playerPosX - enemyPosX[i];
-							float yv = playerPosY - enemyPosY[i];
-							float v = sqrtf(xv * xv + yv * yv);
-							enemyBulletVecX[j] = (xv / v) * enemyBulletSpd;
-							enemyBulletVecY[j] = (yv / v) * enemyBulletSpd;
-							enemyBulletPosX[j] = enemyPosX[i];
-							enemyBulletPosY[j] = enemyPosY[i];
-							isEnemyBulletShot[j] = true;
-							break;
+				if (enemyTimeCount[i] % enemyRapidCount == 0) {
+					if (isEnemyAlive[i] && enemyPosY[i] > 0) {
+						//60~50秒
+						if (gameLeftTime >= 50) {
+							EnemyShot(enemyPosX[i], enemyPosY[i]);
+						}
+						//50秒~40秒
+						else if (gameLeftTime >= 40) {
+							//射撃間隔を早くする
+							enemyRapidCount = 6;
+							EnemyRandom(enemyPosX[i], enemyPosY[i]);
+						}
+						//40~30秒
+						else if (gameLeftTime >= 30) {
+							//射撃間隔を少し遅くする
+							enemyRapidCount = 80;
+							Enemy3Way(enemyPosX[i], enemyPosY[i]);
+						}
+						//30秒~20秒
+						else if (gameLeftTime >= 20) {
+							//射撃間隔を少し遅くする
+							enemyRapidCount = 140;
+							EnemyAllDirection(enemyPosX[i], enemyPosY[i]);
 						}
 					}
 				}
-			}
-
-			//残り時間で敵の射撃間隔を短くする
-			if (gameLeftTime < 50) {
-				enemyRapidCount = 50;
-			}
-
-			if (gameLeftTime < 40) {
-				enemyRapidCount = 40;
-			}
-
-			if (gameLeftTime < 30) {
-				enemyRapidCount = 30;
-			}
-
-			if (gameLeftTime < 20) {
-				enemyRapidCount = 20;
 			}
 
 			//敵の弾の移動処理
@@ -537,7 +672,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 					Novice::DrawSprite(
 						static_cast<int>(enemyBulletPosX[i]) - static_cast<int>(enemyBulletR),     //左上X座標(半径を引いて中心位置を調整)
 						static_cast<int>(enemyBulletPosY[i]) - static_cast<int>(enemyBulletR),     //左上Y座標(半径を引いて中心位置を調整)
-						enemyBulletGH,                                                             //ハンドル
+						enemyBulletGH[enemyBulletGHindex[i]],                                      //ハンドル
 						1,                                                                         //X倍率
 						1,                                                                         //Y倍率
 						0.0f,                                                                      //回転角
@@ -634,11 +769,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			scoreTemp /= 10;
 			scoreDigit[4] = (scoreTemp % 10);
 
-			//10000の位を表示
+			//10000~1の位を表示
 			for (int i = 0; i < 5; i++) {
 				Novice::DrawSprite(
-					820+(i*22), 94,
-					numberGH[scoreDigit[4-i]],
+					820 + (i * 22), 94,
+					numberGH[scoreDigit[4 - i]],
 					0.5f, 0.5f,
 					0.0f,
 					0xFFFFFFFF
