@@ -63,6 +63,7 @@ bool isBossAlive;        //生存しているかのフラグ
 
 //ゲームの残り時間
 int gameLeftTime = 60;
+long long gameCount = 0;
 
 bool isSpiralActive;
 float spiralAngle = 0;
@@ -95,7 +96,7 @@ void InitializeGameScene() {
 
 	//敵の情報
 	enemyR = 16.0f;            //半径
-	enemyRapidCount = 60;        //敵の射撃間隔のカウント
+	enemyRapidCount = 40;        //敵の射撃間隔のカウント
 
 	//敵の座標を決める為の乱数の最小値と最大値
 	int lower = 20;
@@ -139,7 +140,8 @@ void InitializeGameScene() {
 	spiralAngle = 0;
 
 	//ゲームの残り時間
-	gameLeftTime = 25;
+	gameLeftTime = 60;
+	gameCount = 0;
 
 	return;
 }
@@ -279,8 +281,10 @@ void EnemyAllDirection(float posX, float posY) {
 }
 
 void BossSpiralStart() {
-	isSpiralActive = true;
-	spiralAngle = 0;
+	if (!isSpiralActive) {
+		isSpiralActive = true;
+		spiralAngle = 0;
+	}
 }
 
 void BossSpiralUpdate(float posX, float posY) {
@@ -305,8 +309,8 @@ void BossSpiralUpdate(float posX, float posY) {
 					break;
 				}
 			}
-			spiralAngle += float(15.f * M_PI / 180.f);
-			if (spiralAngle > 4 * M_PI) {
+			spiralAngle += float(14.f * M_PI / 180.f);
+			if (spiralAngle > 14 * M_PI) {
 				isSpiralActive = false;
 			}
 	}
@@ -375,9 +379,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	//アニメーション背景のY座標
 	int bgTopY = -720;       //上（画面外）にあるアニメーション背景
 	int bgMidY = 0;          //下（画面内）にあるアニメーション背景
-
-	//ゲームの経過フレームをカウント
-	long long gameCount = 0;
 
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
@@ -565,7 +566,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 						//40~30秒
 						else if (gameLeftTime >= 30) {
 							//射撃間隔を少し遅くする
-							enemyRapidCount = 80;
+							enemyRapidCount = 60;
 							Enemy3Way(enemyPosX[i], enemyPosY[i]);
 						}
 						//30秒~20秒
@@ -588,6 +589,23 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				BossSpiralStart();
 			}
 
+			if (gameLeftTime <= 16 && gameLeftTime >= 14 && gameCount % 25 == 0) {
+				Enemy3Way(bossPosX, bossPosY);
+			}
+
+			if (gameLeftTime == 14) {
+				BossSpiralStart();
+			}
+
+
+			if (gameLeftTime <= 9&&gameCount%60==0) {
+				EnemyAllDirection(bossPosX,bossPosY);
+			}
+
+			if (gameLeftTime <= 9 && gameCount % 1 == 0) {
+				EnemyRandom(bossPosX, bossPosY);
+			}
+
 			//プレイヤーの弾がボスに衝突した際の処理
 			for (int i = 0; i < PLAYER_BULLET_NUM; i++) {
 					float x = playerBulletPosX[i] - bossPosX;
@@ -595,14 +613,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 					float r = playerBulletR + bossR;
 					if (x * x + y * y < r * r && isBossAlive&& isPlayerBulletShot[i]) {
 						//プレイヤーの弾が敵に衝突した場合、衝突した弾を消して敵の体力を減少させる
+						playerScore += 100;
 						isPlayerBulletShot[i] = false;
 						if (bossHP > 0) {
 							bossHP--;
 							//敵の体力が0になったら敵を消滅させる
 							if (bossHP <= 0) {
 								isBossAlive = false;
-								//プレイヤーのスコアを加算
-								playerScore += 20000;
 							}
 						}
 						break; //衝突判定が発生した場合、内側のループを抜ける
@@ -626,7 +643,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			for (int i = 0; i < ENEMY_BULLET_NUM; i++) {
 				float x = enemyBulletPosX[i] - playerPosX;
 				float y = enemyBulletPosY[i] - playerPosY;
-				float r = enemyBulletR + (playerR - 10);
+				float r = enemyBulletR + (playerR - 12);
 				if (x * x + y * y < r * r && isEnemyBulletShot[i] && !isPlayerInvincible) {
 					//プレイヤーが敵の弾に衝突した場合、プレイヤーの体力を減少させてプレイヤーを無敵にする
 					playerHP--;
