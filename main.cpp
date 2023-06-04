@@ -5,7 +5,7 @@
 #include <time.h>
 
 #define PLAYER_BULLET_NUM 20   //プレイヤーが発射する弾の最大数
-#define ENEMY_NUM 10           //敵の最大数
+#define ENEMY_NUM 100          //敵の最大数
 #define ENEMY_BULLET_NUM 100   //敵が発射する弾の最大数
 
 const char kWindowTitle[] = "shooting";
@@ -32,7 +32,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	//プレイヤーの情報
 	float playerPosX = 330.0f;         //X座標
 	float playerPosY = 640.0f;         //Y座標
-	float playerR = 6.0f;             //半径
+	float playerR = 16.0f;             //半径
 	float playerSpd = 6.0f;            //速度
 	int playerScore = 0;               //現在のスコア
 	int playerHP = 3;                  //プレイヤーの体力
@@ -65,22 +65,25 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	float enemyPosY[ENEMY_NUM];      //Y座標
 	bool isEnemyAlive[ENEMY_NUM];    //敵が生存しているかのフラグ
 	float enemyR = 16.0f;            //半径
-	float enemySpd = 1.0f;           //速度
+	float enemySpd[ENEMY_NUM];       //速度
 	int enemyDeadCount[ENEMY_NUM];   //敵消滅時のカウント
-	int enemysLeft = ENEMY_NUM;      //敵の残りカウント
 	int enemyHP[ENEMY_NUM];          //敵の体力
+	int enemyRapidCount = 60;        //敵の射撃間隔
+	int enemyReturnCount[ENEMY_NUM]; //帰還カウント
 
 	//敵の情報の配列を初期化
 	for (int i = 0; i < ENEMY_NUM; i++) {
 		enemyDeadCount[i] = 30;
 		//敵の体力を設定
-		enemyHP[i] = 4;
+		enemyHP[i] = 2;
 		//敵のX座標を決めるための乱数（20~640）を生成
 		int random_number = (rand() % (upper - lower + 1)) + lower;
 		enemyPosX[i] = (float)random_number;
 		//Y座標を80ずつ上にずらして生成
-		enemyPosY[i] = -80.0f * i;
+		enemyPosY[i] = -80 + (-80.0f * i);
 		isEnemyAlive[i] = true;
+		enemySpd[i] = 2.0f;
+		enemyReturnCount[i] = 120;
 	}
 
 	//敵の弾の情報
@@ -88,7 +91,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	float enemyBulletPosY[ENEMY_BULLET_NUM];  //Y座標
 	bool isEnemyBulletShot[ENEMY_BULLET_NUM]; //弾が撃たれているかのフラグ
 	float enemyBulletR = 12.0f;               //半径
-	float enemyBulletSpd = 6.0f;              //速度
+	float enemyBulletSpd = 5.0f;              //速度
 	float enemyBulletVecX[ENEMY_BULLET_NUM];  //X方向のベクトル
 	float enemyBulletVecY[ENEMY_BULLET_NUM];  //Y方向のベクトル
 
@@ -108,6 +111,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	//ゲームの経過フレームをカウント
 	long long gameCount = 0;
 
+	//ゲームの残り時間
+	int gameLeftTime = 60;
+
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
 		// フレームの開始
@@ -120,6 +126,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 		/// ↓更新処理ここから
 		///
+
+		//経過フレームを増加
+		gameCount++;
+
+		//残り時間を1秒毎に減少
+		if (gameCount % 60 == 0) {
+			gameLeftTime--;
+		}
 
 		//プレイヤーのキー移動
 		float velX = 0;
@@ -168,20 +182,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		}
 
 		//Zキーを押しているかつ10ループに一回、プレイヤーが弾を発射
-		if (!isPlayerInvincible) {
-			if (keys[DIK_Z]) {
-				if (gameCount % 5 == 0) {
-					for (int i = 0; i < PLAYER_BULLET_NUM; i++) {
-						if (isPlayerBulletShot[i] == false) {
-							isPlayerBulletShot[i] = true;
-							playerBulletPosX[i] = playerPosX;
-							playerBulletPosY[i] = playerPosY;
-							break;
-						}
+		if (keys[DIK_Z]) {
+			if (gameCount % 5 == 0) {
+				for (int i = 0; i < PLAYER_BULLET_NUM; i++) {
+					if (isPlayerBulletShot[i] == false) {
+						isPlayerBulletShot[i] = true;
+						playerBulletPosX[i] = playerPosX;
+						playerBulletPosY[i] = playerPosY;
+						break;
 					}
 				}
 			}
 		}
+
 
 		//プレイヤーの弾を移動させる処理
 		for (int i = 0; i < PLAYER_BULLET_NUM; i++) {
@@ -194,10 +207,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			}
 		}
 
-		//敵を下方向に移動させる
 		for (int i = 0; i < ENEMY_NUM; i++) {
-			if (isEnemyAlive[i]) {
-				enemyPosY[i] += enemySpd;
+			enemyPosY[i] += enemySpd[i];
+			//敵0のY座標が140に到達したら止まり、帰還カウントを減らす
+			if (enemyPosY[i] == 140) {
+				enemySpd[i] = 0;
+				enemyReturnCount[i]--;
+				//帰還カウントが0になったら、敵0を帰還させる
+				if (enemyReturnCount[i] == 0) {
+					enemySpd[i] = -4.0f;
+				}
 			}
 		}
 
@@ -217,8 +236,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 							isEnemyAlive[j] = false;
 							//プレイヤーのスコアを加算
 							playerScore += 500;
-							//敵の残りカウントを減らす
-							enemysLeft--;
 						}
 					}
 					break; //衝突判定が発生した場合、内側のループを抜ける
@@ -236,8 +253,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		//敵が弾を発射する処理
 		for (int i = 0; i < ENEMY_NUM; i++) {
 			for (int j = 0; j < ENEMY_BULLET_NUM; j++) {
-				//20フレームに1発
-				if (gameCount % 20 == 0) {
+				//敵の射撃間隔毎に1発
+				if (gameCount % enemyRapidCount == 0) {
 					//敵の弾が撃たれていないかつ敵が存在しているかつ敵が画面内にいる場合のみ弾を発射
 					if (!isEnemyBulletShot[j] && isEnemyAlive[i] && enemyPosY[i] > 0) {
 						//プレイヤーに向かって移動するベクトルを計算
@@ -253,6 +270,23 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 					}
 				}
 			}
+		}
+
+		//残り時間で敵の射撃間隔を短くする
+		if (gameLeftTime < 50) {
+			enemyRapidCount = 50;
+		}
+
+		if (gameLeftTime < 40) {
+			enemyRapidCount = 40;
+		}
+
+		if (gameLeftTime < 30) {
+			enemyRapidCount = 30;
+		}
+
+		if (gameLeftTime < 20) {
+			enemyRapidCount = 20;
 		}
 
 		//敵の弾の移動処理
@@ -272,8 +306,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		for (int i = 0; i < ENEMY_BULLET_NUM; i++) {
 			float x = enemyBulletPosX[i] - playerPosX;
 			float y = enemyBulletPosY[i] - playerPosY;
-			float r = enemyBulletR + playerR;
-			if (x * x + y * y < r * r && isEnemyBulletShot[i]&&!isPlayerInvincible) {
+			float r = enemyBulletR + (playerR - 10);
+			if (x * x + y * y < r * r && isEnemyBulletShot[i] && !isPlayerInvincible) {
 				//プレイヤーが敵の弾に衝突した場合、プレイヤーの体力を減少させてプレイヤーを無敵にする
 				playerHP--;
 				isPlayerInvincible = true;
@@ -283,23 +317,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			}
 		}
 
-		//プレイヤーが無敵時間の時、敵の弾を全て消滅させる
-		if (isPlayerInvincible) {
-			for (int i = 0; i < ENEMY_BULLET_NUM; i++) {
-				isEnemyBulletShot[i] = false;
-				enemySpd = 0;
-			}
-		} else {
-			enemySpd = 1.0f;
-		}
-
 		//プレイヤーが無敵状態かつ無敵時間が残っている場合の処理
 		if (isPlayerInvincible && playerInvincibleCount > 0) {
 			//無敵時間のカウントを減らす
 			playerInvincibleCount--;
 			//無敵時間が終わった場合、無敵状態を解除する
 			if (playerInvincibleCount <= 0) {
-				isPlayerInvincible = false; 
+				isPlayerInvincible = false;
 				playerInvincibleCount = 120;
 			}
 		}
@@ -311,9 +335,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			bgTopY = -720;
 			bgMidY = 0;
 		}
-
-		//ゲームカウントを増加（仮置き、後でシーン切り替えする時に開始に変更する）
-		gameCount++;
 
 		///
 		/// ↑更新処理ここまで
@@ -327,9 +348,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		Novice::ScreenPrintf(700, 640, "%.1f,%.1f,", playerPosX, playerPosY); //自機の座標
 		Novice::ScreenPrintf(700, 660, "%.1f,%.1f", velX, velY);              //自機の速度
 		Novice::ScreenPrintf(700, 680, "%d", gameCount);                      //経過フレーム
+		Novice::ScreenPrintf(700, 300, "left time:%d", gameLeftTime);         //残り時間
 		Novice::ScreenPrintf(700, 40, "score:%d", playerScore);               //スコアを表示
-		Novice::ScreenPrintf(700, 80, "enemys left:%d", enemysLeft);          //残りの敵の数
-		Novice::ScreenPrintf(700, 120, "playerHP:%d", playerHP);          //残りの敵の数
+		Novice::ScreenPrintf(700, 120, "playerHP:%d", playerHP);              //プレイヤーの体力
 
 		//アニメーション背景の描画
 		Novice::DrawSprite(
@@ -439,7 +460,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		// フレームの終了
 		Novice::EndFrame();
-		Sleep(16);
 		// ESCキーが押されたらループを抜ける
 		if (preKeys[DIK_ESCAPE] == 0 && keys[DIK_ESCAPE] != 0) {
 			break;
