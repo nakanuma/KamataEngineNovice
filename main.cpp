@@ -54,10 +54,18 @@ float enemyBulletVecX[ENEMY_BULLET_NUM];  //X方向のベクトル
 float enemyBulletVecY[ENEMY_BULLET_NUM];  //Y方向のベクトル
 int enemyBulletGHindex[ENEMY_BULLET_NUM];
 
+//ボスの情報
+float bossPosX = 330.f;  //X座標
+float bossPosY = -64.0;  //Y座標
+float bossR = 32.f;      //半径
+int bossHP = 1000;       //体力
+bool isBossAlive;        //生存しているかのフラグ
+
 //ゲームの残り時間
 int gameLeftTime = 60;
 
-
+bool isSpiralActive;
+float spiralAngle = 0;
 
 void InitializeGameScene() {
 	//プレイヤーの情報
@@ -120,8 +128,18 @@ void InitializeGameScene() {
 		enemyBulletGHindex[i] = 0;
 	}
 
+	//ボスの情報
+	bossPosX = 330.f;  //X座標
+	bossPosY = -64.0;  //Y座標
+	bossR = 32.f;      //半径
+	bossHP = 1000;     //体力
+	isBossAlive = true;//生存フラグ
+
+	isSpiralActive = false;
+	spiralAngle = 0;
+
 	//ゲームの残り時間
-	gameLeftTime = 60;
+	gameLeftTime = 25;
 
 	return;
 }
@@ -245,8 +263,8 @@ void EnemyAllDirection(float posX, float posY) {
 				float vx, vy;
 				vx = playerPosX - posX;
 				vy = playerPosY - posY;
-				float xv = vx * cosf(i*angle) - vy * sinf(i*angle);
-				float yv = vy * cosf(i*angle) + vx * sinf(i*angle);
+				float xv = vx * cosf(i * angle) - vy * sinf(i * angle);
+				float yv = vy * cosf(i * angle) + vx * sinf(i * angle);
 				float v = sqrtf(xv * xv + yv * yv);
 				enemyBulletVecX[j] = (xv / v) * enemyBulletSpd;
 				enemyBulletVecY[j] = (yv / v) * enemyBulletSpd;
@@ -257,6 +275,40 @@ void EnemyAllDirection(float posX, float posY) {
 				break;
 			}
 		}
+	}
+}
+
+void BossSpiralStart() {
+	isSpiralActive = true;
+	spiralAngle = 0;
+}
+
+void BossSpiralUpdate(float posX, float posY) {
+	if (isSpiralActive) {
+			for (int j = 0; j < ENEMY_BULLET_NUM; j++) {
+				//敵の弾が撃たれていないかつ敵が存在しているかつ敵が画面内にいる場合のみ弾を発射
+				if (!isEnemyBulletShot[j]) {
+					//プレイヤーに向かって移動するベクトルを計算
+
+					float vx, vy;
+					vx = playerPosX - posX;
+					vy = playerPosY - posY;
+					float xv = vx * cosf(spiralAngle) - vy * sinf(spiralAngle);
+					float yv = vy * cosf(spiralAngle) + vx * sinf(spiralAngle);
+					float v = sqrtf(xv * xv + yv * yv);
+					enemyBulletVecX[j] = (xv / v) * enemyBulletSpd;
+					enemyBulletVecY[j] = (yv / v) * enemyBulletSpd;
+					enemyBulletPosX[j] = posX;
+					enemyBulletPosY[j] = posY;
+					isEnemyBulletShot[j] = true;
+					enemyBulletGHindex[j] = 4;
+					break;
+				}
+			}
+			spiralAngle += float(15.f * M_PI / 180.f);
+			if (spiralAngle > 4 * M_PI) {
+				isSpiralActive = false;
+			}
 	}
 }
 
@@ -290,13 +342,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	int gameClearGH = Novice::LoadTexture("./images/gameClear.png");               //ゲームクリア画面
 	int gameOverGH = Novice::LoadTexture("./images/gameOver.png");                 //ゲームクリア画面
 	int enemyGH = Novice::LoadTexture("./images/enemy.png");                       //敵
+	int bossGH = Novice::LoadTexture("./images/boss.png");                         //ボス
+
 	int enemyBulletGH[] = {
 		Novice::LoadTexture("./images/enemyBullet0.png"),
 		Novice::LoadTexture("./images/enemyBullet1.png"),
 		Novice::LoadTexture("./images/enemyBullet2.png"),
 		Novice::LoadTexture("./images/enemyBullet3.png"),
+		Novice::LoadTexture("./images/enemyBullet4.png"),
 	};
-	
+
 	int explodeGH = Novice::LoadTexture("./images/explode.png");                   //爆発
 	int hpGH = Novice::LoadTexture("./images/hp.png");                             //ハート
 	int numberGH[10] = {
@@ -468,11 +523,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			for (int i = 0; i < ENEMY_NUM; i++) {
 				enemyPosY[i] += enemySpd[i];
 				//敵0のY座標が140に到達したら止まり、帰還カウントを減らす
-				if (enemyPosY[i] == 140) {
+				if (enemyPosY[i] == 140 || gameLeftTime <= 21) {
 					enemySpd[i] = 0;
 					enemyReturnCount[i]--;
-					//帰還カウントが0になったら、敵0を帰還させる
-					if (enemyReturnCount[i] == 0) {
+					//帰還カウントが0になる、または20秒になったら敵0を帰還させる
+					if (enemyReturnCount[i] == 0 || gameLeftTime <= 21) {
 						enemySpd[i] = -enemyReturnSpd[i];
 					}
 				}
@@ -521,6 +576,37 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 						}
 					}
 				}
+			}
+
+			//ボスの移動処理
+			if (gameLeftTime <= 21 && bossPosY <= 140) {
+				bossPosY += 1;
+			}
+
+			BossSpiralUpdate(bossPosX,bossPosY);
+			if (gameLeftTime == 19) {
+				BossSpiralStart();
+			}
+
+			//プレイヤーの弾がボスに衝突した際の処理
+			for (int i = 0; i < PLAYER_BULLET_NUM; i++) {
+					float x = playerBulletPosX[i] - bossPosX;
+					float y = playerBulletPosY[i] - bossPosY;
+					float r = playerBulletR + bossR;
+					if (x * x + y * y < r * r && isBossAlive&& isPlayerBulletShot[i]) {
+						//プレイヤーの弾が敵に衝突した場合、衝突した弾を消して敵の体力を減少させる
+						isPlayerBulletShot[i] = false;
+						if (bossHP > 0) {
+							bossHP--;
+							//敵の体力が0になったら敵を消滅させる
+							if (bossHP <= 0) {
+								isBossAlive = false;
+								//プレイヤーのスコアを加算
+								playerScore += 20000;
+							}
+						}
+						break; //衝突判定が発生した場合、内側のループを抜ける
+					}
 			}
 
 			//敵の弾の移動処理
@@ -608,6 +694,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		case GAME:
 		{
 			//ここからゲームの描画
+
+			//デバッグ用文字列
+			Novice::ScreenPrintf(700, 700, "%d", bossHP);
 
 			//アニメーション背景の描画
 			Novice::DrawSprite(
@@ -709,6 +798,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 						0xFFFFFFFF
 					);
 				}
+			}
+
+			//ボスの描画
+			if (isBossAlive) {
+				Novice::DrawSprite(
+					static_cast<int>(bossPosX) - static_cast<int>(bossR),
+					static_cast<int>(bossPosY) - static_cast<int>(bossR),
+					bossGH,
+					1,
+					1,
+					0.0f,
+					0xFFFFFFFF
+				);
 			}
 
 			//画面右の背景
