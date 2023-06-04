@@ -343,6 +343,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	int backgroundGH = Novice::LoadTexture("./images/background.png");             //アニメーション背景
 	int backgroundRightGH = Novice::LoadTexture("./images/backgroundRight.png");   //画面右の背景
 	int titleGH = Novice::LoadTexture("./images/title.png");                       //タイトル画面
+	int titleLetterGH = Novice::LoadTexture("./images/titleLetter.png");           //タイトル文字
 	int gameClearGH = Novice::LoadTexture("./images/gameClear.png");               //ゲームクリア画面
 	int gameOverGH = Novice::LoadTexture("./images/gameOver.png");                 //ゲームクリア画面
 	int enemyGH = Novice::LoadTexture("./images/enemy.png");                       //敵
@@ -401,6 +402,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				scene = GAME;
 				InitializeGameScene();
 			}
+			gameCount++;
 			break;
 
 		case GAME:
@@ -698,6 +700,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		switch (scene)
 		{
 		case TITLE:
+			//タイトル背景
 			Novice::DrawSprite(
 				0, 0,
 				titleGH,
@@ -706,7 +709,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				0xFFFFFFFF
 			);
 
-			Novice::ScreenPrintf(20, 20, "start:SPACE");
+			//タイトル文字
+			Novice::DrawSprite(
+				0, (int)(0+sinf((float)gameCount* (float)M_PI*2.0f/180.f)*50),
+				titleLetterGH,
+				1, 1,
+				0.0f,
+				0xFFFFFFFF
+			);
 			break;
 		case GAME:
 		{
