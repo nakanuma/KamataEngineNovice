@@ -65,6 +65,9 @@ bool isBossAlive;        //生存しているかのフラグ
 int gameLeftTime = 60;
 long long gameCount = 0;
 
+//ずっとカウントする
+long long allTheTimeCount = 0;
+
 bool isSpiralActive;
 float spiralAngle = 0;
 
@@ -343,6 +346,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	int backgroundGH = Novice::LoadTexture("./images/background.png");             //アニメーション背景
 	int backgroundRightGH = Novice::LoadTexture("./images/backgroundRight.png");   //画面右の背景
 	int titleGH = Novice::LoadTexture("./images/title.png");                       //タイトル画面
+	int triangleGH = Novice::LoadTexture("./images/triangle.png");               //タイトル・リザルトで使用する三角形
 	int titleLetterGH = Novice::LoadTexture("./images/titleLetter.png");           //タイトル文字
 	int gameClearGH = Novice::LoadTexture("./images/gameClear.png");               //ゲームクリア画面
 	int gameOverGH = Novice::LoadTexture("./images/gameOver.png");                 //ゲームクリア画面
@@ -393,6 +397,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 		/// ↓更新処理ここから
 		///
+
+		allTheTimeCount++;
 
 		switch (scene)
 		{
@@ -709,6 +715,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				0xFFFFFFFF
 			);
 
+			//タイトル画面の動く三角形
+			Novice::DrawSprite(
+				(int)(40 + sinf((float)gameCount * (float)M_PI * 4.0f / 180.f) * 20), 508,
+				triangleGH,
+				0.75f, 0.75f,
+				0.0f,
+				0xFFFFFFFF
+			);
+
 			//タイトル文字
 			Novice::DrawSprite(
 				0, (int)(0+sinf((float)gameCount* (float)M_PI*2.0f/180.f)*50),
@@ -721,9 +736,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		case GAME:
 		{
 			//ここからゲームの描画
-
-			//デバッグ用文字列
-			Novice::ScreenPrintf(700, 700, "%d", bossHP);
 
 			//アニメーション背景の描画
 			Novice::DrawSprite(
@@ -921,10 +933,18 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 					0.0f,
 					0xFFFFFFFF
 				);
+
+				//ゲームクリア画面の動く三角形
+				Novice::DrawSprite(
+					(int)(40 + sinf((float)allTheTimeCount * (float)M_PI * 4.0f / 180.f) * 20), 508,
+					triangleGH,
+					0.75f, 0.75f,
+					0.0f,
+					0xFFFFFFFF
+				);
 			}
 			//ゲームオーバーの場合
 			if (playerHP <= 0) {
-				Novice::ScreenPrintf(20, 20, "title:SPACE");
 				Novice::DrawSprite(
 					0, 0,
 					gameOverGH,
@@ -933,6 +953,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 					0xFFFFFFFF
 				);
 			}
+
+			//ゲームオーバー画面の動く三角形
+			Novice::DrawSprite(
+				(int)(40 + sinf((float)allTheTimeCount * (float)M_PI * 4.0f / 180.f) * 20), 508,
+				triangleGH,
+				0.75f, 0.75f,
+				0.0f,
+				0xFFFFFFFF
+			);
+
 			break;
 		}
 
