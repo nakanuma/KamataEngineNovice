@@ -1,6 +1,6 @@
 #include <Novice.h>
 
-const char kWindowTitle[] = "AL1_07_確認課題";
+const char kWindowTitle[] = "LC1B_24_ナカヌマカツシ_AL1_07_確認課題";
 
 // Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
@@ -13,9 +13,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	char preKeys[256] = {0};
 
 	//自機の情報
-	int playerX = 640;   //X座標
-	int playerY = 360;   //Y座標
-	int playerSpd = 5;   //速度
+	float playerX = 640.f;   //X座標
+	float playerY = 360.f;   //Y座標
+	float playerSpd = 5.f;   //速度
 
 	//アニメーションタイマー
 	int animationTimer = 0;
@@ -209,7 +209,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			break;
 		}
 
-		Novice::DrawSprite(playerX, playerY, playerGH, 1, 1, 0.0f, 0xFFFFFFFF);
+		//プレイヤーの描画
+		Novice::DrawSprite(
+			static_cast<int>(playerX), 
+			static_cast<int>(playerY),
+			playerGH, 
+			1, 1, 
+			0.0f, 
+			0xFFFFFFFF);
 
 		//タイマーを表示
 		Novice::ScreenPrintf(0, 0, "globaltimer: %d", globalTimer);
