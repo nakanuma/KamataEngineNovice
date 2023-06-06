@@ -724,9 +724,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				0xFFFFFFFF
 			);
 
-			//タイトル文字
+			//タイトル文字を上下移動
 			Novice::DrawSprite(
-				0, (int)(0+sinf((float)gameCount* (float)M_PI*2.0f/180.f)*50),
+				0, (int)(0+sinf((float)gameCount* (float)M_PI*2.0f/180.f)*30),
 				titleLetterGH,
 				1, 1,
 				0.0f,
