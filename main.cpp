@@ -864,7 +864,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			//体力の表示
 			for (int i = 0; i < playerHP; i++) {
 				Novice::DrawSprite(
-					810 + (i * 50), 158,
+					810 + (i * 45), 158,
 					hpGH,
 					1, 1,
 					0.0f,
