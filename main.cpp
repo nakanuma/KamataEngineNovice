@@ -852,7 +852,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			//体力の表示
 			for (int i = 0; i < playerHP; i++) {
 				Novice::DrawSprite(
-					820 + (i * 50), 148,
+					810 + (i * 50), 158,
 					hpGH,
 					1, 1,
 					0.0f,
@@ -868,18 +868,18 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 			//10の位を表示
 			Novice::DrawSprite(
-				820, 34,
+				800, 28,
 				numberGH[tensTimeDigit],
-				0.5f, 0.5f,
+				1, 1,
 				0.0f,
 				0xFFFFFFFF
 			);
 
 			//1の位を表示
 			Novice::DrawSprite(
-				842, 34,
+				832, 28,
 				numberGH[onesTimeDigit],
-				0.5f, 0.5f,
+				1, 1,
 				0.0f,
 				0xFFFFFFFF
 			);
@@ -901,9 +901,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			//10000~1の位を表示
 			for (int i = 0; i < 5; i++) {
 				Novice::DrawSprite(
-					820 + (i * 22), 94,
+					800 + (i * 32), 92,
 					numberGH[scoreDigit[4 - i]],
-					0.5f, 0.5f,
+					1, 1,
 					0.0f,
 					0xFFFFFFFF
 				);
