@@ -9,19 +9,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Novice::Initialize(kWindowTitle, 1280, 720);
 
 	// キー入力結果を受け取る箱
-	char keys[256] = {0};
-	char preKeys[256] = {0};
+	char keys[256] = { 0 };
+	char preKeys[256] = { 0 };
 
 	//自機の情報
-	float playerX = 640.f;   //X座標
-	float playerY = 360.f;   //Y座標
-	float playerSpd = 5.f;   //速度
+	float playerX = 640.0f;   //X座標
+	float playerY = 360.0f;   //Y座標
+	float playerSpd = 5.0f;   //速度
 
 	//アニメーションタイマー
 	int animationTimer = 0;
-
-	//グローバルタイマー
-	long long globalTimer = 0;
 
 	//画像読み込み
 	int backGH[] = {
@@ -50,14 +47,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	};
 
 	//状態を管理する
-	enum State {
+	enum Direction {
 		BACK,
 		FRONT,
 		LEFT,
 		RIGHT
 	};
 
-	State playerState = FRONT;
+	Direction playerDirection = FRONT;
 
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
@@ -71,79 +68,65 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 		/// ↓更新処理ここから
 		///
-	
-		//グローバルタイマーをインクリメント
-		globalTimer++;
-
-		//15フレーム毎
-		if (globalTimer % 15 == 0) {
-			//アニメーションタイマーをインクリメント
-			animationTimer++;
-
-			//4を超えたら0にする
-			if (animationTimer >= 4) {
-				animationTimer = 0;
-			}
-		}
 
 		//状態遷移
-		switch (playerState) {
+		switch (playerDirection) {
 		case BACK:
 			if (keys[DIK_S]) {
-				playerState = FRONT;
+				playerDirection = FRONT;
 			}
 
 			if (keys[DIK_A]) {
-				playerState = LEFT;
+				playerDirection = LEFT;
 			}
 
 			if (keys[DIK_D]) {
-				playerState = RIGHT;
+				playerDirection = RIGHT;
 			}
 
 			break;
 
 		case FRONT:
 			if (keys[DIK_W]) {
-				playerState = BACK;
+				playerDirection = BACK;
 			}
 
 			if (keys[DIK_A]) {
-				playerState = LEFT;
+				playerDirection = LEFT;
 			}
 
 			if (keys[DIK_D]) {
-				playerState = RIGHT;
+				playerDirection = RIGHT;
 			}
 
 			break;
 
 		case LEFT:
 			if (keys[DIK_W]) {
-				playerState = BACK;
+				playerDirection = BACK;
 			}
 
 			if (keys[DIK_S]) {
-				playerState = FRONT;
+				playerDirection = FRONT;
 			}
 
 			if (keys[DIK_D]) {
-				playerState = RIGHT;
+				playerDirection = RIGHT;
 			}
 
 			break;
 
 		case RIGHT:
 			if (keys[DIK_W]) {
-				playerState = BACK;
+				playerDirection = BACK;
 			}
 
 			if (keys[DIK_A]) {
-				playerState = LEFT;
+				playerDirection = LEFT;
 			}
 
 			if (keys[DIK_S]) {
-				playerState = FRONT;
+				playerDirection = FRONT;
 			}
 
 			break;
@@ -183,6 +166,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			playerY = 720 - 164;
 		}
 
+		//アニメーションタイマーをインクリメント
+		animationTimer++;
+
+		//アニメーションタイマーが60を超えたら0に戻す
+		if (animationTimer >= 60) {
+			animationTimer = 0;
+		}
+
 		///
 		/// ↑更新処理ここまで
 		///
@@ -194,32 +185,31 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		//状態による描画
 		int playerGH = -1;
 
-		switch (playerState) {
+		switch (playerDirection) {
 		case BACK:
-			playerGH = backGH[animationTimer];
+			playerGH = backGH[animationTimer / 15];
 			break;
 		case FRONT:
-			playerGH = frontGH[animationTimer];
+			playerGH = frontGH[animationTimer / 15];
 			break;
 		case LEFT:
-			playerGH = leftGH[animationTimer];
+			playerGH = leftGH[animationTimer / 15];
 			break;
 		case RIGHT:
-			playerGH = rightGH[animationTimer];
+			playerGH = rightGH[animationTimer / 15];
 			break;
 		}
 
 		//プレイヤーの描画
 		Novice::DrawSprite(
-			static_cast<int>(playerX), 
+			static_cast<int>(playerX),
 			static_cast<int>(playerY),
-			playerGH, 
-			1, 1, 
-			0.0f, 
+			playerGH,
+			1, 1,
+			0.0f,
 			0xFFFFFFFF);
 
 		//タイマーを表示
-		Novice::ScreenPrintf(0, 0, "globaltimer: %d", globalTimer);
 		Novice::ScreenPrintf(0, 20, "animationTimer: %d", animationTimer);
 
 		///
