@@ -143,7 +143,7 @@ void InitializeGameScene() {
 	spiralAngle = 0;
 
 	//ゲームの残り時間
-	gameLeftTime = 60;
+	gameLeftTime = 60; /*ここで時間によるデバッグを行う*/
 	gameCount = 0;
 
 	return;
@@ -681,7 +681,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				bgMidY = 0;
 			}
 
-			if (gameLeftTime < 0 || playerHP <= 0) {
+			if (gameLeftTime <= 0 || playerHP <= 0) {
 				scene = RESULT;
 			}
 
@@ -925,7 +925,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		}
 		case RESULT:
 			//ゲームクリアの場合
-			if (gameLeftTime < 0) {
+			if (gameLeftTime <= 0) {
 				Novice::DrawSprite(
 					0, 0,
 					gameClearGH,
