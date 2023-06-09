@@ -580,7 +580,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 						//30秒~20秒
 						else if (gameLeftTime >= 20) {
 							//射撃間隔を少し遅くする
-							enemyRapidCount = 140;
+							enemyRapidCount = 120;
 							EnemyAllDirection(enemyPosX[i], enemyPosY[i]);
 						}
 					}
@@ -879,6 +879,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			tensTimeDigit = (gameLeftTime / 10);
 
 			//10の位を表示
+
 			Novice::DrawSprite(
 				800, 28,
 				numberGH[tensTimeDigit],
