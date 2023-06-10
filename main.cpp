@@ -68,6 +68,9 @@ long long gameCount = 0;
 //ずっとカウントする
 long long allTheTimeCount = 0;
 
+//ハイスコアを格納
+int hiScore = 0;
+
 bool isSpiralActive;
 float spiralAngle = 0;
 
@@ -143,7 +146,7 @@ void InitializeGameScene() {
 	spiralAngle = 0;
 
 	//ゲームの残り時間
-	gameLeftTime = 60; /*ここで時間によるデバッグを行う*/
+	gameLeftTime = 60; /*ここの変更で時間によるデバッグを行う　初期値は60*/
 	gameCount = 0;
 
 	return;
@@ -374,6 +377,18 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		Novice::LoadTexture("./images/7.png"),
 		Novice::LoadTexture("./images/8.png"),
 		Novice::LoadTexture("./images/9.png"),
+	};
+	int numberRedGH[10] = {
+		Novice::LoadTexture("./images/0red.png"),
+		Novice::LoadTexture("./images/1red.png"),
+		Novice::LoadTexture("./images/2red.png"),
+		Novice::LoadTexture("./images/3red.png"),
+		Novice::LoadTexture("./images/4red.png"),
+		Novice::LoadTexture("./images/5red.png"),
+		Novice::LoadTexture("./images/6red.png"),
+		Novice::LoadTexture("./images/7red.png"),
+		Novice::LoadTexture("./images/8red.png"),
+		Novice::LoadTexture("./images/9red.png"),
 	};
 
 	// 乱数のシードを設定
@@ -706,6 +721,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		switch (scene)
 		{
 		case TITLE:
+		{
 			//タイトル背景
 			Novice::DrawSprite(
 				0, 0,
@@ -714,6 +730,31 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				0.0f,
 				0xFFFFFFFF
 			);
+
+			//ハイスコアの数値を表示
+			int hiScoreDigit[5];
+			int hiScoreTemp = hiScore;
+
+			hiScoreDigit[0] = (hiScoreTemp % 10);
+			hiScoreTemp /= 10;
+			hiScoreDigit[1] = (hiScoreTemp % 10);
+			hiScoreTemp /= 10;
+			hiScoreDigit[2] = (hiScoreTemp % 10);
+			hiScoreTemp /= 10;
+			hiScoreDigit[3] = (hiScoreTemp % 10);
+			hiScoreTemp /= 10;
+			hiScoreDigit[4] = (hiScoreTemp % 10);
+
+			//10000~1の位を表示
+			for (int i = 0; i < 5; i++) {
+				Novice::DrawSprite(
+					550 + (i * 32), 443,
+					numberRedGH[hiScoreDigit[4 - i]],
+					1, 1,
+					0.0f,
+					0xFFFFFFFF
+				);
+			}
 
 			//タイトル画面の動く三角形
 			Novice::DrawSprite(
@@ -726,13 +767,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 			//タイトル文字を上下移動
 			Novice::DrawSprite(
-				0, (int)(0+sinf((float)gameCount* (float)M_PI*2.0f/180.f)*30),
+				0, (int)(0 + sinf((float)gameCount * (float)M_PI * 2.0f / 180.f) * 30),
 				titleLetterGH,
 				1, 1,
 				0.0f,
 				0xFFFFFFFF
 			);
+
 			break;
+		}
 		case GAME:
 		{
 			//ここからゲームの描画
@@ -864,9 +907,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			//体力の表示
 			for (int i = 0; i < playerHP; i++) {
 				Novice::DrawSprite(
-					810 + (i * 45), 158,
+					830 + (i * 30), 141,
 					hpGH,
-					1, 1,
+					0.75f, 0.75f,
 					0.0f,
 					0xFFFFFFFF
 				);
@@ -878,23 +921,69 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			onesTimeDigit = (gameLeftTime % 10);
 			tensTimeDigit = (gameLeftTime / 10);
 
-			//10の位を表示
-			Novice::DrawSprite(
-				800, 28,
-				numberGH[tensTimeDigit],
-				1, 1,
-				0.0f,
-				0xFFFFFFFF
-			);
+			if (gameLeftTime >= 4) {
+				//10の位を表示
+				Novice::DrawSprite(
+					624, 0,
+					numberGH[tensTimeDigit],
+					0.5f, 0.5f,
+					0.0f,
+					0xFFFFFFFF
+				);
 
-			//1の位を表示
-			Novice::DrawSprite(
-				832, 28,
-				numberGH[onesTimeDigit],
-				1, 1,
-				0.0f,
-				0xFFFFFFFF
-			);
+				//1の位を表示
+				Novice::DrawSprite(
+					640, 0,
+					numberGH[onesTimeDigit],
+					0.5f, 0.5f,
+					0.0f,
+					0xFFFFFFFF
+				);
+			} 
+			if(gameLeftTime <=3){
+				//10の位を表示
+				Novice::DrawSprite(
+					624, 0,
+					numberRedGH[tensTimeDigit],
+					0.5f, 0.5f,
+					0.0f,
+					0xFFFFFFFF
+				);
+
+				//1の位を表示
+				Novice::DrawSprite(
+					640, 0,
+					numberRedGH[onesTimeDigit],
+					0.5f, 0.5f,
+					0.0f,
+					0xFFFFFFFF
+				);
+			}
+
+			//ハイスコアの数値を表示
+			int hiScoreDigit[5];
+			int hiScoreTemp = hiScore;
+
+			hiScoreDigit[0] = (hiScoreTemp % 10);
+			hiScoreTemp /= 10;
+			hiScoreDigit[1] = (hiScoreTemp % 10);
+			hiScoreTemp /= 10;
+			hiScoreDigit[2] = (hiScoreTemp % 10);
+			hiScoreTemp /= 10;
+			hiScoreDigit[3] = (hiScoreTemp % 10);
+			hiScoreTemp /= 10;
+			hiScoreDigit[4] = (hiScoreTemp % 10);
+
+			//10000~1の位を表示
+			for (int i = 0; i < 5; i++) {
+				Novice::DrawSprite(
+					830 + (i * 16), 46,
+					numberGH[hiScoreDigit[4 - i]],
+					0.5f, 0.5f,
+					0.0f,
+					0xFFFFFFFF
+				);
+			}
 
 			//スコアの表示
 			int scoreDigit[5];
@@ -913,9 +1002,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			//10000~1の位を表示
 			for (int i = 0; i < 5; i++) {
 				Novice::DrawSprite(
-					800 + (i * 32), 92,
+					830 + (i * 16), 78,
 					numberGH[scoreDigit[4 - i]],
-					1, 1,
+					0.5f, 0.5f,
 					0.0f,
 					0xFFFFFFFF
 				);
@@ -962,6 +1051,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				0.0f,
 				0xFFFFFFFF
 			);
+
+			//取得スコアがハイスコアより高い場合、ハイスコアに代入
+			if (playerScore > hiScore) {
+				hiScore = playerScore;
+			}
 
 			break;
 		}
