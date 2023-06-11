@@ -1,0 +1,66 @@
+[33m61a5008[m[33m ([m[1;36mHEAD -> [m[1;32mShootingGame[m[33m, [m[1;31morigin/ShootingGame[m[33m)[m HEAD@{0}: reset: moving to 61a5008
+[33m61a5008[m[33m ([m[1;36mHEAD -> [m[1;32mShootingGame[m[33m, [m[1;31morigin/ShootingGame[m[33m)[m HEAD@{1}: reset: moving to 61a50085a2dccc7d4a09063f1ae8b1b820bfa9ef
+[33m6a2541f[m HEAD@{2}: reset: moving to HEAD
+[33m6a2541f[m HEAD@{3}: reset: moving to HEAD
+[33m6a2541f[m HEAD@{4}: checkout: moving from PG1_2_1_d to ShootingGame
+[33m434ae95[m[33m ([m[1;31morigin/PG1_2_1_d[m[33m, [m[1;32mPG1_2_1_d[m[33m)[m HEAD@{5}: checkout: moving from ShootingGame to PG1_2_1_d
+[33m6a2541f[m HEAD@{6}: reset: moving to HEAD
+[33m6a2541f[m HEAD@{7}: reset: moving to HEAD
+[33m6a2541f[m HEAD@{8}: reset: moving to HEAD
+[33m6a2541f[m HEAD@{9}: reset: moving to HEAD
+[33m6a2541f[m HEAD@{10}: reset: moving to HEAD
+[33m6a2541f[m HEAD@{11}: reset: moving to HEAD
+[33m6a2541f[m HEAD@{12}: checkout: moving from 6a2541f072fa8d24b7fec7d20cbfe7efc7164cf9 to ShootingGame
+[33m6a2541f[m HEAD@{13}: checkout: moving from adbe17ee3538d91530fa6be7154a051686ce4242 to 6a2541f072fa8d24b7fec7d20cbfe7efc7164cf9
+[33madbe17e[m HEAD@{14}: checkout: moving from ShootingGame to adbe17ee3538d91530fa6be7154a051686ce4242
+[33m6a2541f[m HEAD@{15}: reset: moving to HEAD
+[33m6a2541f[m HEAD@{16}: checkout: moving from ShootingGame to ShootingGame
+[33m6a2541f[m HEAD@{17}: reset: moving to HEAD
+[33m6a2541f[m HEAD@{18}: reset: moving to HEAD
+[33m6a2541f[m HEAD@{19}: commit: も
+[33m766af4c[m HEAD@{20}: reset: moving to HEAD
+[33m766af4c[m HEAD@{21}: reset: moving to HEAD
+[33m766af4c[m HEAD@{22}: reset: moving to HEAD
+[33m766af4c[m HEAD@{23}: commit: フォント周りを整理
+[33m34feda5[m HEAD@{24}: pull --progress --no-edit --no-stat --recurse-submodules=no origin: Fast-forward
+[33med96062[m HEAD@{25}: commit: ボスの画像（仮）を作成
+[33m90adc95[m HEAD@{26}: commit: HP画像を更新
+[33m6880a89[m HEAD@{27}: checkout: moving from AL1_7_1 to ShootingGame
+[33m2e3db38[m[33m ([m[1;31morigin/AL1_7_1[m[33m, [m[1;32mAL1_7_1[m[33m)[m HEAD@{28}: commit: 確認課題
+[33ma13048f[m HEAD@{29}: commit: あとグローバルタイマー周りだけ
+[33m31c7e26[m HEAD@{30}: checkout: moving from ShootingGame to AL1_7_1
+[33m6880a89[m HEAD@{31}: commit: 仮のタイトル・リザルト画面を作成
+[33m3583a40[m HEAD@{32}: commit: 仮のタイトル・リザルト画面を作成
+[33m4bc545a[m HEAD@{33}: commit: 文字フォントの画像を変更
+[33m95d9d8c[m HEAD@{34}: pull --progress --no-edit --no-stat --recurse-submodules=no origin: Fast-forward
+[33m974713e[m HEAD@{35}: commit: も
+[33m1d689c4[m HEAD@{36}: commit: とりあえず
+[33m73a7407[m HEAD@{37}: commit: 60
+[33m5ff5b3e[m HEAD@{38}: checkout: moving from AL1_9_1 to ShootingGame
+[33mfec608a[m[33m ([m[1;31morigin/AL1_9_1[m[33m, [m[1;32mAL1_9_1[m[33m)[m HEAD@{39}: checkout: moving from ShootingGame to AL1_9_1
+[33m5ff5b3e[m HEAD@{40}: reset: moving to HEAD
+[33m5ff5b3e[m HEAD@{41}: commit: プレイヤーの体力と無敵時間を実装
+[33m07f395a[m HEAD@{42}: commit: 敵の体力が設定できた
+[33md79c52a[m HEAD@{43}: commit: 撃破時の画像切り替え
+[33mb88be21[m HEAD@{44}: commit: 敵が自機狙い弾を撃つようになった
+[33m43cced3[m HEAD@{45}: commit: 敵の弾をプレイヤーの方向に直進させたい
+[33m62fa5d3[m HEAD@{46}: commit: とりあえず
+[33m7472863[m HEAD@{47}: commit: 敵が自機狙い弾を撃つようにしたい
+[33m350af74[m HEAD@{48}: commit: 残りの敵の数を表示
+[33md7eb3c4[m HEAD@{49}: commit: 敵が弾を発射するようになった
+[33ma9a3a3b[m HEAD@{50}: commit: とりあえず敵が弾を撃てるようになった
+[33m99d2e6c[m HEAD@{51}: commit: 敵に弾が当たったら消滅するようにしたけどバグまみれ
+[33m6d460f5[m HEAD@{52}: commit: 途中経過
+[33m122738d[m HEAD@{53}: commit: 途中
+[33m75e80e6[m HEAD@{54}: commit: 敵とプレイヤーの弾の当たり判定を実装
+[33m28495bb[m HEAD@{55}: commit: 敵がランダムな位置から振ってくる
+[33mf0837a2[m HEAD@{56}: commit: 弾の連射
+[33mfb90485[m HEAD@{57}: commit: 敵の出現を作ったところ
+[33m6fbeaa6[m HEAD@{58}: commit: 敵が帰還するとこ
+[33m009571e[m HEAD@{59}: commit: とりあえず弾の連射に成功
+[33m5ab4d28[m HEAD@{60}: commit: 途中
+[33mc2d1b2b[m HEAD@{61}: commit: シューティング
+[33m15c9afd[m HEAD@{62}: checkout: moving from AL1_9_1 to ShootingGame
+[33mfec608a[m[33m ([m[1;31morigin/AL1_9_1[m[33m, [m[1;32mAL1_9_1[m[33m)[m HEAD@{63}: commit: 確認課題
+[33m1591818[m HEAD@{64}: checkout: moving from AL1_8 to AL1_9_1
+[33m2c4fbd1[m[33m ([m[1;31morigin/AL1_8[m[33m, [m[1;32mAL1_8[m[33m)[m HEAD@{65}: commit: a
