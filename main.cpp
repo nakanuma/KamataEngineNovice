@@ -522,6 +522,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 					if (x * x + y * y < r * r && isEnemyAlive[j] && isPlayerBulletShot[i]) {
 						//プレイヤーの弾が敵に衝突した場合、衝突した弾を消して敵の体力を減少させる
 						isPlayerBulletShot[i] = false;
+						playerScore += 100;
 						if (enemyHP[j] > 0) {
 							enemyHP[j]--;
 							//敵の体力が0になったら敵を消滅させる
