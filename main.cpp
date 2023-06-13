@@ -77,6 +77,10 @@ int hiScore = 0;
 bool isSpiralActive;
 float spiralAngle = 0;
 
+//警告の斜線のX座標
+int wlTopX = -1000;
+int wlMidX = 0;
+
 void InitializeGameScene() {
 	//プレイヤーの情報
 	playerPosX = 330.0f;         //X座標
@@ -87,6 +91,9 @@ void InitializeGameScene() {
 	playerHP = 3;                  //プレイヤーの体力
 	isPlayerInvincible = false;   //プレイヤーが無敵状態かのフラグ
 	playerInvincibleCount = 0;     //プレイヤーの無敵時間カウント
+
+	wlTopX = -1000;
+	wlMidX = 0;
 
 	//プレイヤーのキー移動
 	velX = 0;
@@ -152,7 +159,7 @@ void InitializeGameScene() {
 	alpha = 0;
 
 	//ゲームの残り時間
-	gameLeftTime = 23; /*ここの変更で時間によるデバッグを行う　初期値は60*/
+	gameLeftTime = 25; /*ここの変更で時間によるデバッグを行う　初期値は60*/
 	gameCount = 0;
 
 	return;
@@ -407,10 +414,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	//アニメーション背景のY座標
 	int bgTopY = -720;       //上（画面外）にあるアニメーション背景
 	int bgMidY = 0;          //下（画面内）にあるアニメーション背景
-
-	//警告の斜線のX座標
-	int wlTopX = -1000;
-	int wlMidX = 0;
 
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
