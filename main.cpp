@@ -148,8 +148,8 @@ void InitializeGameScene() {
 	isSpiralActive = false;
 	spiralAngle = 0;
 
-	////警告表示の色を変えるやつ
-	//int alpha = 0;
+	//警告表示の色を変えるやつ
+	alpha = 0;
 
 	//ゲームの残り時間
 	gameLeftTime = 23; /*ここの変更で時間によるデバッグを行う　初期値は60*/
@@ -362,6 +362,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	int enemyGH = Novice::LoadTexture("./images/enemy.png");                       //敵
 	int bossGH = Novice::LoadTexture("./images/boss.png");                         //ボス
 	int warningGH = Novice::LoadTexture("./images/warning.png");                   //警告表示
+	int warningLineGH = Novice::LoadTexture("./images/warningLine.png");           //警告の斜線
 
 	int enemyBulletGH[] = {
 		Novice::LoadTexture("./images/enemyBullet0.png"),
@@ -406,6 +407,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	//アニメーション背景のY座標
 	int bgTopY = -720;       //上（画面外）にあるアニメーション背景
 	int bgMidY = 0;          //下（画面内）にあるアニメーション背景
+
+	//警告の斜線のX座標
+	int wlTopX = -1000;
+	int wlMidX = 0;
 
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
@@ -708,6 +713,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				scene = RESULT;
 			}
 
+			//警告の斜線のX座標を増加
+			wlTopX += 2;
+			wlMidX -= 2;
+
 			break;
 
 		case RESULT:
@@ -903,6 +912,54 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				);
 			}
 
+			// 警告表示の色を変更する
+			if (gameLeftTime <= 22 && gameLeftTime >= 20) {
+				alpha += 2;
+
+				// 0~255を往復する
+				if (alpha >= 255) {
+					alpha = 510 - alpha;  // alphaを255から減算
+				} else if (alpha <= 0) {
+					alpha = 0;
+				}
+			}
+
+			int color = 0xFFFFFF00;
+			if (alpha > 0) {
+				color += alpha;  // 変数alphaをカラーコードに加算
+			} else if (alpha < 0) {
+				color -= (-alpha);  // 変数alphaをカラーコードから減算
+			}
+
+			// ボス出現時の警告
+			if (gameLeftTime <= 22 && gameLeftTime >= 20) {
+				Novice::DrawSprite(
+					0, 0,
+					warningGH,
+					1, 1,
+					0.0f,
+					color
+				);
+
+				//警告時の斜線（上）
+				Novice::DrawSprite(
+					wlTopX, 260,
+					warningLineGH,
+					1, 1,
+					0.0f,
+					color
+				);
+
+				//警告時の斜線（下）
+				Novice::DrawSprite(
+					wlMidX, 432,
+					warningLineGH,
+					1, 1,
+					0.0f,
+					color
+				);
+			}
+
 			//画面右の背景
 			Novice::DrawSprite(
 				660, 0,
@@ -1015,36 +1072,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 					0.5f, 0.5f,
 					0.0f,
 					0xFFFFFFFF
-				);
-			}
-
-			// 警告表示の色を変更する
-			if (gameLeftTime <= 22 && gameLeftTime >= 20) {
-				alpha += 25;
-
-				// 0~255を往復する
-				if (alpha >= 255) {
-					alpha = 510 - alpha;  // alphaを255から減算
-				} else if (alpha <= 0) {
-					alpha = 0;
-				}
-			}
-
-			int color = 0xFFFFFF00;
-			if (alpha > 0) {
-				color += alpha;  // 変数alphaをカラーコードに加算
-			} else if (alpha < 0) {
-				color -= (-alpha);  // 変数alphaをカラーコードから減算
-			}
-
-			// ボス出現時の警告
-			if (gameLeftTime <= 22 && gameLeftTime >= 20) {
-				Novice::DrawSprite(
-					0, 0,
-					warningGH,
-					1, 1,
-					0.0f,
-					color
 				);
 			}
 
