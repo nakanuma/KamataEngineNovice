@@ -717,8 +717,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			}
 
 			//警告の斜線のX座標を増加
-			wlTopX += 2;
-			wlMidX -= 2;
+			if (gameLeftTime <= 22) {
+				wlTopX += 2;
+				wlMidX -= 2;
+			}
 
 			break;
 
