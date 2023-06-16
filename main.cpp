@@ -159,7 +159,7 @@ void InitializeGameScene() {
 	alpha = 0;
 
 	//ゲームの残り時間
-	gameLeftTime = 25; /*ここの変更で時間によるデバッグを行う　初期値は60*/
+	gameLeftTime = 60; /*ここの変更で時間によるデバッグを行う　初期値は60*/
 	gameCount = 0;
 
 	return;
