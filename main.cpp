@@ -605,7 +605,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 						//40~30秒
 						else if (gameLeftTime >= 30) {
 							//射撃間隔を少し遅くする
-							enemyRapidCount = 60;
+							enemyRapidCount = 80;
 							Enemy3Way(enemyPosX[i], enemyPosY[i]);
 						}
 						//30秒~20秒
@@ -705,8 +705,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			}
 
 			//アニメーション背景のY座標を増加
-			bgTopY += 5;
-			bgMidY += 5;
+			bgTopY += 3;
+			bgMidY += 3;
 			if (bgTopY >= 0 && bgMidY >= 720) {
 				bgTopY = -720;
 				bgMidY = 0;
