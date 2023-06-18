@@ -74,6 +74,7 @@ long long allTheTimeCount = 0;
 //ハイスコアを格納
 int hiScore = 0;
 
+//ボスの弾幕
 bool isSpiralActive;
 float spiralAngle = 0;
 
@@ -479,20 +480,20 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			playerPosY += velY;
 
 			//プレイヤーが画面外に出ないように画面端で座標を固定
-			if (playerPosX < playerR) {
-				playerPosX = playerR;
+			if (playerPosX < 4) {
+				playerPosX = 4;
 			}
 
-			if (playerPosX > 660 - playerR) {
-				playerPosX = 660 - playerR;
+			if (playerPosX > 660 - 4) {
+				playerPosX = 660 - 4;
 			}
 
-			if (playerPosY < playerR) {
-				playerPosY = playerR;
+			if (playerPosY < 32) {
+				playerPosY = 32;
 			}
 
-			if (playerPosY > 720 - playerR) {
-				playerPosY = 720 - playerR;
+			if (playerPosY > 720 - 32) {
+				playerPosY = 720 - 32;
 			}
 
 			//シフトキーを押している間は速度が半分になる
@@ -821,8 +822,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			//プレイヤーの描画
 			if (!isPlayerInvincible) {
 				Novice::DrawSprite(
-					static_cast<int>(playerPosX) - static_cast<int>(playerR),   //左上X座標(半径を引いて中心位置を調整)
-					static_cast<int>(playerPosY) - static_cast<int>(playerR),   //左上Y座標(半径を引いて中心位置を調整)
+					static_cast<int>(playerPosX) - 32,   //左上X座標(半径を引いて中心位置を調整)
+					static_cast<int>(playerPosY) - 32,   //左上Y座標(半径を引いて中心位置を調整)
 					playerGH,                                                   //ハンドル
 					1,                                                          //X倍率
 					1,                                                          //Y倍率                
