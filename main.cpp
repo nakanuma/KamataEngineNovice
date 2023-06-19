@@ -56,7 +56,7 @@ int enemyBulletGHindex[ENEMY_BULLET_NUM];
 
 //ボスの情報
 float bossPosX = 330.f;  //X座標
-float bossPosY = -64.0;  //Y座標
+float bossPosY = -128.0;  //Y座標
 float bossR = 32.f;      //半径
 int bossHP = 1000;       //体力
 bool isBossAlive;        //生存しているかのフラグ
@@ -81,6 +81,9 @@ float spiralAngle = 0;
 //警告の斜線のX座標
 int wlTopX = -1000;
 int wlMidX = 0;
+
+//プレイヤーの被弾時タイマー
+int playerHitTimer = 20;
 
 void InitializeGameScene() {
 	//プレイヤーの情報
@@ -112,7 +115,7 @@ void InitializeGameScene() {
 	}
 
 	//敵の情報
-	enemyR = 16.0f;            //半径
+	enemyR = 24.0f;            //半径
 	enemyRapidCount = 40;        //敵の射撃間隔のカウント
 
 	//敵の座標を決める為の乱数の最小値と最大値
@@ -148,8 +151,8 @@ void InitializeGameScene() {
 
 	//ボスの情報
 	bossPosX = 330.f;  //X座標
-	bossPosY = -64.0;  //Y座標
-	bossR = 32.f;      //半径
+	bossPosY = -80.0;  //Y座標
+	bossR = 64.f;      //半径
 	bossHP = 1000;     //体力
 	isBossAlive = true;//生存フラグ
 
@@ -358,7 +361,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	//画像読み込み
 	int playerGH = Novice::LoadTexture("./images/player.png");                     //プレイヤー
-	int playerInvincible = Novice::LoadTexture("./images/playerInvincible.png");   //プレイヤー（被弾時）
 	int playerBulletGH = Novice::LoadTexture("./images/bullet.png");               //プレイヤーの弾
 	int backgroundGH = Novice::LoadTexture("./images/background.png");             //アニメーション背景
 	int backgroundRightGH = Novice::LoadTexture("./images/backgroundRight.png");   //画面右の背景
@@ -371,6 +373,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	int bossGH = Novice::LoadTexture("./images/boss.png");                         //ボス
 	int warningGH = Novice::LoadTexture("./images/warning.png");                   //警告表示
 	int warningLineGH = Novice::LoadTexture("./images/warningLine.png");           //警告の斜線
+	int playerHitGH = Novice::LoadTexture("./images/playerHit.png");               //被弾時の画面表示
 
 	int enemyBulletGH[] = {
 		Novice::LoadTexture("./images/enemyBullet0.png"),
@@ -407,6 +410,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		Novice::LoadTexture("./images/9red.png"),
 	};
 
+	//音読み込み
+	int shotSH = Novice::LoadAudio("./sounds/shot.wav");
+	int selectSH = Novice::LoadAudio("./sounds/select.wav");
+	int damageSH = Novice::LoadAudio("./sounds/damage.wav");
+	int playerDamageSH = Novice::LoadAudio("./sounds/playerDamage.wav");
+	int warningSH = Novice::LoadAudio("./sounds/warning.wav");
+	int bossSH = Novice::LoadAudio("./sounds/boss.wav");
+
 	// 乱数のシードを設定
 	srand((unsigned)time(NULL));
 
@@ -436,6 +447,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		case TITLE:
 			//スペースキーを押したらゲーム開始
 			if (keys[DIK_SPACE] && !preKeys[DIK_SPACE]) {
+				Novice::PlayAudio(selectSH, false, 1.0f);
 				scene = GAME;
 				InitializeGameScene();
 			}
@@ -508,6 +520,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				if (gameCount % 5 == 0) {
 					for (int i = 0; i < PLAYER_BULLET_NUM; i++) {
 						if (isPlayerBulletShot[i] == false) {
+							Novice::PlayAudio(shotSH, false, 1.0f);
 							isPlayerBulletShot[i] = true;
 							playerBulletPosX[i] = playerPosX;
 							playerBulletPosY[i] = playerPosY;
@@ -543,6 +556,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 							enemyHP[j]--;
 							//敵の体力が0になったら敵を消滅させる
 							if (enemyHP[j] <= 0) {
+								Novice::PlayAudio(damageSH, false, 1.0f);
 								isEnemyAlive[j] = false;
 								//プレイヤーのスコアを加算
 								playerScore += 500;
@@ -652,6 +666,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				float y = playerBulletPosY[i] - bossPosY;
 				float r = playerBulletR + bossR;
 				if (x * x + y * y < r * r && isBossAlive && isPlayerBulletShot[i]) {
+					Novice::PlayAudio(bossSH, false, 0.25f);
 					//プレイヤーの弾が敵に衝突した場合、衝突した弾を消して敵の体力を減少させる
 					playerScore += 100;
 					isPlayerBulletShot[i] = false;
@@ -685,6 +700,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				float y = enemyBulletPosY[i] - playerPosY;
 				float r = enemyBulletR + (playerR - 12);
 				if (x * x + y * y < r * r && isEnemyBulletShot[i] && !isPlayerInvincible) {
+					Novice::PlayAudio(playerDamageSH, false, 1.0f);
 					//プレイヤーが敵の弾に衝突した場合、プレイヤーの体力を減少させてプレイヤーを無敵にする
 					playerHP--;
 					isPlayerInvincible = true;
@@ -728,6 +744,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		case RESULT:
 			//スペースキーを押したらタイトルに戻る
 			if (keys[DIK_SPACE] && !preKeys[DIK_SPACE]) {
+				Novice::PlayAudio(selectSH, false, 1.0f);
 				scene = TITLE;
 			}
 			break;
@@ -835,14 +852,28 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			//プレイヤー被弾時の描画
 			if (isPlayerInvincible) {
 				Novice::DrawSprite(
-					static_cast<int>(playerPosX) - static_cast<int>(playerR),   //左上X座標(半径を引いて中心位置を調整)
-					static_cast<int>(playerPosY) - static_cast<int>(playerR),   //左上Y座標(半径を引いて中心位置を調整)
-					playerInvincible,                                                   //ハンドル
+					static_cast<int>(playerPosX) - 32,   //左上X座標(半径を引いて中心位置を調整)
+					static_cast<int>(playerPosY) - 32,   //左上Y座標(半径を引いて中心位置を調整)
+					playerGH,                                                   //ハンドル
 					1,                                                          //X倍率
 					1,                                                          //Y倍率                
 					0.0f,                                                       //回転角
-					0xFFFFFFFF                                                  //色
+					0xFFFFFF20                                                  //色
 				);
+				playerHitTimer--;
+				if (playerHitTimer > 0) {
+					Novice::DrawSprite(
+						0,   //左上X座標(半径を引いて中心位置を調整)
+						0,   //左上Y座標(半径を引いて中心位置を調整)
+						playerHitGH,                                                   //ハンドル
+						1,                                                          //X倍率
+						1,                                                          //Y倍率                
+						0.0f,                                                       //回転角
+						0xFFFFFF50                                                  //色
+					);
+				}
+			} else {
+				playerHitTimer = 20;
 			}
 
 			//発射した弾の描画
@@ -882,8 +913,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 						static_cast<int>(enemyPosX[i]) - static_cast<int>(enemyR),
 						static_cast<int>(enemyPosY[i]) - static_cast<int>(enemyR),
 						enemyGH,
-						1,
-						1,
+						0.75f,
+						0.75f,
 						0.0f,
 						0xFFFFFFFF
 					);
@@ -897,8 +928,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 						static_cast<int>(enemyPosX[i]) - static_cast<int>(enemyR),
 						static_cast<int>(enemyPosY[i]) - static_cast<int>(enemyR),
 						explodeGH,
-						1,
-						1,
+						1.5f,
+						1.5f,
 						0.0f,
 						0xFFFFFFFF
 					);
@@ -916,6 +947,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 					0.0f,
 					0xFFFFFFFF
 				);
+			}
+
+			//警告音
+			if (gameLeftTime == 22&&gameCount%60==0) {
+				Novice::PlayAudio(warningSH, false, 1.0f);
 			}
 
 			// 警告表示の色を変更する
