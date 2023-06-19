@@ -520,7 +520,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				if (gameCount % 5 == 0) {
 					for (int i = 0; i < PLAYER_BULLET_NUM; i++) {
 						if (isPlayerBulletShot[i] == false) {
-							Novice::PlayAudio(shotSH, false, 1.0f);
+							Novice::PlayAudio(shotSH, false, 0.5f);
 							isPlayerBulletShot[i] = true;
 							playerBulletPosX[i] = playerPosX;
 							playerBulletPosY[i] = playerPosY;
@@ -949,9 +949,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				);
 			}
 
-			//警告音
+			//ボス出現時の警告音
 			if (gameLeftTime == 22&&gameCount%60==0) {
-				Novice::PlayAudio(warningSH, false, 1.0f);
+				Novice::PlayAudio(warningSH, false, 1.5f);
 			}
 
 			// 警告表示の色を変更する
