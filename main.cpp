@@ -417,11 +417,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	int playerDamageSH = Novice::LoadAudio("./sounds/playerDamage.wav");
 	int warningSH = Novice::LoadAudio("./sounds/warning.wav");
 	int bossSH = Novice::LoadAudio("./sounds/boss.wav");
-	int titleSH = Novice::LoadAudio("./sounds/title.wav");         //タイトル
-	int gameBgmSH = Novice::LoadAudio("./sounds/gameBgm.wav");     //ゲーム中
-	int bossBgmSH = Novice::LoadAudio("./sounds/bossBgm.wav");     //ボス出現中
-	int gameClearSH = Novice::LoadAudio("./sounds/gameClear.wav"); //ゲームクリア
-	int gameOverSH = Novice::LoadAudio("./sounds/gameOver.wav");   //ゲームオーバー
+	int enemyShotSH = Novice::LoadAudio("./sounds/enemyShot.wav");
+	int enemyShot2SH = Novice::LoadAudio("./sounds/enemyShot2.wav");
+	//int titleSH = Novice::LoadAudio("./sounds/title.wav");         //タイトル
+	//int gameBgmSH = Novice::LoadAudio("./sounds/gameBgm.wav");     //ゲーム中
+	//int bossBgmSH = Novice::LoadAudio("./sounds/bossBgm.wav");     //ボス出現中
+	//int gameClearSH = Novice::LoadAudio("./sounds/gameClear.wav"); //ゲームクリア
+	//int gameOverSH = Novice::LoadAudio("./sounds/gameOver.wav");   //ゲームオーバー
 
 
 	// 乱数のシードを設定
@@ -616,24 +618,28 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 						//60~50秒
 						if (gameLeftTime >= 50) {
 							EnemyShot(enemyPosX[i], enemyPosY[i]);
+							Novice::PlayAudio(enemyShotSH, false, 0.3f);
 						}
 						//50秒~40秒
 						else if (gameLeftTime >= 40) {
 							//射撃間隔を早くする
-							enemyRapidCount = 6;
+							enemyRapidCount = 8;
 							EnemyRandom(enemyPosX[i], enemyPosY[i]);
+							Novice::PlayAudio(enemyShotSH, false, 0.2f);
 						}
 						//40~30秒
 						else if (gameLeftTime >= 30) {
 							//射撃間隔を少し遅くする
 							enemyRapidCount = 80;
 							Enemy3Way(enemyPosX[i], enemyPosY[i]);
+							Novice::PlayAudio(enemyShotSH, false, 0.3f);
 						}
 						//30秒~20秒
 						else if (gameLeftTime >= 20) {
 							//射撃間隔を少し遅くする
 							enemyRapidCount = 120;
 							EnemyAllDirection(enemyPosX[i], enemyPosY[i]);
+							Novice::PlayAudio(enemyShot2SH, false, 0.5f);
 						}
 					}
 				}
@@ -647,23 +653,28 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			BossSpiralUpdate(bossPosX, bossPosY);
 			if (gameLeftTime == 19) {
 				BossSpiralStart();
+				Novice::PlayAudio(enemyShotSH, false, 0.2f);
 			}
 
 			if (gameLeftTime <= 16 && gameLeftTime >= 14 && gameCount % 25 == 0) {
 				Enemy3Way(bossPosX, bossPosY);
+				Novice::PlayAudio(enemyShotSH, false, 0.5f);
 			}
 
 			if (gameLeftTime == 14) {
 				BossSpiralStart();
+				Novice::PlayAudio(enemyShotSH, false, 0.2f);
 			}
 
 
 			if (gameLeftTime <= 9 && gameCount % 60 == 0) {
 				EnemyAllDirection(bossPosX, bossPosY);
+				Novice::PlayAudio(enemyShot2SH, false, 0.5f);
 			}
 
 			if (gameLeftTime <= 9 && gameCount % 1 == 0) {
 				EnemyRandom(bossPosX, bossPosY);
+				Novice::PlayAudio(enemyShotSH, false, 0.1f);
 			}
 
 			//プレイヤーの弾がボスに衝突した際の処理
