@@ -8,7 +8,7 @@
 #define ENEMY_NUM 100          //敵の最大数
 #define ENEMY_BULLET_NUM 1000  //敵が発射する弾の最大数
 
-const char kWindowTitle[] = "shooting";
+const char kWindowTitle[] = "60ビョウサバイバル";
 
 //プレイヤーの情報
 float playerPosX = 330.0f;         //X座標
