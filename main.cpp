@@ -310,11 +310,12 @@ void BossSpiralStart() {
 	}
 }
 
-void BossSpiralUpdate(float posX, float posY) {
+void BossSpiralUpdate(float posX, float posY, int enemyShotSH) {
 	if (isSpiralActive) {
 		for (int j = 0; j < ENEMY_BULLET_NUM; j++) {
 			//敵の弾が撃たれていないかつ敵が存在しているかつ敵が画面内にいる場合のみ弾を発射
 			if (!isEnemyBulletShot[j]) {
+				Novice::PlayAudio(enemyShotSH, false, 0.2f);
 				//プレイヤーに向かって移動するベクトルを計算
 
 				float vx, vy;
@@ -419,11 +420,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	int bossSH = Novice::LoadAudio("./sounds/boss.wav");
 	int enemyShotSH = Novice::LoadAudio("./sounds/enemyShot.wav");
 	int enemyShot2SH = Novice::LoadAudio("./sounds/enemyShot2.wav");
-	//int titleSH = Novice::LoadAudio("./sounds/title.wav");         //タイトル
-	//int gameBgmSH = Novice::LoadAudio("./sounds/gameBgm.wav");     //ゲーム中
-	//int bossBgmSH = Novice::LoadAudio("./sounds/bossBgm.wav");     //ボス出現中
-	//int gameClearSH = Novice::LoadAudio("./sounds/gameClear.wav"); //ゲームクリア
-	//int gameOverSH = Novice::LoadAudio("./sounds/gameOver.wav");   //ゲームオーバー
+	int countSH = Novice::LoadAudio("./sounds/count.wav");
+	int titleSH = Novice::LoadAudio("./sounds/title.wav");         //タイトル
+	int gameBgmSH = Novice::LoadAudio("./sounds/gameBgm.wav");     //ゲーム中
+	int bossBgmSH = Novice::LoadAudio("./sounds/bossBgm.wav");     //ボス出現中
+	int gameClearSH = Novice::LoadAudio("./sounds/gameClear.wav"); //ゲームクリア
+	int gameOverSH = Novice::LoadAudio("./sounds/gameOver.wav");   //ゲームオーバー
+
+	int bgmPH = -114514;
 
 
 	// 乱数のシードを設定
@@ -453,8 +457,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		switch (scene)
 		{
 		case TITLE:
+			if (bgmPH==-114514) {
+				bgmPH = Novice::PlayAudio(titleSH, 1, 1);
+			}
 			//スペースキーを押したらゲーム開始
 			if (keys[DIK_SPACE] && !preKeys[DIK_SPACE]) {
+				Novice::StopAudio(bgmPH);
+				bgmPH = -114514;
 				Novice::PlayAudio(selectSH, false, 1.0f);
 				scene = GAME;
 				InitializeGameScene();
@@ -463,6 +472,20 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			break;
 
 		case GAME:
+			if (gameLeftTime > 22) {
+				if (bgmPH == -114514) {
+					bgmPH = Novice::PlayAudio(gameBgmSH, 1, 1);
+				}
+			}
+			if (gameLeftTime == 22) {
+				Novice::StopAudio(bgmPH);
+				bgmPH = -114514;
+			}
+			if (gameLeftTime == 20) {
+				if (bgmPH == -114514) {
+					bgmPH = Novice::PlayAudio(bossBgmSH, 1, 1);
+				}
+			}
 			//経過フレームを増加
 			gameCount++;
 
@@ -650,10 +673,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				bossPosY += 1;
 			}
 
-			BossSpiralUpdate(bossPosX, bossPosY);
+			BossSpiralUpdate(bossPosX, bossPosY,enemyShotSH);
 			if (gameLeftTime == 19) {
 				BossSpiralStart();
-				Novice::PlayAudio(enemyShotSH, false, 0.2f);
 			}
 
 			if (gameLeftTime <= 16 && gameLeftTime >= 14 && gameCount % 25 == 0) {
@@ -663,7 +685,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 			if (gameLeftTime == 14) {
 				BossSpiralStart();
-				Novice::PlayAudio(enemyShotSH, false, 0.2f);
 			}
 
 
@@ -674,7 +695,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 			if (gameLeftTime <= 9 && gameCount % 1 == 0) {
 				EnemyRandom(bossPosX, bossPosY);
-				Novice::PlayAudio(enemyShotSH, false, 0.1f);
+				Novice::PlayAudio(enemyShotSH, false, 0.2f);
 			}
 
 			//プレイヤーの弾がボスに衝突した際の処理
@@ -738,6 +759,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				}
 			}
 
+			//残り3秒からカウント音
+			if (gameLeftTime == 3 && gameCount % 60 == 0) {
+				Novice::PlayAudio(countSH, false, 0.7f);
+			}
+			if (gameLeftTime == 2 && gameCount % 60 == 0) {
+				Novice::PlayAudio(countSH, false, 0.7f);
+			}
+			if (gameLeftTime == 1 && gameCount % 60 == 0) {
+				Novice::PlayAudio(countSH, false, 0.7f);
+			}
+
 			//アニメーション背景のY座標を増加
 			bgTopY += 3;
 			bgMidY += 3;
@@ -748,6 +780,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 			if (gameLeftTime <= 0 || playerHP <= 0) {
 				scene = RESULT;
+				Novice::StopAudio(bgmPH);
+				bgmPH = -114514;
 			}
 
 			//警告の斜線のX座標を増加
@@ -761,6 +795,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		case RESULT:
 			//スペースキーを押したらタイトルに戻る
 			if (keys[DIK_SPACE] && !preKeys[DIK_SPACE]) {
+				Novice::StopAudio(bgmPH);
+				bgmPH = -114514;
 				Novice::PlayAudio(selectSH, false, 1.0f);
 				scene = TITLE;
 			}
@@ -815,7 +851,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 			//タイトル画面の動く三角形
 			Novice::DrawSprite(
-				(int)(40 + sinf((float)gameCount * (float)M_PI * 4.0f / 180.f) * 20), 508,
+				(int)(40 + sinf((float)gameCount * (float)M_PI * 4.0f / 180.f) * 20), 506,
 				triangleGH,
 				0.75f, 0.75f,
 				0.0f,
@@ -967,7 +1003,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			}
 
 			//ボス出現時の警告音
-			if (gameLeftTime == 22&&gameCount%60==0) {
+			if (gameLeftTime == 22 && gameCount % 60 == 0) {
 				Novice::PlayAudio(warningSH, false, 1.5f);
 			}
 
@@ -1139,6 +1175,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		case RESULT:
 			//ゲームクリアの場合
 			if (gameLeftTime <= 0) {
+				if (bgmPH == -114514) {
+					bgmPH = Novice::PlayAudio(gameClearSH, 0, 1);
+				}
 				Novice::DrawSprite(
 					0, 0,
 					gameClearGH,
@@ -1149,7 +1188,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 				//ゲームクリア画面の動く三角形
 				Novice::DrawSprite(
-					(int)(40 + sinf((float)allTheTimeCount * (float)M_PI * 4.0f / 180.f) * 20), 508,
+					(int)(40 + sinf((float)allTheTimeCount * (float)M_PI * 4.0f / 180.f) * 20), 506,
 					triangleGH,
 					0.75f, 0.75f,
 					0.0f,
@@ -1158,6 +1197,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			}
 			//ゲームオーバーの場合
 			if (playerHP <= 0) {
+				if (bgmPH == -114514) {
+					bgmPH = Novice::PlayAudio(gameOverSH, 0, 1);
+				}
 				Novice::DrawSprite(
 					0, 0,
 					gameOverGH,
@@ -1169,7 +1211,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 			//ゲームオーバー画面の動く三角形
 			Novice::DrawSprite(
-				(int)(40 + sinf((float)allTheTimeCount * (float)M_PI * 4.0f / 180.f) * 20), 508,
+				(int)(40 + sinf((float)allTheTimeCount * (float)M_PI * 4.0f / 180.f) * 20), 506,
 				triangleGH,
 				0.75f, 0.75f,
 				0.0f,
