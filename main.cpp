@@ -417,6 +417,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	int playerDamageSH = Novice::LoadAudio("./sounds/playerDamage.wav");
 	int warningSH = Novice::LoadAudio("./sounds/warning.wav");
 	int bossSH = Novice::LoadAudio("./sounds/boss.wav");
+	int titleSH = Novice::LoadAudio("./sounds/title.wav");         //タイトル
+	int gameBgmSH = Novice::LoadAudio("./sounds/gameBgm.wav");     //ゲーム中
+	int bossBgmSH = Novice::LoadAudio("./sounds/bossBgm.wav");     //ボス出現中
+	int gameClearSH = Novice::LoadAudio("./sounds/gameClear.wav"); //ゲームクリア
+	int gameOverSH = Novice::LoadAudio("./sounds/gameOver.wav");   //ゲームオーバー
+
 
 	// 乱数のシードを設定
 	srand((unsigned)time(NULL));
