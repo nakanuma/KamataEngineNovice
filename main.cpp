@@ -704,7 +704,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				float y = playerBulletPosY[i] - bossPosY;
 				float r = playerBulletR + bossR;
 				if (x * x + y * y < r * r && isBossAlive && isPlayerBulletShot[i]) {
-					Novice::PlayAudio(bossSH, false, 0.25f);
+					Novice::PlayAudio(bossSH, false, 0.2f);
 					//プレイヤーの弾が敵に衝突した場合、衝突した弾を消して敵の体力を減少させる
 					playerScore += 100;
 					isPlayerBulletShot[i] = false;
