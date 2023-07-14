@@ -9,8 +9,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Novice::Initialize(kWindowTitle, 1280, 720);
 
 	// キー入力結果を受け取る箱
-	char keys[256] = {0};
-	char preKeys[256] = {0};
+	char keys[256] = { 0 };
+	char preKeys[256] = { 0 };
 
 	//シーンを管理する
 	enum Scene {
@@ -39,7 +39,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 		/// ↓更新処理ここから
 		///
-		
+
 		//シーン毎の更新処理
 		switch (scene) {
 		case TITLE:
@@ -78,7 +78,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				kFillModeSolid
 			);
 			if (keys[DIK_SPACE] && !preKeys[DIK_SPACE]) {
-				Novice::StopAudio(startBH); 
+				Novice::StopAudio(startBH);
 				Novice::PlayAudio(fanfareBH, true, 0.1f);
 			}
 			break;
