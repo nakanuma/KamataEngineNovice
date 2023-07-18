@@ -41,9 +41,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓描画処理ここから
 		///
 
-		//背景の描画
-		
-
 		///
 		/// ↑描画処理ここまで
 		///
