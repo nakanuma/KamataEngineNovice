@@ -13,18 +13,46 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	char preKeys[256] = { 0 };
 
 	//画像読み込み
-	int circleGH[] = {
-		Novice::LoadTexture("./Resources/images/Circle.png"),
-		Novice::LoadTexture("./Resources/images/CircleW.png"),
+	int circleGH[2][2] = {
+		{Novice::LoadTexture("./Resources/images/Circle.png"),
+		Novice::LoadTexture("./Resources/images/CircleHit.png"),},
+		{Novice::LoadTexture("./Resources/images/CircleW.png"),
+		Novice::LoadTexture("./Resources/images/CircleWHit.png"),}
 	};
 
-	int circleHitGH[] = {
-		Novice::LoadTexture("./Resources/images/CircleHit.png"),
-		Novice::LoadTexture("./Resources/images/CircleWHit.png"),
+	struct Vector2 { 
+		float x; 
+		float y; 
+	};
+
+	struct Player {
+		Vector2 pos;
+		float width;
+		float height;
+		float speed;
+	};
+
+	//プレイヤーの情報
+	Player player{
+		{320.0f,360.0f },
+		32.0f,
+		128.0f,
+		4.0f,
 	};
 
 	//画像の切り替えに使用するフラグ
 	bool isBackgroundVisible = true;
+	bool isChangeColor = false;
+
+	//当たり判定に使用するフラグ
+	bool isHitX = false;
+	bool isHitY = false;
+	bool isHit = false;
+
+	bool isHitA = false;
+	bool isHitB = false;
+	bool isHitC = false;
+	bool isHitD = false;
 
 	//中央の円の情報
 	float circleCenterX = 640.0f; //中央X座標
@@ -60,6 +88,73 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			isBackgroundVisible = !isBackgroundVisible;
 		}
 
+		//プレイヤーの移動処理
+		if (keys[DIK_W]) {
+			player.pos.y -= player.speed;
+		}
+
+		if (keys[DIK_S]) {
+			player.pos.y += player.speed;
+		}
+
+		if (keys[DIK_A]) {
+			player.pos.x -= player.speed;
+		}
+
+		if (keys[DIK_D]) {
+			player.pos.x += player.speed;
+		}
+
+		//プレイヤーの拡縮
+		if (keys[DIK_Q]) {
+			player.width += 4;
+		}
+
+		if (keys[DIK_E]) {
+			player.width -= 4;
+		}
+
+		if (keys[DIK_Z]) {
+			player.height += 4;
+		}
+
+		if (keys[DIK_C]) {
+			player.height -= 4;
+		}
+
+		//拡縮の限界値を設定
+		if (player.width > 256.0f) {
+			player.width = 256.0f;
+		}
+
+		if (player.width < 4.0f) {
+			player.width = 4.0f;
+		}
+
+		if (player.height > 256.0f) {
+			player.height = 256.0f;
+		}
+
+		if (player.height < 4.0f) {
+			player.height = 4.0f;
+		}
+
+		//X方向の当たり判定
+		isHitA = player.pos.x - player.width / 2 < circleRightX;
+		isHitB = player.pos.x + player.width / 2 > circleLeftX;
+		isHitX = isHitA && isHitB;
+
+		//Y方向の当たり判定
+		isHitC = player.pos.y - player.height / 2 < circleBottomY;
+		isHitD = player.pos.y + player.height / 2 > circleTopY;
+		isHitY = isHitC && isHitD;
+
+		//XとYが同時に当たっている場合
+		isHit = isHitX && isHitY;
+
+		//同時に当たっている場合、色を変更
+		isChangeColor = isHit;
+
 		///
 		/// ↑更新処理ここまで
 		///
@@ -77,14 +172,23 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			(int)circleCenterX - (int)circleW / 2, (int)circleCenterY - (int)circleH / 2,
 			0, 0,
 			32, 32,
-			circleGH[isBackgroundVisible],
+			circleGH[isBackgroundVisible][isChangeColor],
 			4.0f, 4.0f,
 			0.0f,
 			0xFFFFFFFF
 		);
 
-		//プレイヤーを描画
-
+		//プレイヤーの描画
+		Novice::DrawQuad(
+			(int)player.pos.x - (int)player.width / 2, (int)player.pos.y + (int)player.height / 2,
+			(int)player.pos.x + (int)player.width / 2, (int)player.pos.y + (int)player.height / 2,
+			(int)player.pos.x - (int)player.width / 2, (int)player.pos.y - (int)player.height / 2,
+			(int)player.pos.x + (int)player.width / 2, (int)player.pos.y - (int)player.height / 2,
+			0, 0,
+			32, 32,
+			circleGH[isBackgroundVisible][isChangeColor],
+			0xFFFFFFFF
+		);
 
 		//操作方法を表す文字列
 		Novice::ScreenPrintf(30, 30,"WASD : Move");
@@ -92,11 +196,48 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		Novice::ScreenPrintf(30, 90, "ZC   : Change height");
 		Novice::ScreenPrintf(30, 120, "Space: Change background color");
 
-		//テスト用文字列
-		Novice::ScreenPrintf(30, 500, "%.f", circleRightX);
-		Novice::ScreenPrintf(30, 520, "%.f", circleLeftX);
-		Novice::ScreenPrintf(30, 540, "%.f", circleBottomY);
-		Novice::ScreenPrintf(30, 560, "%.f", circleTopY);
+		//当たり判定を表す文字列
+		if (isHitX) {
+			Novice::ScreenPrintf(670, 30, "isHitX: TRUE");
+		} else {
+			Novice::ScreenPrintf(670, 30, "isHitX: FALSE");
+		}
+
+		if (isHitA) {
+			Novice::ScreenPrintf(700, 60, "if(PlayerLeftX( %.f) < TargetRightX( %.f) : TRUE", player.pos.x - player.width / 2, circleRightX);
+		} else {
+			Novice::ScreenPrintf(700, 60, "if(PlayerLeftX( %.f) < TargetRightX( %.f) : FALSE", player.pos.x - player.width / 2, circleRightX);
+		}
+
+		if (isHitB) {
+			Novice::ScreenPrintf(700, 90, "if(TargetLeftX( %.f) < PlayerRightX( %.f) : TRUE", circleLeftX, player.pos.x + player.width / 2);
+		} else {
+			Novice::ScreenPrintf(700, 90, "if(TargetLeftX( %.f) < PlayerRightX( %.f) : FALSE", circleLeftX, player.pos.x + player.width / 2);
+		}
+
+		if (isHitY) {
+			Novice::ScreenPrintf(670, 120, "isHitY: TRUE");
+		} else {
+			Novice::ScreenPrintf(670, 120, "isHitY: FALSE");
+		}
+
+		if (isHitC) {
+			Novice::ScreenPrintf(700, 150, "if(PlayerTopY( %.f) < TargetBottomY( %.f) : TRUE", player.pos.y - player.width / 2, circleBottomY);
+		} else {
+			Novice::ScreenPrintf(700, 150, "if(PlayerTopY( %.f) < TargetBottomY( %.f) : FALSE", player.pos.y - player.width / 2, circleBottomY);
+		}
+
+		if (isHitD) {
+			Novice::ScreenPrintf(700, 180, "if(TargetTopY( %.f) < PlayerBottomY( %.f) : TRUE", circleTopY, player.pos.y + player.width / 2);
+		} else {
+			Novice::ScreenPrintf(700, 180, "if(TargetTopY( %.f) < PlayerBottomY( %.f) : FALSE", circleTopY, player.pos.y + player.width / 2);
+		}
+
+		if (isHit) {
+			Novice::ScreenPrintf(670, 210, "isHit: TRUE");
+		} else {
+			Novice::ScreenPrintf(670, 210, "isHit: FALSE");
+		}
 
 		///
 		/// ↑描画処理ここまで
