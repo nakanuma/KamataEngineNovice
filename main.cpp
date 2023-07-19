@@ -140,20 +140,53 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		}
 
 		//X方向の当たり判定
-		isHitA = player.pos.x - player.width / 2 < circleRightX;
-		isHitB = player.pos.x + player.width / 2 > circleLeftX;
-		isHitX = isHitA && isHitB;
+		if (player.pos.x - player.width / 2 < circleRightX) {
+			isHitA = true;
+		} else {
+			isHitA = false;
+		}
+
+		if (player.pos.x + player.width / 2 > circleLeftX) {
+			isHitB = true;
+		} else {
+			isHitB = false;
+		}
+
+		if (isHitA && isHitB) {
+			isHitX = true;
+		} else {
+			isHitX = false;
+		}
 
 		//Y方向の当たり判定
-		isHitC = player.pos.y - player.height / 2 < circleBottomY;
-		isHitD = player.pos.y + player.height / 2 > circleTopY;
-		isHitY = isHitC && isHitD;
+		if (player.pos.y - player.height / 2 < circleBottomY) {
+			isHitC = true;
+		} else {
+			isHitC = false;
+		}
+
+		if (player.pos.y + player.height / 2 > circleTopY) {
+			isHitD = true;
+		} else {
+			isHitD = false;
+		}
+
+		if (isHitC && isHitD) {
+			isHitY = true;
+		} else {
+			isHitY = false;
+		}
 
 		//XとYが同時に当たっている場合
-		isHit = isHitX && isHitY;
-
-		//同時に当たっている場合、色を変更
-		isChangeColor = isHit;
+		if (isHitX && isHitY) {
+			isHit = true;
+			//赤色の画像にする
+			isChangeColor = true;
+		} else {
+			isHit = false;
+			//黄色の画像にする
+			isChangeColor = false;
+		}
 
 		///
 		/// ↑更新処理ここまで
