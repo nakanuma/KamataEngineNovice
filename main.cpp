@@ -42,7 +42,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	//画像の切り替えに使用するフラグ
 	bool isBackgroundVisible = true;
-	bool isChangeColor = false;
 
 	//当たり判定に使用するフラグ
 	bool isHitX = false;
@@ -180,12 +179,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		//XとYが同時に当たっている場合
 		if (isHitX && isHitY) {
 			isHit = true;
-			//赤色の画像にする
-			isChangeColor = true;
 		} else {
 			isHit = false;
-			//黄色の画像にする
-			isChangeColor = false;
 		}
 
 		///
@@ -205,7 +200,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			(int)circleCenterX - (int)circleW / 2, (int)circleCenterY - (int)circleH / 2,
 			0, 0,
 			32, 32,
-			circleGH[isBackgroundVisible][isChangeColor],
+			circleGH[isBackgroundVisible][isHit],
 			4.0f, 4.0f,
 			0.0f,
 			0xFFFFFFFF
@@ -219,7 +214,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			(int)player.pos.x + (int)player.width / 2, (int)player.pos.y - (int)player.height / 2,
 			0, 0,
 			32, 32,
-			circleGH[isBackgroundVisible][isChangeColor],
+			circleGH[isBackgroundVisible][isHit],
 			0xFFFFFFFF
 		);
 
