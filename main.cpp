@@ -32,7 +32,7 @@ Vector2 WorldToScreen(Vector2 world) {
 }
 
 //内積を計算する関数
-float dot(Vector2 v1,Vector2 v2) {
+float dot(Vector2 v1, Vector2 v2) {
 	return v1.x * v2.x + v1.y * v2.y;
 }
 
@@ -52,7 +52,7 @@ Vector2 normalize(Vector2 v) {
 float clamp(float value) {
 	if (value < 0.0) {
 		return 0.0;
-	} else if(value>1.0){
+	} else if (value > 1.0) {
 		return 1.0;
 	} else {
 		return value;
@@ -66,8 +66,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Novice::Initialize(kWindowTitle, 1280, 720);
 
 	// キー入力結果を受け取る箱
-	char keys[256] = {0};
-	char preKeys[256] = {0};
+	char keys[256] = { 0 };
+	char preKeys[256] = { 0 };
 
 	//点の情報
 	Point point{
