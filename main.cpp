@@ -89,6 +89,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	int soldierSummonCount = 0; //兵士を何体出したかのカウント
 
+	//兵士の召喚クールダウン用変数
+	int soldierCooldownFrames = 60;
+	int soldierCurrentCooldown = 0;
+	bool canSummonSoldier = true;
+
 	//敵の構造体
 	struct Enemy {
 		Vector2 pos; //位置
@@ -159,11 +164,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Operator playerOperator = ADDITION; //初期値を代入
 
 	int arrowKeysColor[4]; //矢印キーの色を格納
-
-	//兵士の召喚クールダウン用変数
-	int soldierCooldownFrames = 60;
-	int soldierCurrentCooldown = 0;
-	bool canSoldierSummon = true;
 
 	int gameCount = 0; //ゲームの経過フレーム数をカウント
 
@@ -263,7 +263,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		} //右キー
 
 		//プレイヤーが兵士を召喚する処理
-		if (keys[DIK_SPACE] && !preKeys[DIK_SPACE] && canSoldierSummon) {
+		if (keys[DIK_SPACE] && !preKeys[DIK_SPACE] && canSummonSoldier) {
 			for (int i = 0; i < SOLDIER_NUM; i++) {
 				if (soldier[i].isAlive == false) {
 					soldier[i].isAlive = true;
@@ -276,14 +276,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			}
 			//クールダウン（1秒）
 			soldierCurrentCooldown = soldierCooldownFrames;
-			canSoldierSummon = false;
+			canSummonSoldier = false;
 		}
 
 		//クールダウンのカウントダウン
 		if (soldierCurrentCooldown > 0) {
 			soldierCurrentCooldown--;
 		} else {
-			canSoldierSummon = true;
+			canSummonSoldier = true;
 		}
 
 		//兵士の移動処理
