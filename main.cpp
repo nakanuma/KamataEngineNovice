@@ -53,7 +53,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		Novice::LoadTexture("./Resources/images/48xMultiplication.png"),
 		Novice::LoadTexture("./Resources/images/48xDivision.png"),
 	}; //演算子（48*48）
-	int waveGH = Novice::LoadTexture("./Resources/images/wave1.png");
+	int wave1GH = Novice::LoadTexture("./Resources/images/wave1.png"); //WAVE1の画像
+	int wave2GH = Novice::LoadTexture("./Resources/images/wave2.png"); //WAVE2の画像
+	//int wave3GH = Novice::LoadTexture("./Resources/images/wave3.png"); //WAVE3の画像
 
 	//位置を表す構造体
 	struct Vector2 {
@@ -109,13 +111,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		1.0f,1.0f,1.0f,1.0f,1.0f, //1~5体目
 	};
 	int nums[] = {
-		2,3,5,6,14, //1~5体目
+		1,3,5,7,10, //1~5体目
 	};
 	int targetNums[] = {
-		4,12,15,3,7, //1~5体目
+		2,5,9,4,8, //1~5体目
 	};
 	int summonFlames[] = {
-		320,500,680,860,1040, //1~5体目
+		320,560,800,1040,1280, //1~5体目
 	};
 
 	//敵の情報を初期化
@@ -161,8 +163,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	int mouseX, mouseY; //マウスの座標を格納
 
-	float wave1x;
-	float waveTextTimer = 0.0f;
+	float wave1x,wave2x; //WAVE数表示画像用のx座標
+	float waveTextTimer = 0.0f; //WAVE画像を移動させるタイマー
+
+	int wave1InTime = 60; //WAVE1の画像が入ってくる時間
+	int wave1OutTime = 180; //WAVE1の画像が出ていく時間
+
+	int wave2InTime = 1900; //WAVE2の画像が入ってくる時間
+	int wave2OutTime = 2020; //WAVE2の画像が出ていく時間
 
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
@@ -178,13 +186,21 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 
 		//WAVE1の表示
-		if (gameCount > 60) {
+		if (gameCount > wave1InTime) {
 			waveTextTimer++;
 		}
-		if (waveTextTimer > 60) {
+		if (waveTextTimer > wave1InTime) {
 			waveTextTimer = 60;
 		}
-		if (gameCount == 180) {
+		if (gameCount == wave1OutTime) {
+			waveTextTimer = 0;
+		}
+
+		//WAVE2の表示
+		if (gameCount == wave2InTime) {
+			waveTextTimer = 0;
+		}
+		if (gameCount == wave2OutTime) {
 			waveTextTimer = 0;
 		}
 
@@ -552,17 +568,35 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		//WAVE1のx座標を移動
 		wave1x = EaseInQuartPos(1280.0f, 472.0f, waveTextTimer / 60.0f);
-		if (gameCount > 180) {
+		if (gameCount > wave1OutTime) {
 			wave1x = EaseInQuartPos(472.0f, -472.0f, waveTextTimer / 60.0f);
 		}
 
-		Novice::DrawSprite(
-			(int)wave1x, 168,
-			waveGH,
-			1.0f, 1.0f,
-			0.0f,
-			0xFFFFFFFF
-		);
+		if (gameCount < 1900) {
+			Novice::DrawSprite(
+				(int)wave1x, 168,
+				wave1GH,
+				1.0f, 1.0f,
+				0.0f,
+				0xFFFFFFFF
+			);
+		}
+
+		//WAVE2のx座標を移動
+			wave2x = EaseInQuartPos(1280.0f, 472.0f, waveTextTimer / 60.0f);
+		if (gameCount > wave2OutTime) {
+			wave2x = EaseInQuartPos(472.0f, -472.0f, waveTextTimer / 60.0f);
+		}
+
+		if (gameCount > 1900) {
+			Novice::DrawSprite(
+				(int)wave2x, 168,
+				wave2GH,
+				1.0f, 1.0f,
+				0.0f,
+				0xFFFFFFFF
+			);
+		}
 
 		//デバッグ用文字列
 		Novice::ScreenPrintf(20, 10, "gameCount:%d", gameCount);
