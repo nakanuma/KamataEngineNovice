@@ -1,4 +1,5 @@
 #include <Novice.h>
+#include "Easing.h"
 
 #define SOLDIER_NUM 10 //召喚する兵士の最大数
 #define ENEMY_NUM 5 //出現する敵の最大数
@@ -12,8 +13,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Novice::Initialize(kWindowTitle, 1280, 720);
 
 	// キー入力結果を受け取る箱
-	char keys[256] = {0};
-	char preKeys[256] = {0};
+	char keys[256] = { 0 };
+	char preKeys[256] = { 0 };
 
 	//画像読み込み
 	int groundGH = Novice::LoadTexture("./Resources/images/ground.png"); //背景の地面
@@ -52,14 +53,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		Novice::LoadTexture("./Resources/images/48xMultiplication.png"),
 		Novice::LoadTexture("./Resources/images/48xDivision.png"),
 	}; //演算子（48*48）
-	int arrowKeysGH[4] = {
-		Novice::LoadTexture("./Resources/images/down.png"),
-		Novice::LoadTexture("./Resources/images/up.png"),
-		Novice::LoadTexture("./Resources/images/left.png"),
-		Novice::LoadTexture("./Resources/images/right.png"),
-	}; //矢印キー
-	int spaceGH = Novice::LoadTexture("./Resources/images/space.png"); //スペースキー
-	int cooldownGH = Novice::LoadTexture("./Resources/images/cooldown.png"); //スペースキーのクールダウン表示用
+	int waveGH = Novice::LoadTexture("./Resources/images/wave1.png");
 
 	//位置を表す構造体
 	struct Vector2 {
@@ -90,7 +84,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	int soldierSummonCount = 0; //兵士を何体出したかのカウント
 
 	//兵士の召喚クールダウン用変数
-	int soldierCooldownFrames = 60;
+	int soldierCooldownFrames = 64;
 	int soldierCurrentCooldown = 0;
 	bool canSummonSoldier = true;
 
@@ -115,13 +109,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		1.0f,1.0f,1.0f,1.0f,1.0f, //1~5体目
 	};
 	int nums[] = {
-		2,3,5,6,20, //1~5体目
+		2,3,5,6,14, //1~5体目
 	};
 	int targetNums[] = {
-		4,12,20,3,10, //1~5体目
+		4,12,15,3,7, //1~5体目
 	};
 	int summonFlames[] = {
-		180,360,540,720,900, //1~5体目
+		320,500,680,860,1040, //1~5体目
 	};
 
 	//敵の情報を初期化
@@ -163,9 +157,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Number playerNumber = ONE; //初期値を代入
 	Operator playerOperator = ADDITION; //初期値を代入
 
-	int arrowKeysColor[4]; //矢印キーの色を格納
-
 	int gameCount = 0; //ゲームの経過フレーム数をカウント
+
+	int mouseX, mouseY; //マウスの座標を格納
+
+	float wave1x;
+	float waveTextTimer = 0.0f;
 
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
@@ -180,90 +177,58 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓更新処理ここから
 		///
 
+		//WAVE1の表示
+		if (gameCount > 60) {
+			waveTextTimer++;
+		}
+		if (waveTextTimer > 60) {
+			waveTextTimer = 60;
+		}
+		if (gameCount == 180) {
+			waveTextTimer = 0;
+		}
+
+		//マウスの位置を取得
+		Novice::GetMousePosition(&mouseX, &mouseY);
+
 		//プレイヤーが数字を選択する処理（ゲーム中）
-		switch (playerNumber) {
-		case(ONE):
-			if (keys[DIK_UP] && !preKeys[DIK_UP]) {
-				playerNumber = TWO;
-			}
-			break;
-		case(TWO):
-			if (keys[DIK_UP] && !preKeys[DIK_UP]) {
-				playerNumber = THREE;
-			}
-			if (keys[DIK_DOWN] && !preKeys[DIK_DOWN]) {
-				playerNumber = ONE;
-			}
-			break;
-		case(THREE):
-			if (keys[DIK_UP] && !preKeys[DIK_UP]) {
-				playerNumber = FOUR;
-			}
-			if (keys[DIK_DOWN] && !preKeys[DIK_DOWN]) {
-				playerNumber = TWO;
-			}
-			break;
-		case(FOUR):
-			if (keys[DIK_DOWN] && !preKeys[DIK_DOWN]) {
-				playerNumber = THREE;
-			}
-			break;
+		//1の場合
+		if (mouseX > 712 && mouseX < 760 && mouseY>576 && mouseY < 624 && Novice::IsTriggerMouse(0)) {
+			playerNumber = ONE;
+		}
+		//2の場合
+		if (mouseX > 712 && mouseX < 760 && mouseY>528 && mouseY < 576 && Novice::IsTriggerMouse(0)) {
+			playerNumber = TWO;
+		}
+		//3の場合
+		if (mouseX > 712 && mouseX < 760 && mouseY>480 && mouseY < 528 && Novice::IsTriggerMouse(0)) {
+			playerNumber = THREE;
+		}
+		//4の場合
+		if (mouseX > 712 && mouseX < 760 && mouseY>432 && mouseY < 480 && Novice::IsTriggerMouse(0)) {
+			playerNumber = FOUR;
 		}
 
 		//プレイヤーが演算子を選択する処理（ゲーム中）
-		switch (playerOperator) {
-		case(ADDITION):
-			if (keys[DIK_RIGHT] && !preKeys[DIK_RIGHT]) {
-				playerOperator = SUBTRACTION;
-			}
-			break;
-		case(SUBTRACTION):
-			if (keys[DIK_RIGHT] && !preKeys[DIK_RIGHT]) {
-				playerOperator = MULTIPLICATION;
-			}
-			if (keys[DIK_LEFT] && !preKeys[DIK_LEFT]) {
-				playerOperator = ADDITION;
-			}
-			break;
-		case(MULTIPLICATION):
-			if (keys[DIK_RIGHT] && !preKeys[DIK_RIGHT]) {
-				playerOperator = DIVISION;
-			}
-			if (keys[DIK_LEFT] && !preKeys[DIK_LEFT]) {
-				playerOperator = SUBTRACTION;
-			}
-			break;
-		case(DIVISION):
-			if (keys[DIK_LEFT] && !preKeys[DIK_LEFT]) {
-				playerOperator = MULTIPLICATION;
-			}
-			break;
+		//加算の場合
+		if (mouseX > 520 && mouseX < 568 && mouseY>624 && mouseY < 672 && Novice::IsTriggerMouse(0)) {
+			playerOperator = ADDITION;
+		}
+		//減算の場合
+		if (mouseX > 568 && mouseX < 616 && mouseY>624 && mouseY < 672 && Novice::IsTriggerMouse(0)) {
+			playerOperator = SUBTRACTION;
+		}
+		//乗算の場合
+		if (mouseX > 616 && mouseX < 664 && mouseY>624 && mouseY < 672 && Novice::IsTriggerMouse(0)) {
+			playerOperator = MULTIPLICATION;
+		}
+		//除算の場合
+		if (mouseX > 664 && mouseX < 712 && mouseY>624 && mouseY < 672 && Novice::IsTriggerMouse(0)) {
+			playerOperator = DIVISION;
 		}
 
-		//キーを押した際に色を暗くする処理
-		if (keys[DIK_DOWN]) {
-			arrowKeysColor[0] = 0x808080FF;
-		} else {
-			arrowKeysColor[0] = 0xFFFFFFFF;
-		} //下キー
-		if (keys[DIK_UP]) {
-			arrowKeysColor[1] = 0x808080FF;
-		} else {
-			arrowKeysColor[1] = 0xFFFFFFFF;
-		} //上キー
-		if (keys[DIK_LEFT]) {
-			arrowKeysColor[2] = 0x808080FF;
-		} else {
-			arrowKeysColor[2] = 0xFFFFFFFF;
-		} //左キー
-		if (keys[DIK_RIGHT]) {
-			arrowKeysColor[3] = 0x808080FF;
-		} else {
-			arrowKeysColor[3] = 0xFFFFFFFF;
-		} //右キー
-
 		//プレイヤーが兵士を召喚する処理
-		if (keys[DIK_SPACE] && !preKeys[DIK_SPACE] && canSummonSoldier) {
+		if (mouseX > 520 && mouseX < 712 && mouseY>432 && mouseY < 624 && Novice::IsTriggerMouse(0) && canSummonSoldier) {
 			for (int i = 0; i < SOLDIER_NUM; i++) {
 				if (soldier[i].isAlive == false) {
 					soldier[i].isAlive = true;
@@ -477,43 +442,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			0xFFFFFFFF
 		);
 
-		//矢印を描画
-		for (int i = 0; i < 2; i++) {
-			Novice::DrawSprite(
-				760, 612 - (i * 216),
-				arrowKeysGH[i],
-				1.0f, 1.0f,
-				0.0f,
-				arrowKeysColor[i]
-			);
-		} //上下キー
-		for (int i = 0; i < 2; i++) {
-			Novice::DrawSprite(
-				484 + (i * 216), 672,
-				arrowKeysGH[i + 2],
-				1.0f, 1.0f,
-				0.0f,
-				arrowKeysColor[i + 2]
-			);
-		} //左右キー
-
-		//スペースキーを描画
-		Novice::DrawSprite(
-			800, 504,
-			spaceGH,
-			1.0f, 1.0f,
-			0.0f,
-			0xFFFFFFFF
-		);
-
-		//スペースキーのクールダウン表示
+		//兵士召喚のクールタイム表示
 		for (int i = 0; i < soldierCurrentCooldown; i++) {
-			Novice::DrawSprite(
-				800 + (i * 4), 504,
-				cooldownGH,
-				1.0f, 1.0f,
+			Novice::DrawBox(
+				520 + (i * 3), 432,
+				3, 192,
 				0.0f,
-				0xFFFFFFC0
+				0x000000C0,
+				kFillModeSolid
 			);
 		}
 
@@ -613,6 +549,20 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				}
 			}
 		}
+
+		//WAVE1のx座標を移動
+		wave1x = EaseInQuartPos(1280.0f, 472.0f, waveTextTimer / 60.0f);
+		if (gameCount > 180) {
+			wave1x = EaseInQuartPos(472.0f, -472.0f, waveTextTimer / 60.0f);
+		}
+
+		Novice::DrawSprite(
+			(int)wave1x, 168,
+			waveGH,
+			1.0f, 1.0f,
+			0.0f,
+			0xFFFFFFFF
+		);
 
 		//デバッグ用文字列
 		Novice::ScreenPrintf(20, 10, "gameCount:%d", gameCount);
