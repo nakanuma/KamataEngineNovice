@@ -2,9 +2,11 @@
 #include "Easing.h"
 
 #define SOLDIER_NUM 10 //召喚する兵士の最大数
-#define ENEMY_NUM 5 //出現する敵の最大数
+#define ENEMY_NUM 16 //出現する敵の最大数
 
 const char kWindowTitle[] = "LC1B_24_ナカヌマカツシ_タイトル";
+
+
 
 // Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
@@ -22,6 +24,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	int towerGH = Novice::LoadTexture("./Resources/images/tower.png"); //タワー
 	int soldierFlameGH = Novice::LoadTexture("./Resources/images/soldierFlame.png"); //兵士枠（数字、演算子、兵士の状態を表すための枠）
 	int selectFlameGH = Novice::LoadTexture("./Resources/images/selectFlame.png"); //数字と演算子の選択中を示す枠
+	int soldierGH = Novice::LoadTexture("./Resources/images/soldier.png"); //兵士の画像
+	int enemyGH = Novice::LoadTexture("./Resources/images/enemy.png"); //敵の画像
 	int numberGH[10] = {
 		Novice::LoadTexture("./Resources/images/0.png"),
 		Novice::LoadTexture("./Resources/images/1.png"),
@@ -55,7 +59,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	}; //演算子（48*48）
 	int wave1GH = Novice::LoadTexture("./Resources/images/wave1.png"); //WAVE1の画像
 	int wave2GH = Novice::LoadTexture("./Resources/images/wave2.png"); //WAVE2の画像
-	//int wave3GH = Novice::LoadTexture("./Resources/images/wave3.png"); //WAVE3の画像
+	int wave3GH = Novice::LoadTexture("./Resources/images/wave3.png"); //WAVE3の画像
 
 	//位置を表す構造体
 	struct Vector2 {
@@ -106,18 +110,26 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	struct Enemy enemy[ENEMY_NUM]; //敵の配列を作成
 
-	//敵の情報初期化用のデータ（手動で入力）
+	//敵の情報初期化用のデータ（STAGE1用）
 	float speeds[] = {
-		1.0f,1.0f,1.0f,1.0f,1.0f, //1~5体目
+		1.0f,1.0f,1.0f,1.0f,1.0f,1.0f, //1~6体目（WAVE1）
+		1.0f,1.0f,1.0f,1.0f,1.0f,1.0f, //7~12体目（WAVE2）
+		1.0f,1.0f,1.0f,1.0f, //13~16体目（WAVE3）
 	};
 	int nums[] = {
-		1,3,5,7,10, //1~5体目
+		1,3,5,4,9,6, //1~6体目（WAVE1）
+		5,2,8,9,16,20,//7~12体目（WAVE2）
+		2,5,15,30, //13~16体目（WAVE3）
 	};
 	int targetNums[] = {
-		2,5,9,4,8, //1~5体目
+		2,5,9,3,6,4, //1~6体目（WAVE1）
+		10,8,24,3,8,5,//7~12体目（WAVE2）
+		10,12,3,6, //13~16体目（WAVE3）
 	};
 	int summonFlames[] = {
-		320,560,800,1040,1280, //1~5体目
+		320,560,800,1100,1340,1580, //1~6体目（WAVE1）
+		2360,2600,2840,3140,3380,3620, //7~12体目（WAVE2）
+		4400,4760,5180,5600, //13~16体目（WAVE3）
 	};
 
 	//敵の情報を初期化
@@ -163,14 +175,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	int mouseX, mouseY; //マウスの座標を格納
 
-	float wave1x,wave2x; //WAVE数表示画像用のx座標
+	float wave1x, wave2x,wave3x; //WAVE数表示画像用のx座標
 	float waveTextTimer = 0.0f; //WAVE画像を移動させるタイマー
 
-	int wave1InTime = 60; //WAVE1の画像が入ってくる時間
-	int wave1OutTime = 180; //WAVE1の画像が出ていく時間
+	int wave1InTime = 60; //WAVE1の画像が入ってくる時間（ここで変更）
+	int wave1OutTime = wave1InTime + 120; //WAVE1の画像が出ていく時間
 
-	int wave2InTime = 1900; //WAVE2の画像が入ってくる時間
-	int wave2OutTime = 2020; //WAVE2の画像が出ていく時間
+	int wave2InTime = 2100; //WAVE2の画像が入ってくる時間（ここで変更）
+	int wave2OutTime = wave2InTime + 120; //WAVE2の画像が出ていく時間
+
+	int wave3InTime = 4140; //WAVE2の画像が入ってくる時間（ここで変更）
+	int wave3OutTime = wave3InTime + 120; //WAVE2の画像が出ていく時間
 
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
@@ -201,6 +216,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			waveTextTimer = 0;
 		}
 		if (gameCount == wave2OutTime) {
+			waveTextTimer = 0;
+		}
+
+		//WAVE3の表示
+		if (gameCount == wave3InTime) {
+			waveTextTimer = 0;
+		}
+		if (gameCount == wave3OutTime) {
 			waveTextTimer = 0;
 		}
 
@@ -509,12 +532,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		for (int i = 0; i < SOLDIER_NUM; i++) {
 			if (soldier[i].isAlive == true) {
 				//箱を描画
-				Novice::DrawBox(
+				Novice::DrawSprite(
 					(int)soldier[i].pos.x, (int)soldier[i].pos.y,
-					96, 96,
+					soldierGH,
+					1.0f,1.0f,
 					0.0f,
-					WHITE,
-					kFillModeSolid
+					0xFFFFFFFF
 				);
 				//演算子を描画
 				Novice::DrawSprite(
@@ -538,17 +561,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		//出現した敵を描画
 		for (int i = 0; i < ENEMY_NUM; i++) {
 			if (enemy[i].isAlive == true) {
-				Novice::DrawBox(
+				Novice::DrawSprite(
 					(int)enemy[i].pos.x, (int)enemy[i].pos.y,
-					96, 96,
+					enemyGH,
+					1.0f,1.0f,
 					0.0f,
-					WHITE,
-					kFillModeSolid
+					0xFFFFFFFF
 				);
 				//数字を描画
 				for (int j = 0; j < 3; j++) {
 					Novice::DrawSprite(
-						(int)enemy[i].pos.x + 12 + (j * 24), (int)enemy[i].pos.y + 36,
+						(int)enemy[i].pos.x + 12 + (j * 24), (int)enemy[i].pos.y+12,
 						numberGH[enemy[i].numDigit[2 - j]],
 						1.0f, 1.0f,
 						0.0f,
@@ -556,7 +579,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 					);
 					//目標の数字を描画
 					Novice::DrawSprite(
-						(int)enemy[i].pos.x + 12 + (j * 24), (int)enemy[i].pos.y - 36,
+						(int)enemy[i].pos.x + 12 + (j * 24), (int)enemy[i].pos.y+60,
 						numberGH[enemy[i].targetNumDigit[2 - j]],
 						1.0f, 1.0f,
 						0.0f,
@@ -572,7 +595,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			wave1x = EaseInQuartPos(472.0f, -472.0f, waveTextTimer / 60.0f);
 		}
 
-		if (gameCount < 1900) {
+		if (gameCount < wave2InTime - 200) {
 			Novice::DrawSprite(
 				(int)wave1x, 168,
 				wave1GH,
@@ -583,15 +606,31 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		}
 
 		//WAVE2のx座標を移動
-			wave2x = EaseInQuartPos(1280.0f, 472.0f, waveTextTimer / 60.0f);
+		wave2x = EaseInQuartPos(1280.0f, 472.0f, waveTextTimer / 60.0f);
 		if (gameCount > wave2OutTime) {
 			wave2x = EaseInQuartPos(472.0f, -472.0f, waveTextTimer / 60.0f);
 		}
 
-		if (gameCount > 1900) {
+		if (gameCount > wave2InTime && gameCount < wave3InTime - 200) {
 			Novice::DrawSprite(
 				(int)wave2x, 168,
 				wave2GH,
+				1.0f, 1.0f,
+				0.0f,
+				0xFFFFFFFF
+			);
+		}
+
+		//WAVE3のx座標を移動
+		wave3x = EaseInQuartPos(1280.0f, 472.0f, waveTextTimer / 60.0f);
+		if (gameCount > wave3OutTime) {
+			wave3x = EaseInQuartPos(472.0f, -472.0f, waveTextTimer / 60.0f);
+		}
+
+		if (gameCount > wave3InTime) {
+			Novice::DrawSprite(
+				(int)wave3x, 168,
+				wave3GH,
 				1.0f, 1.0f,
 				0.0f,
 				0xFFFFFFFF
