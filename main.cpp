@@ -6,7 +6,116 @@
 
 const char kWindowTitle[] = "LC1B_24_ナカヌマカツシ_タイトル";
 
+///
+/// ↓一度だけ宣言するものここから
+/// 
 
+//プレイヤーに持たせる数字と演算子をenumで宣言
+enum Number {
+	ONE,
+	TWO,
+	THREE,
+	FOUR
+};
+
+enum Operator {
+	ADDITION,
+	SUBTRACTION,
+	MULTIPLICATION,
+	DIVISION
+};
+
+Number playerNumber = ONE; //初期値を代入
+Operator playerOperator = ADDITION; //初期値を代入
+
+//位置を表す構造体
+struct Vector2 {
+	float x;
+	float y;
+};
+
+//兵士の構造体
+struct Soldier {
+	Vector2 pos; //位置
+	int num; //数字
+	int ope; //演算子
+	bool isAlive; //生存フラグ
+};
+
+//兵士の速さ
+float soldierSpeed = 2.0f;
+//兵士の召喚クールダウン用変数
+int soldierCooldownFrames = 64;
+int soldierCurrentCooldown = 0;
+bool canSummonSoldier = true;
+
+//敵の構造体
+struct Enemy {
+	Vector2 pos; //位置
+	float speed; //速さ
+	int num; //数字
+	int numTemp; //現在の数字を格納
+	int numDigit[3]; //表示用の数字を格納
+	int targetNum; //目標の数字（この数字になったら消滅）
+	int targetNumTemp; //目標の数字を格納
+	int targetNumDigit[3]; //表示用の目標の数字を格納
+	int summonFlame; //このフレームになったら出現
+	bool isAlive; //生存フラグ
+};
+
+int mouseX, mouseY; //マウスの座標を格納
+
+///
+/// ↑一度だけ宣言するものここまで
+/// 
+
+///
+/// ↓ゲーム内で使用する関数ここから
+/// 
+
+//プレイヤーが兵士の数字を選択する関数
+void PlayerNumberSelect(int x, int y) {
+	//1の場合
+	if (x > 712 && x < 760 && y>576 && y < 624 && Novice::IsTriggerMouse(0)) {
+		playerNumber = ONE;
+	}
+	//2の場合
+	if (x > 712 && x < 760 && y>528 && y < 576 && Novice::IsTriggerMouse(0)) {
+		playerNumber = TWO;
+	}
+	//3の場合
+	if (x > 712 && x < 760 && y>480 && y < 528 && Novice::IsTriggerMouse(0)) {
+		playerNumber = THREE;
+	}
+	//4の場合
+	if (x > 712 && x < 760 && y>432 && y < 480 && Novice::IsTriggerMouse(0)) {
+		playerNumber = FOUR;
+	}
+}
+
+//プレイヤーが兵士の演算子を選択する関数
+void PlayerOperatorSelect(int x, int y) {
+	//加算の場合
+	if (x > 520 && x < 568 && y>624 && y < 672 && Novice::IsTriggerMouse(0)) {
+		playerOperator = ADDITION;
+	}
+	//減算の場合
+	if (x > 568 && x < 616 && y>624 && y < 672 && Novice::IsTriggerMouse(0)) {
+		playerOperator = SUBTRACTION;
+	}
+	//乗算の場合
+	if (x > 616 && x < 664 && y>624 && y < 672 && Novice::IsTriggerMouse(0)) {
+		playerOperator = MULTIPLICATION;
+	}
+	//除算の場合
+	if (x > 664 && x < 712 && y>624 && y < 672 && Novice::IsTriggerMouse(0)) {
+		playerOperator = DIVISION;
+	}
+}
+
+///
+/// ↑ゲーム内で使用する関数ここまで
+/// 
 
 // Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
@@ -61,21 +170,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	int wave2GH = Novice::LoadTexture("./Resources/images/wave2.png"); //WAVE2の画像
 	int wave3GH = Novice::LoadTexture("./Resources/images/wave3.png"); //WAVE3の画像
 
-	//位置を表す構造体
-	struct Vector2 {
-		float x;
-		float y;
-	};
-
-	//兵士の構造体
-	struct Soldier {
-		Vector2 pos; //位置
-		int num; //数字
-		int ope; //演算子
-		bool isAlive; //生存フラグ
-	};
-	float soldierSpeed = 2.0f; //速さ
-
 	struct Soldier soldier[SOLDIER_NUM]; //兵士の配列を作成
 
 	//兵士の情報を初期化
@@ -88,25 +182,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	}
 
 	int soldierSummonCount = 0; //兵士を何体出したかのカウント
-
-	//兵士の召喚クールダウン用変数
-	int soldierCooldownFrames = 64;
-	int soldierCurrentCooldown = 0;
-	bool canSummonSoldier = true;
-
-	//敵の構造体
-	struct Enemy {
-		Vector2 pos; //位置
-		float speed; //速さ
-		int num; //数字
-		int numTemp; //現在の数字を格納
-		int numDigit[3]; //表示用の数字を格納
-		int targetNum; //目標の数字（この数字になったら消滅）
-		int targetNumTemp; //目標の数字を格納
-		int targetNumDigit[3]; //表示用の目標の数字を格納
-		int summonFlame; //このフレームになったら出現
-		bool isAlive; //生存フラグ
-	};
 
 	struct Enemy enemy[ENEMY_NUM]; //敵の配列を作成
 
@@ -153,27 +228,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	int playerTowerHP = 3; //タワーの体力
 
-	//プレイヤーに持たせる数字と演算子をenumで宣言
-	enum Number {
-		ONE,
-		TWO,
-		THREE,
-		FOUR
-	};
-
-	enum Operator {
-		ADDITION,
-		SUBTRACTION,
-		MULTIPLICATION,
-		DIVISION
-	};
-
-	Number playerNumber = ONE; //初期値を代入
-	Operator playerOperator = ADDITION; //初期値を代入
-
 	int gameCount = 0; //ゲームの経過フレーム数をカウント
-
-	int mouseX, mouseY; //マウスの座標を格納
 
 	float wave1x, wave2x,wave3x; //WAVE数表示画像用のx座標
 	float waveTextTimer = 0.0f; //WAVE画像を移動させるタイマー
@@ -227,44 +282,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			waveTextTimer = 0;
 		}
 
-		//マウスの位置を取得
-		Novice::GetMousePosition(&mouseX, &mouseY);
+		Novice::GetMousePosition(&mouseX, &mouseY);//マウスの位置を取得
 
-		//プレイヤーが数字を選択する処理（ゲーム中）
-		//1の場合
-		if (mouseX > 712 && mouseX < 760 && mouseY>576 && mouseY < 624 && Novice::IsTriggerMouse(0)) {
-			playerNumber = ONE;
-		}
-		//2の場合
-		if (mouseX > 712 && mouseX < 760 && mouseY>528 && mouseY < 576 && Novice::IsTriggerMouse(0)) {
-			playerNumber = TWO;
-		}
-		//3の場合
-		if (mouseX > 712 && mouseX < 760 && mouseY>480 && mouseY < 528 && Novice::IsTriggerMouse(0)) {
-			playerNumber = THREE;
-		}
-		//4の場合
-		if (mouseX > 712 && mouseX < 760 && mouseY>432 && mouseY < 480 && Novice::IsTriggerMouse(0)) {
-			playerNumber = FOUR;
-		}
+		PlayerNumberSelect(mouseX, mouseY);//プレイヤーが兵士の数字を選択する処理
 
-		//プレイヤーが演算子を選択する処理（ゲーム中）
-		//加算の場合
-		if (mouseX > 520 && mouseX < 568 && mouseY>624 && mouseY < 672 && Novice::IsTriggerMouse(0)) {
-			playerOperator = ADDITION;
-		}
-		//減算の場合
-		if (mouseX > 568 && mouseX < 616 && mouseY>624 && mouseY < 672 && Novice::IsTriggerMouse(0)) {
-			playerOperator = SUBTRACTION;
-		}
-		//乗算の場合
-		if (mouseX > 616 && mouseX < 664 && mouseY>624 && mouseY < 672 && Novice::IsTriggerMouse(0)) {
-			playerOperator = MULTIPLICATION;
-		}
-		//除算の場合
-		if (mouseX > 664 && mouseX < 712 && mouseY>624 && mouseY < 672 && Novice::IsTriggerMouse(0)) {
-			playerOperator = DIVISION;
-		}
+		PlayerOperatorSelect(mouseX, mouseY);//プレイヤーが兵士の演算子を選択する処理
 
 		//プレイヤーが兵士を召喚する処理
 		if (mouseX > 520 && mouseX < 712 && mouseY>432 && mouseY < 624 && Novice::IsTriggerMouse(0) && canSummonSoldier) {
