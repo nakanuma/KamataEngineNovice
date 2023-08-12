@@ -39,6 +39,8 @@ struct Soldier {
 	Vector2 pos; //位置
 	int num; //数字
 	int ope; //演算子
+	int deadCount; //死亡時の画像表示の秒数
+	bool isDead; //死んだかどうか
 	bool isAlive; //生存フラグ
 };
 
@@ -60,6 +62,8 @@ struct Enemy {
 	int targetNumTemp; //目標の数字を格納
 	int targetNumDigit[3]; //表示用の目標の数字を格納
 	int summonFlame; //このフレームになったら出現
+	int deadCount; //死亡時の画像表示の秒数
+	bool isDead; //死んだかどうか
 	bool isAlive; //生存フラグ
 };
 
@@ -73,28 +77,8 @@ int mouseX, mouseY; //マウスの座標を格納
 /// ↓ゲーム内で使用する関数ここから
 /// 
 
-//プレイヤーが兵士の数字を選択する関数
-void PlayerNumberSelect(int x, int y) {
-	//1の場合
-	if (x > 712 && x < 760 && y>576 && y < 624 && Novice::IsTriggerMouse(0)) {
-		playerNumber = ONE;
-	}
-	//2の場合
-	if (x > 712 && x < 760 && y>528 && y < 576 && Novice::IsTriggerMouse(0)) {
-		playerNumber = TWO;
-	}
-	//3の場合
-	if (x > 712 && x < 760 && y>480 && y < 528 && Novice::IsTriggerMouse(0)) {
-		playerNumber = THREE;
-	}
-	//4の場合
-	if (x > 712 && x < 760 && y>432 && y < 480 && Novice::IsTriggerMouse(0)) {
-		playerNumber = FOUR;
-	}
-}
-
-//プレイヤーが兵士の演算子を選択する関数
-void PlayerOperatorSelect(int x, int y) {
+//プレイヤーが兵士の数字と演算子を選択する関数
+void PlayerOpeNumSelect(int x, int y) {
 	//加算の場合
 	if (x > 520 && x < 568 && y>624 && y < 672 && Novice::IsTriggerMouse(0)) {
 		playerOperator = ADDITION;
@@ -110,6 +94,23 @@ void PlayerOperatorSelect(int x, int y) {
 	//除算の場合
 	if (x > 664 && x < 712 && y>624 && y < 672 && Novice::IsTriggerMouse(0)) {
 		playerOperator = DIVISION;
+	}
+
+	//1の場合
+	if (x > 712 && x < 760 && y>576 && y < 624 && Novice::IsTriggerMouse(0)) {
+		playerNumber = ONE;
+	}
+	//2の場合
+	if (x > 712 && x < 760 && y>528 && y < 576 && Novice::IsTriggerMouse(0)) {
+		playerNumber = TWO;
+	}
+	//3の場合
+	if (x > 712 && x < 760 && y>480 && y < 528 && Novice::IsTriggerMouse(0)) {
+		playerNumber = THREE;
+	}
+	//4の場合
+	if (x > 712 && x < 760 && y>432 && y < 480 && Novice::IsTriggerMouse(0)) {
+		playerNumber = FOUR;
 	}
 }
 
@@ -169,6 +170,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	int wave1GH = Novice::LoadTexture("./Resources/images/wave1.png"); //WAVE1の画像
 	int wave2GH = Novice::LoadTexture("./Resources/images/wave2.png"); //WAVE2の画像
 	int wave3GH = Novice::LoadTexture("./Resources/images/wave3.png"); //WAVE3の画像
+	int smokeGH = Novice::LoadTexture("./Resources/images/smoke.png"); //死亡時の煙の画像
 
 	struct Soldier soldier[SOLDIER_NUM]; //兵士の配列を作成
 
@@ -178,6 +180,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		soldier[i].pos.y = 288.0f;
 		soldier[i].num = 0;
 		soldier[i].ope = 0;
+		soldier[i].deadCount = 64;
+		soldier[i].isDead = false;
 		soldier[i].isAlive = false;
 	}
 
@@ -223,6 +227,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		enemy[i].targetNumDigit[2] = 0;
 		enemy[i].targetNum = targetNums[i];
 		enemy[i].summonFlame = summonFlames[i];
+		enemy[i].deadCount = 64;
+		enemy[i].isDead = false;
 		enemy[i].isAlive = false;
 	}
 
@@ -230,7 +236,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	int gameCount = 0; //ゲームの経過フレーム数をカウント
 
-	float wave1x, wave2x,wave3x; //WAVE数表示画像用のx座標
+	float wave1x, wave2x, wave3x; //WAVE数表示画像用のx座標
 	float waveTextTimer = 0.0f; //WAVE画像を移動させるタイマー
 
 	int wave1InTime = 60; //WAVE1の画像が入ってくる時間（ここで変更）
@@ -284,15 +290,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		Novice::GetMousePosition(&mouseX, &mouseY);//マウスの位置を取得
 
-		PlayerNumberSelect(mouseX, mouseY);//プレイヤーが兵士の数字を選択する処理
-
-		PlayerOperatorSelect(mouseX, mouseY);//プレイヤーが兵士の演算子を選択する処理
+		PlayerOpeNumSelect(mouseX, mouseY);//プレイヤーが兵士の演算子と数字を選択する処理
 
 		//プレイヤーが兵士を召喚する処理
 		if (mouseX > 520 && mouseX < 712 && mouseY>432 && mouseY < 624 && Novice::IsTriggerMouse(0) && canSummonSoldier) {
 			for (int i = 0; i < SOLDIER_NUM; i++) {
 				if (soldier[i].isAlive == false) {
 					soldier[i].isAlive = true;
+					soldier[i].isDead = false;
+					soldier[i].deadCount = 64;
 					soldier[i].pos.x = 1124.0f;
 					soldier[i].num = playerNumber;
 					soldier[i].ope = playerOperator;
@@ -323,6 +329,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		for (int i = 0; i < SOLDIER_NUM; i++) {
 			if (soldier[i].isAlive == true && soldier[i].pos.x < 24 + 168) {
 				soldier[i].isAlive = false;
+				soldier[i].isDead = true;
 			}
 		}
 
@@ -348,6 +355,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			if (enemy[i].isAlive == true && enemy[i].pos.x > 1088 - 96) {
 				playerTowerHP--;
 				enemy[i].isAlive = false;
+				enemy[i].isDead = true;
 			}
 		}
 
@@ -370,6 +378,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 						enemy[j].num /= soldier[i].num + 1;
 					}
 					soldier[i].isAlive = false;
+					soldier[i].isDead = true;
 					break;
 				}
 			}
@@ -417,12 +426,26 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		for (int i = 0; i < ENEMY_NUM; i++) {
 			if (enemy[i].num == enemy[i].targetNum) {
 				enemy[i].isAlive = false;
+				enemy[i].isDead = true;
 			}
 		}
 
 		//プレイヤーのタワーHPが0未満にならないようにする（エラー回避）
 		if (playerTowerHP < 0) {
 			playerTowerHP = 0;
+		}
+
+		//兵士が消滅した際、消滅時のカウントを減らす（画像表示用）
+		for (int i = 0; i < SOLDIER_NUM; i++) {
+			if (soldier[i].isDead == true) {
+				soldier[i].deadCount--;
+			}
+		}
+		//敵が消滅した際、消滅時のカウントを減らす（画像表示用）
+		for (int i = 0; i < ENEMY_NUM; i++) {
+			if (enemy[i].isDead == true) {
+				enemy[i].deadCount--;
+			}
 		}
 
 		gameCount++; //1ループ毎にゲームの経過フレームを増加
@@ -478,21 +501,21 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			1.0f, 1.0f,
 			0.0f,
 			0x000000FF
-		);
+		);//残りHP
 		Novice::DrawSprite(
 			1136 + 24, 36,
 			operatorGH[3],
 			1.0f, 1.0f,
 			0.0f,
 			0xFFFFFFFF
-		);
+		);//真ん中の記号
 		Novice::DrawSprite(
 			1136 + 24 + 24, 36,
 			numberGH[3],
 			1.0f, 1.0f,
 			0.0f,
 			0x000000FF
-		);
+		);//HPの最大数（3）
 
 		//兵士枠を描画
 		Novice::DrawSprite(
@@ -557,7 +580,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				Novice::DrawSprite(
 					(int)soldier[i].pos.x, (int)soldier[i].pos.y,
 					soldierGH,
-					1.0f,1.0f,
+					1.0f, 1.0f,
 					0.0f,
 					0xFFFFFFFF
 				);
@@ -577,7 +600,23 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 					0.0f,
 					0x000000FF
 				);
+				//死亡した際に煙のアニメーションを描画
+			} else if (soldier[i].isDead == true && soldier[i].deadCount > 0) {
+				for (int j = 0; j < 8; j++) {
+					if (soldier[i].deadCount <= 64 - (j * 8) && soldier[i].deadCount >= 64 - ((j + 1) * 8)) {
+						Novice::DrawSpriteRect(
+							(int)soldier[i].pos.x, (int)soldier[i].pos.y,
+							0 + (96 * j), 0,
+							96, 96,
+							smokeGH,
+							0.125f, 1.0f,
+							0.0f,
+							0xFFFFFFFF
+						);
+					}
+				}
 			}
+
 		}
 
 		//出現した敵を描画
@@ -586,14 +625,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				Novice::DrawSprite(
 					(int)enemy[i].pos.x, (int)enemy[i].pos.y,
 					enemyGH,
-					1.0f,1.0f,
+					1.0f, 1.0f,
 					0.0f,
 					0xFFFFFFFF
 				);
 				//数字を描画
 				for (int j = 0; j < 3; j++) {
 					Novice::DrawSprite(
-						(int)enemy[i].pos.x + 12 + (j * 24), (int)enemy[i].pos.y+12,
+						(int)enemy[i].pos.x + 12 + (j * 24), (int)enemy[i].pos.y + 12,
 						numberGH[enemy[i].numDigit[2 - j]],
 						1.0f, 1.0f,
 						0.0f,
@@ -601,12 +640,27 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 					);
 					//目標の数字を描画
 					Novice::DrawSprite(
-						(int)enemy[i].pos.x + 12 + (j * 24), (int)enemy[i].pos.y+60,
+						(int)enemy[i].pos.x + 12 + (j * 24), (int)enemy[i].pos.y + 60,
 						numberGH[enemy[i].targetNumDigit[2 - j]],
 						1.0f, 1.0f,
 						0.0f,
 						0xFF0000FF
 					);
+				}
+				//死亡した際に煙のアニメーションを描画
+			} else if (enemy[i].isDead == true && enemy[i].deadCount > 0) {
+				for (int j = 0; j < 8; j++) {
+					if (enemy[i].deadCount <= 64 - (j * 8) && enemy[i].deadCount >= 64 - ((j + 1) * 8)) {
+						Novice::DrawSpriteRect(
+							(int)enemy[i].pos.x, (int)enemy[i].pos.y,
+							0 + (96 * j), 0,
+							96, 96,
+							smokeGH,
+							0.125f, 1.0f,
+							0.0f,
+							0xFFFFFFFF
+						);
+					}
 				}
 			}
 		}
