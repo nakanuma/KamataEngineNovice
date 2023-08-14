@@ -229,8 +229,8 @@ void InitializeGameSceneStage1() {
 	issueAlpha = 0;
 
 	//プレイヤーの演算子と数字を初期化
-	playerNumber = ONE; 
-	playerOperator = ADDITION; 
+	playerNumber = ONE;
+	playerOperator = ADDITION;
 }
 
 //ステージ2用の初期化
@@ -267,7 +267,7 @@ void InitializeGameSceneStage2() {
 		2160,2400,2700,3000,3300,3600,//7~12体目（WAVE2）
 		4380,4740,5280,5760,//13~16体目（WAVE3）
 	};
-	
+
 
 	//敵の情報を初期化
 	for (int i = 0; i < ENEMY_NUM; i++) {
@@ -441,7 +441,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	int stage1ButtonGH = Novice::LoadTexture("./Resources/images/stage1Button.png");//ステージ1のボタン
 	int stage2ButtonGH = Novice::LoadTexture("./Resources/images/stage2Button.png");//ステージ2のボタン
 	int stage3ButtonGH = Novice::LoadTexture("./Resources/images/stage3Button.png");//ステージ3のボタン
-	//int starGH = Novice::LoadTexture("./Resources/images/star.png");//星
+	int starGH = Novice::LoadTexture("./Resources/images/star.png");//星
 	int emptyStarGH = Novice::LoadTexture("./Resources/images/emptyStar.png");//空の星
 	int stageSelectFlameGH = Novice::LoadTexture("./Resources/images/stageSelectFlame.png");//ステージを選択する赤枠
 	int startButtonGH = Novice::LoadTexture("./Resources/images/startButton.png");//スタートボタン
@@ -508,12 +508,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	/// 
 
 	//ゲーム開始ボタンと終了ボタンの色を格納
-	int gameStartButtonColor,gameEndButtonColor;
+	int gameStartButtonColor, gameEndButtonColor;
 
 	///
 	/// ↓ステージセレクトで使用する変数
 	/// 
-	
+
 	//戻るボタンの色を格納
 	int returnButtonColor;
 	//ステージ選択ボタンの色を格納
@@ -531,11 +531,24 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	/// 
 
 	int winLoseAlpha = 0;//勝利と敗北の透明度。初期化の必要あり
-	float winLoseY=0.0f;//勝利と敗北のy座標。初期化の必要あり
+	float winLoseY = 0.0f;//勝利と敗北のy座標。初期化の必要あり
 	int winLoseTimer = 0;//勝利と敗北が動く時間。初期化の必要あり
 	bool isWinLoseMove = false;//勝利と敗北が動いているかのフラグ。初期化の必要あり
 
 	int yesButtonColor, noButtonColor;//はいといいえの色を格納
+
+	//取得した星を描画するためのフラグ
+	bool stage1Star3 = false;
+	bool stage1Star2 = false;
+	bool stage1Star1 = false;
+
+	bool stage2Star3 = false;
+	bool stage2Star2 = false;
+	bool stage2Star1 = false;
+
+	bool stage3Star3 = false;
+	bool stage3Star2 = false;
+	bool stage3Star1 = false;
 
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
@@ -554,12 +567,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			///
 			/// ↓タイトルここから
 			/// 
-			
+
 		case TITLE:
 			///
 			/// ↓更新処理ここから
 			/// 
-			
+
 			//マウスがゲーム開始ボタンの上にある場合の処理
 			if (mouseX > 400 && mouseX < 880 && mouseY>432 && mouseY < 528) {
 				//押した場合、シーンをステージセレクトに遷移
@@ -589,7 +602,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			///
 			/// ↑更新処理ここまで
 			/// 
-			
+
 			///
 			/// ↓描画処理ここから
 			/// 
@@ -624,7 +637,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			///
 			/// ↑描画処理ここまで
 			/// 
-			
+
 			break;
 
 			///
@@ -639,10 +652,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			///
 			/// ↓更新処理ここから
 			/// 
-			
+
 
 			//マウスが戻るボタンの上にある場合の処理（シーン遷移時は反応しないようにする）
-			if (mouseX > 12 && mouseX < 108 && mouseY>12 && mouseY < 108 && isTransitionBox==false) {
+			if (mouseX > 12 && mouseX < 108 && mouseY>12 && mouseY < 108 && isTransitionBox == false) {
 				//押した場合、タイトルに戻る
 				if (Novice::IsPressMouse(0)) {
 					scene = TITLE;
@@ -812,6 +825,106 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				);
 			}
 
+			//星のフラグがtrueになったら星を描画
+			//ステージ1の星
+			if (stage1Star3 == true) {
+				for (int i = 0; i < 3; i++) {
+					Novice::DrawSprite(
+						158 + (i * 72), 372,
+						starGH,
+						1.0f, 1.0f,
+						0.0f,
+						0xFFFFFFFF
+					);
+				}
+			}
+			if (stage1Star2 == true) {
+				for (int i = 0; i < 2; i++) {
+					Novice::DrawSprite(
+						158 + (i * 72), 372,
+						starGH,
+						1.0f, 1.0f,
+						0.0f,
+						0xFFFFFFFF
+					);
+				}
+			}
+			if (stage1Star1 == true) {
+				Novice::DrawSprite(
+					158, 372,
+					starGH,
+					1.0f, 1.0f,
+					0.0f,
+					0xFFFFFFFF
+				);
+			}
+
+			//ステージ2の星
+			if (stage2Star3 == true) {
+				for (int i = 0; i < 3; i++) {
+					Novice::DrawSprite(
+						532 + (i * 72), 372,
+						starGH,
+						1.0f, 1.0f,
+						0.0f,
+						0xFFFFFFFF
+					);
+				}
+			}
+			if (stage2Star2 == true) {
+				for (int i = 0; i < 2; i++) {
+					Novice::DrawSprite(
+						532 + (i * 72), 372,
+						starGH,
+						1.0f, 1.0f,
+						0.0f,
+						0xFFFFFFFF
+					);
+				}
+			}
+			if (stage2Star1 == true) {
+				Novice::DrawSprite(
+					532, 372,
+					starGH,
+					1.0f, 1.0f,
+					0.0f,
+					0xFFFFFFFF
+				);
+			}
+
+			//ステージ3の星
+			if (stage3Star3 == true) {
+				for (int i = 0; i < 3; i++) {
+					Novice::DrawSprite(
+						906 + (i * 72), 372,
+						starGH,
+						1.0f, 1.0f,
+						0.0f,
+						0xFFFFFFFF
+					);
+				}
+			}
+			if (stage3Star2 == true) {
+				for (int i = 0; i < 2; i++) {
+					Novice::DrawSprite(
+						906 + (i * 72), 372,
+						starGH,
+						1.0f, 1.0f,
+						0.0f,
+						0xFFFFFFFF
+					);
+				}
+			}
+			if (stage3Star1 == true) {
+				Novice::DrawSprite(
+					906, 372,
+					starGH,
+					1.0f, 1.0f,
+					0.0f,
+					0xFFFFFFFF
+				);
+			}
+
 			//スタートボタンを描画
 			Novice::DrawSprite(
 				822, 552,
@@ -830,661 +943,697 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			///
 			/// ↑ステージセレクトここまで
 			/// 
-			
+
 			///
 			/// ↓ゲームここから
 			/// 
-			case GAME:
-				///
-				/// ↓更新処理ここから
-				/// 
+		case GAME:
+			///
+			/// ↓更新処理ここから
+			/// 
 
-				PlayerOpeNumSelect(mouseX, mouseY);//プレイヤーが兵士の演算子と数字を選択する処理
+			PlayerOpeNumSelect(mouseX, mouseY);//プレイヤーが兵士の演算子と数字を選択する処理
 
-				//WAVE1の表示
-				if (gameCount > wave1InTime) {
-					waveTextTimer++;
-				}
-				if (waveTextTimer > wave1InTime) {
-					waveTextTimer = 60;
-				}
-				if (gameCount == wave1OutTime) {
-					waveTextTimer = 0;
-				}
+			//WAVE1の表示
+			if (gameCount > wave1InTime) {
+				waveTextTimer++;
+			}
+			if (waveTextTimer > wave1InTime) {
+				waveTextTimer = 60;
+			}
+			if (gameCount == wave1OutTime) {
+				waveTextTimer = 0;
+			}
 
-				//WAVE2の表示
-				if (gameCount == wave2InTime) {
-					waveTextTimer = 0;
-				}
-				if (gameCount == wave2OutTime) {
-					waveTextTimer = 0;
-				}
+			//WAVE2の表示
+			if (gameCount == wave2InTime) {
+				waveTextTimer = 0;
+			}
+			if (gameCount == wave2OutTime) {
+				waveTextTimer = 0;
+			}
 
-				//WAVE3の表示
-				if (gameCount == wave3InTime) {
-					waveTextTimer = 0;
-				}
-				if (gameCount == wave3OutTime) {
-					waveTextTimer = 0;
-				}
+			//WAVE3の表示
+			if (gameCount == wave3InTime) {
+				waveTextTimer = 0;
+			}
+			if (gameCount == wave3OutTime) {
+				waveTextTimer = 0;
+			}
 
-				//プレイヤーが兵士を召喚する処理
-				if (mouseX > 520 && mouseX < 712 && mouseY>432 && mouseY < 624 && Novice::IsTriggerMouse(0) && canSummonSoldier) {
-					for (int i = 0; i < SOLDIER_NUM; i++) {
-						if (soldier[i].isAlive == false) {
-							soldier[i].isAlive = true;
-							soldier[i].isDead = false;
-							soldier[i].deadCount = 64;
-							soldier[i].pos.x = 1124.0f;
-							soldier[i].num = playerNumber;
-							soldier[i].ope = playerOperator;
-							soldierSummonCount++;
-							break;
-						}
-					}
-					//クールダウン（1秒）
-					soldierCurrentCooldown = soldierCooldownFrames;
-					canSummonSoldier = false;
-				}
-
-				//クールダウンのカウントダウン
-				if (soldierCurrentCooldown > 0) {
-					soldierCurrentCooldown--;
-				} else {
-					canSummonSoldier = true;
-				}
-
-				//兵士の更新処理
+			//プレイヤーが兵士を召喚する処理
+			if (mouseX > 520 && mouseX < 712 && mouseY>432 && mouseY < 624 && Novice::IsTriggerMouse(0) && canSummonSoldier) {
 				for (int i = 0; i < SOLDIER_NUM; i++) {
-					//生きている間移動する処理
-					if (soldier[i].isAlive == true) {
-						soldier[i].pos.x -= soldierSpeed;
+					if (soldier[i].isAlive == false) {
+						soldier[i].isAlive = true;
+						soldier[i].isDead = false;
+						soldier[i].deadCount = 64;
+						soldier[i].pos.x = 1124.0f;
+						soldier[i].num = playerNumber;
+						soldier[i].ope = playerOperator;
+						soldierSummonCount++;
+						break;
 					}
-					//兵士が敵のタワーに当たったら消滅する処理
-					if (soldier[i].isAlive == true && soldier[i].pos.x < 24 + 168) {
+				}
+				//クールダウン（1秒）
+				soldierCurrentCooldown = soldierCooldownFrames;
+				canSummonSoldier = false;
+			}
+
+			//クールダウンのカウントダウン
+			if (soldierCurrentCooldown > 0) {
+				soldierCurrentCooldown--;
+			} else {
+				canSummonSoldier = true;
+			}
+
+			//兵士の更新処理
+			for (int i = 0; i < SOLDIER_NUM; i++) {
+				//生きている間移動する処理
+				if (soldier[i].isAlive == true) {
+					soldier[i].pos.x -= soldierSpeed;
+				}
+				//兵士が敵のタワーに当たったら消滅する処理
+				if (soldier[i].isAlive == true && soldier[i].pos.x < 24 + 168) {
+					soldier[i].isAlive = false;
+					soldier[i].isDead = true;
+				}
+				//兵士が消滅した際、消滅時のカウントを減らす（画像表示用）
+				if (soldier[i].isDead == true) {
+					soldier[i].deadCount--;
+				}
+			}
+
+			//敵の更新処理
+			for (int i = 0; i < ENEMY_NUM; i++) {
+				//出現時間になった敵が出現
+				if (gameCount == enemy[i].summonFlame) {
+					if (enemy[i].isAlive == false) {
+						enemy[i].isAlive = true;
+					}
+				}
+				//生存している敵が移動
+				if (enemy[i].isAlive == true) {
+					enemy[i].pos.x += enemy[i].speed;
+				}
+				//敵がプレイヤーのタワーに当たったら消滅する処理
+				if (enemy[i].isAlive == true && enemy[i].pos.x > 1088 - 96) {
+					playerTowerHP--;
+					enemy[i].isAlive = false;
+					enemy[i].isDead = true;
+				}
+				//敵の現在の数字が目標の数字と同じになった場合に消滅する処理
+				if (enemy[i].num == enemy[i].targetNum) {
+					enemy[i].isAlive = false;
+					enemy[i].isDead = true;
+				}
+				//敵が消滅した際、消滅時のカウントを減らす（画像表示用）
+				if (enemy[i].isDead == true) {
+					enemy[i].deadCount--;
+				}
+			}
+
+			//兵士と敵が衝突した際の処理
+			for (int i = 0; i < SOLDIER_NUM; i++) {
+				for (int j = 0; j < ENEMY_NUM; j++) {
+					//兵士が敵に衝突しているかつ兵士と敵が生存している場合
+					if (soldier[i].pos.x < enemy[j].pos.x + 96 && soldier[i].isAlive == true && enemy[j].isAlive == true) {
+						//プレイヤーの演算子が加算のとき
+						if (soldier[i].ope == ADDITION) {
+							enemy[j].num += soldier[i].num + 1;
+							//プレイヤーの演算子が減算のとき
+						} else if (soldier[i].ope == SUBTRACTION) {
+							enemy[j].num -= soldier[i].num + 1;
+							//プレイヤーの演算子が乗算のとき
+						} else if (soldier[i].ope == MULTIPLICATION) {
+							enemy[j].num *= soldier[i].num + 1;
+							//プレイヤーの演算子が除算のとき
+						} else if (soldier[i].ope == DIVISION) {
+							enemy[j].num /= soldier[i].num + 1;
+						}
 						soldier[i].isAlive = false;
 						soldier[i].isDead = true;
-					}
-					//兵士が消滅した際、消滅時のカウントを減らす（画像表示用）
-					if (soldier[i].isDead == true) {
-						soldier[i].deadCount--;
+						break;
 					}
 				}
+			}
 
-				//敵の更新処理
-				for (int i = 0; i < ENEMY_NUM; i++) {
-					//出現時間になった敵が出現
-					if (gameCount == enemy[i].summonFlame) {
-						if (enemy[i].isAlive == false) {
-							enemy[i].isAlive = true;
+			//敵の数字の上限と下限を設定（エラー回避用。兵士と敵の衝突処理の下に置く）
+			for (int i = 0; i < ENEMY_NUM; i++) {
+				if (enemy[i].isAlive == true) {
+					if (enemy[i].num < 0) {
+						enemy[i].num = 0;
+					}
+					if (enemy[i].num > 999) {
+						enemy[i].num = 999;
+					}
+				}
+			}
+
+			//敵の数字を描画するために配列に格納する（衝突した処理の下に置く）
+			for (int i = 0; i < ENEMY_NUM; i++) {
+				if (enemy[i].isAlive == true) {
+					enemy[i].numTemp = enemy[i].num;
+					enemy[i].numDigit[0] = (enemy[i].numTemp % 10);
+					enemy[i].numTemp /= 10;
+					enemy[i].numDigit[1] = (enemy[i].numTemp % 10);
+					enemy[i].numTemp /= 10;
+					enemy[i].numDigit[2] = (enemy[i].numTemp % 10);
+					enemy[i].numTemp /= 10;
+				}
+				//敵の目標の数字を描画するために配列に格納する
+				if (enemy[i].isAlive == true) {
+					enemy[i].targetNumTemp = enemy[i].targetNum;
+					enemy[i].targetNumDigit[0] = (enemy[i].targetNumTemp % 10);
+					enemy[i].targetNumTemp /= 10;
+					enemy[i].targetNumDigit[1] = (enemy[i].targetNumTemp % 10);
+					enemy[i].targetNumTemp /= 10;
+					enemy[i].targetNumDigit[2] = (enemy[i].targetNumTemp % 10);
+					enemy[i].targetNumTemp /= 10;
+				}
+			}
+
+			//プレイヤーのタワーHPが0未満にならないようにする（エラー回避）
+			if (playerTowerHP < 0) {
+				playerTowerHP = 0;
+			}
+
+			//勝った時の処理
+			if (playerTowerHP >= 1 && enemy[15].deadCount <= 0) {
+				//プレイヤーの勝利フラグをtrueにする
+				isPlayerWin = true;
+				//海苔を浮かび上がらせて、alphaが255に到達したらシーンを切り替える
+				if (issueAlpha < 255) {
+					issueAlpha += 3;
+				} else {
+					scene = GAMERESULT;
+				}
+			}
+
+			//負けた時の処理
+			if (playerTowerHP <= 0) {
+				//海苔を浮かび上がらせて、alphaが255に到達したらシーンを切り替える
+				if (issueAlpha < 255) {
+					issueAlpha += 3;
+				} else {
+					scene = GAMERESULT;
+				}
+			}
+
+			gameCount++; //1ループ毎にゲームの経過フレームを増加
+
+			///
+			/// ↑更新処理ここまで
+			/// 
+
+			///
+			/// ↓描画処理ここから
+			///
+
+			//背景の空を描画
+			Novice::DrawSprite(
+				0, 0,
+				skyGH,
+				1.0f, 1.0f,
+				0.0f,
+				0xFFFFFFFF
+			);
+
+			//背景の地面を描画
+			Novice::DrawSprite(
+				0, 384,
+				groundGH,
+				1.0f, 1.0f,
+				0.0f,
+				0xFFFFFFFF
+			);
+
+			//敵のタワーを描画
+			Novice::DrawSprite(
+				24, 72,
+				towerGH,
+				1.0f, 1.0f,
+				0.0f,
+				0xFFFFFFFF
+			);
+
+			//プレイヤーのタワーを描画
+			Novice::DrawSprite(
+				1088, 72,
+				towerGH,
+				1.0f, 1.0f,
+				0.0f,
+				0xFFFFFFFF
+			);
+
+			//プレイヤーのタワーのHPを描画
+			Novice::DrawSprite(
+				1136, 36,
+				numberGH[playerTowerHP],
+				1.0f, 1.0f,
+				0.0f,
+				0x000000FF
+			);//残りHP
+			Novice::DrawSprite(
+				1136 + 24, 36,
+				operatorGH[3],
+				1.0f, 1.0f,
+				0.0f,
+				0xFFFFFFFF
+			);//真ん中の記号
+			Novice::DrawSprite(
+				1136 + 24 + 24, 36,
+				numberGH[3],
+				1.0f, 1.0f,
+				0.0f,
+				0x000000FF
+			);//HPの最大数（3）
+
+			//兵士枠を描画
+			Novice::DrawSprite(
+				520, 432,
+				soldierFlameGH,
+				1.0f, 1.0f,
+				0.0f,
+				0xFFFFFFFF
+			);
+
+			//選択した数字の赤枠を描画（プレイヤーが数字を選択する処理と連動）
+			Novice::DrawSprite(
+				712 - 1, 576 + 1 - (playerNumber * 48),
+				selectFlameGH,
+				1.0f, 1.0f,
+				0.0f,
+				0xFFFFFFFF
+			);
+
+			//選択した演算子の赤枠を描画（プレイヤーが演算子を選択する処理と連動）
+			Novice::DrawSprite(
+				520 + 1 + (playerOperator * 48), 624 - 1,
+				selectFlameGH,
+				1.0f, 1.0f,
+				0.0f,
+				0xFFFFFFFF
+			);
+
+			//兵士枠（真ん中の枠）に数字を描画（プレイヤーが数字を選択する処理と連動）
+			Novice::DrawSprite(
+				616, 504,
+				number48xGH[playerNumber + 1],
+				1.0f, 1.0f,
+				0.0f,
+				0xFFFFFFFF
+			);
+
+			//兵士枠（真ん中の枠）に演算子を描画（プレイヤーが演算子を選択する処理と連動）
+			Novice::DrawSprite(
+				568, 504,
+				operator48xGH[playerOperator],
+				1.0f, 1.0f,
+				0.0f,
+				0xFFFFFFFF
+			);
+
+			//召喚された兵士を描画
+			for (int i = 0; i < SOLDIER_NUM; i++) {
+				if (soldier[i].isAlive == true) {
+					//箱を描画
+					Novice::DrawSprite(
+						(int)soldier[i].pos.x, (int)soldier[i].pos.y,
+						soldierGH,
+						1.0f, 1.0f,
+						0.0f,
+						0xFFFFFFFF
+					);
+					//演算子を描画
+					Novice::DrawSprite(
+						(int)soldier[i].pos.x + 24, (int)soldier[i].pos.y + 36,
+						operatorGH[soldier[i].ope],
+						1.0f, 1.0f,
+						0.0f,
+						0xFFFFFFFF
+					);
+					//数字を描画
+					Novice::DrawSprite(
+						(int)soldier[i].pos.x + 24 + 24, (int)soldier[i].pos.y + 36,
+						numberGH[soldier[i].num + 1],
+						1.0f, 1.0f,
+						0.0f,
+						0x000000FF
+					);
+					//死亡した際に煙のアニメーションを描画
+				} else if (soldier[i].isDead == true && soldier[i].deadCount > 0) {
+					for (int j = 0; j < 8; j++) {
+						if (soldier[i].deadCount <= 64 - (j * 8) && soldier[i].deadCount >= 64 - ((j + 1) * 8)) {
+							Novice::DrawSpriteRect(
+								(int)soldier[i].pos.x, (int)soldier[i].pos.y,
+								0 + (96 * j), 0,
+								96, 96,
+								smokeGH,
+								0.125f, 1.0f,
+								0.0f,
+								0xFFFFFFFF
+							);
 						}
 					}
-					//生存している敵が移動
-					if (enemy[i].isAlive == true) {
-						enemy[i].pos.x += enemy[i].speed;
-					}
-					//敵がプレイヤーのタワーに当たったら消滅する処理
-					if (enemy[i].isAlive == true && enemy[i].pos.x > 1088 - 96) {
-						playerTowerHP--;
-						enemy[i].isAlive = false;
-						enemy[i].isDead = true;
-					}
-					//敵の現在の数字が目標の数字と同じになった場合に消滅する処理
-					if (enemy[i].num == enemy[i].targetNum) {
-						enemy[i].isAlive = false;
-						enemy[i].isDead = true;
-					}
-					//敵が消滅した際、消滅時のカウントを減らす（画像表示用）
-					if (enemy[i].isDead == true) {
-						enemy[i].deadCount--;
-					}
 				}
 
-				//兵士と敵が衝突した際の処理
-				for (int i = 0; i < SOLDIER_NUM; i++) {
-					for (int j = 0; j < ENEMY_NUM; j++) {
-						//兵士が敵に衝突しているかつ兵士と敵が生存している場合
-						if (soldier[i].pos.x < enemy[j].pos.x + 96 && soldier[i].isAlive == true && enemy[j].isAlive == true) {
-							//プレイヤーの演算子が加算のとき
-							if (soldier[i].ope == ADDITION) {
-								enemy[j].num += soldier[i].num + 1;
-								//プレイヤーの演算子が減算のとき
-							} else if (soldier[i].ope == SUBTRACTION) {
-								enemy[j].num -= soldier[i].num + 1;
-								//プレイヤーの演算子が乗算のとき
-							} else if (soldier[i].ope == MULTIPLICATION) {
-								enemy[j].num *= soldier[i].num + 1;
-								//プレイヤーの演算子が除算のとき
-							} else if (soldier[i].ope == DIVISION) {
-								enemy[j].num /= soldier[i].num + 1;
-							}
-							soldier[i].isAlive = false;
-							soldier[i].isDead = true;
-							break;
-						}
-					}
-				}
+			}
 
-				//敵の数字の上限と下限を設定（エラー回避用。兵士と敵の衝突処理の下に置く）
-				for (int i = 0; i < ENEMY_NUM; i++) {
-					if (enemy[i].isAlive == true) {
-						if (enemy[i].num < 0) {
-							enemy[i].num = 0;
-						}
-						if (enemy[i].num > 999) {
-							enemy[i].num = 999;
-						}
-					}
-				}
-
-				//敵の数字を描画するために配列に格納する（衝突した処理の下に置く）
-				for (int i = 0; i < ENEMY_NUM; i++) {
-					if (enemy[i].isAlive == true) {
-						enemy[i].numTemp = enemy[i].num;
-						enemy[i].numDigit[0] = (enemy[i].numTemp % 10);
-						enemy[i].numTemp /= 10;
-						enemy[i].numDigit[1] = (enemy[i].numTemp % 10);
-						enemy[i].numTemp /= 10;
-						enemy[i].numDigit[2] = (enemy[i].numTemp % 10);
-						enemy[i].numTemp /= 10;
-					}
-					//敵の目標の数字を描画するために配列に格納する
-					if (enemy[i].isAlive == true) {
-						enemy[i].targetNumTemp = enemy[i].targetNum;
-						enemy[i].targetNumDigit[0] = (enemy[i].targetNumTemp % 10);
-						enemy[i].targetNumTemp /= 10;
-						enemy[i].targetNumDigit[1] = (enemy[i].targetNumTemp % 10);
-						enemy[i].targetNumTemp /= 10;
-						enemy[i].targetNumDigit[2] = (enemy[i].targetNumTemp % 10);
-						enemy[i].targetNumTemp /= 10;
-					}
-				}
-
-				//プレイヤーのタワーHPが0未満にならないようにする（エラー回避）
-				if (playerTowerHP < 0) {
-					playerTowerHP = 0;
-				}
-
-				//勝った時の処理
-				if (playerTowerHP >= 1 && enemy[15].deadCount <= 0) {
-					//プレイヤーの勝利フラグをtrueにする
-					isPlayerWin = true;
-					//海苔を浮かび上がらせて、alphaが255に到達したらシーンを切り替える
-					if (issueAlpha < 255) {
-						issueAlpha += 3;
-					} else {
-						scene = GAMERESULT;
-					}
-				}
-
-				//負けた時の処理
-				if (playerTowerHP <= 0) {
-					//海苔を浮かび上がらせて、alphaが255に到達したらシーンを切り替える
-					if (issueAlpha < 255) {
-						issueAlpha += 3;
-					} else {
-						scene = GAMERESULT;
-					}
-				}
-
-				gameCount++; //1ループ毎にゲームの経過フレームを増加
-
-				///
-				/// ↑更新処理ここまで
-				/// 
-
-				///
-				/// ↓描画処理ここから
-				///
-				
-				//背景の空を描画
-				Novice::DrawSprite(
-					0, 0,
-					skyGH,
-					1.0f, 1.0f,
+			//兵士召喚のクールタイム表示
+			for (int i = 0; i < soldierCurrentCooldown; i++) {
+				Novice::DrawBox(
+					520 + (i * 3), 432,
+					3, 192,
 					0.0f,
-					0xFFFFFFFF
+					0x000000C0,
+					kFillModeSolid
 				);
+			}
 
-				//背景の地面を描画
-				Novice::DrawSprite(
-					0, 384,
-					groundGH,
-					1.0f, 1.0f,
-					0.0f,
-					0xFFFFFFFF
-				);
-
-				//敵のタワーを描画
-				Novice::DrawSprite(
-					24, 72,
-					towerGH,
-					1.0f, 1.0f,
-					0.0f,
-					0xFFFFFFFF
-				);
-
-				//プレイヤーのタワーを描画
-				Novice::DrawSprite(
-					1088, 72,
-					towerGH,
-					1.0f, 1.0f,
-					0.0f,
-					0xFFFFFFFF
-				);
-
-				//プレイヤーのタワーのHPを描画
-				Novice::DrawSprite(
-					1136, 36,
-					numberGH[playerTowerHP],
-					1.0f, 1.0f,
-					0.0f,
-					0x000000FF
-				);//残りHP
-				Novice::DrawSprite(
-					1136 + 24, 36,
-					operatorGH[3],
-					1.0f, 1.0f,
-					0.0f,
-					0xFFFFFFFF
-				);//真ん中の記号
-				Novice::DrawSprite(
-					1136 + 24 + 24, 36,
-					numberGH[3],
-					1.0f, 1.0f,
-					0.0f,
-					0x000000FF
-				);//HPの最大数（3）
-
-				//兵士枠を描画
-				Novice::DrawSprite(
-					520, 432,
-					soldierFlameGH,
-					1.0f, 1.0f,
-					0.0f,
-					0xFFFFFFFF
-				);
-
-				//選択した数字の赤枠を描画（プレイヤーが数字を選択する処理と連動）
-				Novice::DrawSprite(
-					712 - 1, 576 + 1 - (playerNumber * 48),
-					selectFlameGH,
-					1.0f, 1.0f,
-					0.0f,
-					0xFFFFFFFF
-				);
-
-				//選択した演算子の赤枠を描画（プレイヤーが演算子を選択する処理と連動）
-				Novice::DrawSprite(
-					520 + 1 + (playerOperator * 48), 624 - 1,
-					selectFlameGH,
-					1.0f, 1.0f,
-					0.0f,
-					0xFFFFFFFF
-				);
-
-				//兵士枠（真ん中の枠）に数字を描画（プレイヤーが数字を選択する処理と連動）
-				Novice::DrawSprite(
-					616, 504,
-					number48xGH[playerNumber + 1],
-					1.0f, 1.0f,
-					0.0f,
-					0xFFFFFFFF
-				);
-
-				//兵士枠（真ん中の枠）に演算子を描画（プレイヤーが演算子を選択する処理と連動）
-				Novice::DrawSprite(
-					568, 504,
-					operator48xGH[playerOperator],
-					1.0f, 1.0f,
-					0.0f,
-					0xFFFFFFFF
-				);
-
-				//召喚された兵士を描画
-				for (int i = 0; i < SOLDIER_NUM; i++) {
-					if (soldier[i].isAlive == true) {
-						//箱を描画
+			//出現した敵を描画
+			for (int i = 0; i < ENEMY_NUM; i++) {
+				if (enemy[i].isAlive == true) {
+					Novice::DrawSprite(
+						(int)enemy[i].pos.x, (int)enemy[i].pos.y,
+						enemyGH,
+						1.0f, 1.0f,
+						0.0f,
+						0xFFFFFFFF
+					);
+					//数字を描画
+					for (int j = 0; j < 3; j++) {
 						Novice::DrawSprite(
-							(int)soldier[i].pos.x, (int)soldier[i].pos.y,
-							soldierGH,
-							1.0f, 1.0f,
-							0.0f,
-							0xFFFFFFFF
-						);
-						//演算子を描画
-						Novice::DrawSprite(
-							(int)soldier[i].pos.x + 24, (int)soldier[i].pos.y + 36,
-							operatorGH[soldier[i].ope],
-							1.0f, 1.0f,
-							0.0f,
-							0xFFFFFFFF
-						);
-						//数字を描画
-						Novice::DrawSprite(
-							(int)soldier[i].pos.x + 24 + 24, (int)soldier[i].pos.y + 36,
-							numberGH[soldier[i].num + 1],
+							(int)enemy[i].pos.x + 12 + (j * 24), (int)enemy[i].pos.y + 12,
+							numberGH[enemy[i].numDigit[2 - j]],
 							1.0f, 1.0f,
 							0.0f,
 							0x000000FF
 						);
-						//死亡した際に煙のアニメーションを描画
-					} else if (soldier[i].isDead == true && soldier[i].deadCount > 0) {
-						for (int j = 0; j < 8; j++) {
-							if (soldier[i].deadCount <= 64 - (j * 8) && soldier[i].deadCount >= 64 - ((j + 1) * 8)) {
-								Novice::DrawSpriteRect(
-									(int)soldier[i].pos.x, (int)soldier[i].pos.y,
-									0 + (96 * j), 0,
-									96, 96,
-									smokeGH,
-									0.125f, 1.0f,
-									0.0f,
-									0xFFFFFFFF
-								);
-							}
-						}
-					}
-
-				}
-
-				//兵士召喚のクールタイム表示
-				for (int i = 0; i < soldierCurrentCooldown; i++) {
-					Novice::DrawBox(
-						520 + (i * 3), 432,
-						3, 192,
-						0.0f,
-						0x000000C0,
-						kFillModeSolid
-					);
-				}
-
-				//出現した敵を描画
-				for (int i = 0; i < ENEMY_NUM; i++) {
-					if (enemy[i].isAlive == true) {
+						//目標の数字を描画
 						Novice::DrawSprite(
-							(int)enemy[i].pos.x, (int)enemy[i].pos.y,
-							enemyGH,
+							(int)enemy[i].pos.x + 12 + (j * 24), (int)enemy[i].pos.y + 60,
+							numberGH[enemy[i].targetNumDigit[2 - j]],
 							1.0f, 1.0f,
 							0.0f,
-							0xFFFFFFFF
+							0xFF0000FF
 						);
-						//数字を描画
-						for (int j = 0; j < 3; j++) {
-							Novice::DrawSprite(
-								(int)enemy[i].pos.x + 12 + (j * 24), (int)enemy[i].pos.y + 12,
-								numberGH[enemy[i].numDigit[2 - j]],
-								1.0f, 1.0f,
+					}
+					//死亡した際に煙のアニメーションを描画
+				} else if (enemy[i].isDead == true && enemy[i].deadCount > 0) {
+					for (int j = 0; j < 8; j++) {
+						if (enemy[i].deadCount <= 64 - (j * 8) && enemy[i].deadCount >= 64 - ((j + 1) * 8)) {
+							Novice::DrawSpriteRect(
+								(int)enemy[i].pos.x, (int)enemy[i].pos.y,
+								0 + (96 * j), 0,
+								96, 96,
+								smokeGH,
+								0.125f, 1.0f,
 								0.0f,
-								0x000000FF
+								0xFFFFFFFF
 							);
-							//目標の数字を描画
-							Novice::DrawSprite(
-								(int)enemy[i].pos.x + 12 + (j * 24), (int)enemy[i].pos.y + 60,
-								numberGH[enemy[i].targetNumDigit[2 - j]],
-								1.0f, 1.0f,
-								0.0f,
-								0xFF0000FF
-							);
-						}
-						//死亡した際に煙のアニメーションを描画
-					} else if (enemy[i].isDead == true && enemy[i].deadCount > 0) {
-						for (int j = 0; j < 8; j++) {
-							if (enemy[i].deadCount <= 64 - (j * 8) && enemy[i].deadCount >= 64 - ((j + 1) * 8)) {
-								Novice::DrawSpriteRect(
-									(int)enemy[i].pos.x, (int)enemy[i].pos.y,
-									0 + (96 * j), 0,
-									96, 96,
-									smokeGH,
-									0.125f, 1.0f,
-									0.0f,
-									0xFFFFFFFF
-								);
-							}
 						}
 					}
 				}
+			}
 
-				//WAVE1のx座標を移動
-				wave1x = EaseInQuartPos(1280.0f, 472.0f, waveTextTimer / 60.0f);
-				if (gameCount > wave1OutTime) {
-					wave1x = EaseInQuartPos(472.0f, -472.0f, waveTextTimer / 60.0f);
-				}
+			//WAVE1のx座標を移動
+			wave1x = EaseInQuartPos(1280.0f, 472.0f, waveTextTimer / 60.0f);
+			if (gameCount > wave1OutTime) {
+				wave1x = EaseInQuartPos(472.0f, -472.0f, waveTextTimer / 60.0f);
+			}
 
-				if (gameCount < wave2InTime - 200) {
-					Novice::DrawSprite(
-						(int)wave1x, 168,
-						wave1GH,
-						1.0f, 1.0f,
-						0.0f,
-						0xFFFFFFFF
-					);
-				}
-
-				//WAVE2のx座標を移動
-				wave2x = EaseInQuartPos(1280.0f, 472.0f, waveTextTimer / 60.0f);
-				if (gameCount > wave2OutTime) {
-					wave2x = EaseInQuartPos(472.0f, -472.0f, waveTextTimer / 60.0f);
-				}
-
-				if (gameCount > wave2InTime && gameCount < wave3InTime - 200) {
-					Novice::DrawSprite(
-						(int)wave2x, 168,
-						wave2GH,
-						1.0f, 1.0f,
-						0.0f,
-						0xFFFFFFFF
-					);
-				}
-
-				//WAVE3のx座標を移動
-				wave3x = EaseInQuartPos(1280.0f, 472.0f, waveTextTimer / 60.0f);
-				if (gameCount > wave3OutTime) {
-					wave3x = EaseInQuartPos(472.0f, -472.0f, waveTextTimer / 60.0f);
-				}
-
-				if (gameCount > wave3InTime) {
-					Novice::DrawSprite(
-						(int)wave3x, 168,
-						wave3GH,
-						1.0f, 1.0f,
-						0.0f,
-						0xFFFFFFFF
-					);
-				}
-
-				//浮かび上がる海苔を描画
-				Novice::DrawBox(
-					0, 0,
-					1280, 720,
+			if (gameCount < wave2InTime - 200) {
+				Novice::DrawSprite(
+					(int)wave1x, 168,
+					wave1GH,
+					1.0f, 1.0f,
 					0.0f,
-					0x00000000 + issueAlpha,
-					kFillModeSolid
+					0xFFFFFFFF
 				);
+			}
 
-				//デバッグ用文字列
-				Novice::ScreenPrintf(20, 10, "gameCount:%d", gameCount);
-				Novice::ScreenPrintf(20, 30, "cooldown:%d", soldierCurrentCooldown);
-				Novice::ScreenPrintf(20, 50, "soldierSummonCount:%d", soldierSummonCount);
+			//WAVE2のx座標を移動
+			wave2x = EaseInQuartPos(1280.0f, 472.0f, waveTextTimer / 60.0f);
+			if (gameCount > wave2OutTime) {
+				wave2x = EaseInQuartPos(472.0f, -472.0f, waveTextTimer / 60.0f);
+			}
 
-				///
-				/// ↑描画処理ここまで
-				///
-				
-				break;
+			if (gameCount > wave2InTime && gameCount < wave3InTime - 200) {
+				Novice::DrawSprite(
+					(int)wave2x, 168,
+					wave2GH,
+					1.0f, 1.0f,
+					0.0f,
+					0xFFFFFFFF
+				);
+			}
 
-			case GAMERESULT:
+			//WAVE3のx座標を移動
+			wave3x = EaseInQuartPos(1280.0f, 472.0f, waveTextTimer / 60.0f);
+			if (gameCount > wave3OutTime) {
+				wave3x = EaseInQuartPos(472.0f, -472.0f, waveTextTimer / 60.0f);
+			}
 
-				///
-				/// ↓更新処理ここから
-				///
+			if (gameCount > wave3InTime) {
+				Novice::DrawSprite(
+					(int)wave3x, 168,
+					wave3GH,
+					1.0f, 1.0f,
+					0.0f,
+					0xFFFFFFFF
+				);
+			}
 
-				//透明度が255になるまで増加
-				if (winLoseAlpha < 255) {
-					winLoseAlpha += 5;
-					//透明度が255に到達したら画像が動き始める
-				} else {
-					isWinLoseMove = true;
+			//浮かび上がる海苔を描画
+			Novice::DrawBox(
+				0, 0,
+				1280, 720,
+				0.0f,
+				0x00000000 + issueAlpha,
+				kFillModeSolid
+			);
+
+			//デバッグ用文字列
+			Novice::ScreenPrintf(20, 10, "gameCount:%d", gameCount);
+			Novice::ScreenPrintf(20, 30, "cooldown:%d", soldierCurrentCooldown);
+			Novice::ScreenPrintf(20, 50, "soldierSummonCount:%d", soldierSummonCount);
+
+			///
+			/// ↑描画処理ここまで
+			///
+
+			break;
+
+		case GAMERESULT:
+
+			///
+			/// ↓更新処理ここから
+			///
+
+			//実績を解除して星フラグを操作
+			//ステージ1の場合
+			if (stage == STAGE1) {
+				if (isPlayerWin == true && soldierSummonCount <= 20) {
+					stage1Star3 = true;
 				}
+				if (isPlayerWin == true && soldierSummonCount >= 21 && soldierSummonCount <= 25) {
+					stage1Star2 = true;
+				}
+				if (isPlayerWin == true && soldierSummonCount >= 26 && soldierSummonCount <= 30) {
+					stage1Star1 = true;
+				}
+			}
+			//ステージ2の場合
+			if (stage == STAGE2) {
+				if (isPlayerWin == true && soldierSummonCount <= 24) {
+					stage2Star3 = true;
+				}
+				if (isPlayerWin == true && soldierSummonCount >= 25 && soldierSummonCount <= 30) {
+					stage2Star2 = true;
+				}
+				if (isPlayerWin == true && soldierSummonCount >= 31 && soldierSummonCount <= 36) {
+					stage2Star1 = true;
+				}
+			}
+			//ステージ3の場合
+			if (stage == STAGE3) {
+				if (isPlayerWin == true && soldierSummonCount <= 36) {
+					stage3Star3 = true;
+				}
+				if (isPlayerWin == true && soldierSummonCount >= 37 && soldierSummonCount <= 42) {
+					stage3Star2 = true;
+				}
+				if (isPlayerWin == true && soldierSummonCount >= 43 && soldierSummonCount <= 48) {
+					stage3Star1 = true;
+				}
+			}
 
+			//透明度が255になるまで増加
+			if (winLoseAlpha < 255) {
+				winLoseAlpha += 5;
 				//透明度が255に到達したら画像が動き始める
-				if (isWinLoseMove == true) {
-					if (winLoseTimer < 60) {
-						winLoseTimer++;
+			} else {
+				isWinLoseMove = true;
+			}
+
+			//透明度が255に到達したら画像が動き始める
+			if (isWinLoseMove == true) {
+				if (winLoseTimer < 60) {
+					winLoseTimer++;
+				}
+			}
+
+			//勝敗の文字のY座標を更新
+			winLoseY = EaseInQuartPos(312, 132, winLoseTimer / 60.0f);
+
+			//マウスがはいボタンの上にある場合の処理
+			if (mouseX > 288 && mouseX < 576 && mouseY>492 && mouseY < 598) {
+				//押した場合、ゲームを初期化してゲームシーンに戻る
+				if (Novice::IsPressMouse(0)) {
+					//現在のステージによって初期化するステージを変更する
+					if (stage == STAGE1) {
+						winLoseAlpha = 0;
+						winLoseY = 0.0f;
+						winLoseTimer = 0;
+						isWinLoseMove = false;
+						InitializeGameSceneStage1();
+						scene = GAME;
+					} else if (stage == STAGE2) {
+						winLoseAlpha = 0;
+						winLoseY = 0.0f;
+						winLoseTimer = 0;
+						isWinLoseMove = false;
+						InitializeGameSceneStage2();
+						scene = GAME;
+					} else if (stage == STAGE3) {
+						winLoseAlpha = 0;
+						winLoseY = 0.0f;
+						winLoseTimer = 0;
+						isWinLoseMove = false;
+						InitializeGameSceneStage3();
+						scene = GAME;
 					}
 				}
+				//色を濃くする
+				yesButtonColor = 0x808080FF;
+			} else {
+				//マウスがボタンの上に無い場合、色をそのままにする
+				yesButtonColor = 0xFFFFFFFF;
+			}
 
-				//勝敗の文字のY座標を更新
-				winLoseY = EaseInQuartPos(312, 132, winLoseTimer / 60.0f);
-
-				//マウスがはいボタンの上にある場合の処理
-				if (mouseX > 288 && mouseX < 576 && mouseY>492 && mouseY < 598) {
-					//押した場合、ゲームを初期化してゲームシーンに戻る
-					if (Novice::IsPressMouse(0)) {
-						//現在のステージによって初期化するステージを変更する
-						if (stage == STAGE1) {
-							winLoseAlpha = 0;
-							winLoseY = 0.0f;
-							winLoseTimer = 0;
-							isWinLoseMove = false;
-							InitializeGameSceneStage1();
-							scene = GAME;
-						}
-						else if (stage == STAGE2) {
-							winLoseAlpha = 0;
-							winLoseY = 0.0f;
-							winLoseTimer = 0;
-							isWinLoseMove = false;
-							InitializeGameSceneStage2();
-							scene = GAME;
-						}
-						else if (stage == STAGE3) {
-							winLoseAlpha = 0;
-							winLoseY = 0.0f;
-							winLoseTimer = 0;
-							isWinLoseMove = false;
-							InitializeGameSceneStage3();
-							scene = GAME;
-						}
+			//マウスがいいえボタンの上にある場合の処理
+			if (mouseX > 704 && mouseX < 992 && mouseY>492 && mouseY < 598) {
+				//押した場合、ステージセレクトに戻る（初期化する）
+				if (Novice::IsPressMouse(0)) {
+					if (stage == STAGE1) {
+						transitionBoxPosX = 1280;
+						isTransitionBox = false;
+						sceneTransitionCount = 45;
+						winLoseAlpha = 0;
+						winLoseY = 0.0f;
+						winLoseTimer = 0;
+						isWinLoseMove = false;
+						InitializeGameSceneStage1();
+						scene = STAGESELECT;
+					} else if (stage == STAGE2) {
+						transitionBoxPosX = 1280;
+						isTransitionBox = false;
+						sceneTransitionCount = 45;
+						winLoseAlpha = 0;
+						winLoseY = 0.0f;
+						winLoseTimer = 0;
+						isWinLoseMove = false;
+						InitializeGameSceneStage2();
+						scene = STAGESELECT;
+					} else if (stage == STAGE3) {
+						transitionBoxPosX = 1280;
+						isTransitionBox = false;
+						sceneTransitionCount = 45;
+						winLoseAlpha = 0;
+						winLoseY = 0.0f;
+						winLoseTimer = 0;
+						isWinLoseMove = false;
+						InitializeGameSceneStage3();
+						scene = STAGESELECT;
 					}
-					//色を濃くする
-					yesButtonColor = 0x808080FF;
-				} else {
-					//マウスがボタンの上に無い場合、色をそのままにする
-					yesButtonColor = 0xFFFFFFFF;
 				}
+				//色を濃くする
+				noButtonColor = 0x808080FF;
+			} else {
+				//マウスがボタンの上に無い場合、色をそのままにする
+				noButtonColor = 0xFFFFFFFF;
+			}
 
-				//マウスがいいえボタンの上にある場合の処理
-				if (mouseX > 704 && mouseX < 992 && mouseY>492 && mouseY < 598) {
-					//押した場合、ステージセレクトに戻る（初期化する）
-					if (Novice::IsPressMouse(0)) {
-						if (stage == STAGE1) {
-							transitionBoxPosX = 1280;
-							isTransitionBox = false;
-							sceneTransitionCount = 45;
-							winLoseAlpha = 0;
-							winLoseY = 0.0f;
-							winLoseTimer = 0;
-							isWinLoseMove = false;
-							InitializeGameSceneStage1();
-							scene = STAGESELECT;
-						} else if (stage == STAGE2) {
-							transitionBoxPosX = 1280;
-							isTransitionBox = false;
-							sceneTransitionCount = 45;
-							winLoseAlpha = 0;
-							winLoseY = 0.0f;
-							winLoseTimer = 0;
-							isWinLoseMove = false;
-							InitializeGameSceneStage2();
-							scene = STAGESELECT;
-						} else if (stage == STAGE3) {
-							transitionBoxPosX = 1280;
-							isTransitionBox = false;
-							sceneTransitionCount = 45;
-							winLoseAlpha = 0;
-							winLoseY = 0.0f;
-							winLoseTimer = 0;
-							isWinLoseMove = false;
-							InitializeGameSceneStage3();
-							scene = STAGESELECT;
-						}
-					}
-					//色を濃くする
-					noButtonColor = 0x808080FF;
-				} else {
-					//マウスがボタンの上に無い場合、色をそのままにする
-					noButtonColor = 0xFFFFFFFF;
-				}
+			///
+			/// ↑更新処理ここまで
+			///
 
-				///
-				/// ↑更新処理ここまで
-				///
+			///
+			/// ↓描画処理ここから
+			///
 
-				///
-				/// ↓描画処理ここから
-				///
+			//黒背景を描画
+			Novice::DrawBox(
+				0, 0,
+				1280, 720,
+				0.0f,
+				BLACK,
+				kFillModeSolid
+			);
 
-				//黒背景を描画
-				Novice::DrawBox(
-					0, 0,
-					1280, 720,
+			//勝っていれば勝利、負けていれば敗北を描画
+			if (playerTowerHP >= 1 && enemy[15].deadCount <= 0) {
+				Novice::DrawSprite(
+					496, (int)winLoseY,
+					winGH,
+					1.0f, 1.0f,
 					0.0f,
-					BLACK,
-					kFillModeSolid
+					0xFFFFFF00 + winLoseAlpha
 				);
+			} else {
+				Novice::DrawSprite(
+					496, (int)winLoseY,
+					loseGH,
+					1.0f, 1.0f,
+					0.0f,
+					0xFFFFFF00 + winLoseAlpha
+				);
+			}
 
-				//勝っていれば勝利、負けていれば敗北を描画
-				if (playerTowerHP >= 1 && enemy[15].deadCount <= 0) {
-					Novice::DrawSprite(
-						496, (int)winLoseY,
-						winGH,
-						1.0f, 1.0f,
-						0.0f,
-						0xFFFFFF00 + winLoseAlpha
-					);
-				} else {
-					Novice::DrawSprite(
-						496, (int)winLoseY,
-						loseGH,
-						1.0f, 1.0f,
-						0.0f,
-						0xFFFFFF00 + winLoseAlpha
-					);
-				}
+			//勝利と敗北の画像が移動しきった場合の処理
+			if (winLoseTimer >= 60) {
+				//もう一度プレイしますか？を描画
+				Novice::DrawSprite(
+					352, 336,
+					tryAgainGH,
+					1.0f, 1.0f,
+					0.0f,
+					0xFFFFFFFF
+				);
+				//はいを描画
+				Novice::DrawSprite(
+					288, 492,
+					yesGH,
+					1.0f, 1.0f,
+					0.0f,
+					yesButtonColor
+				);
+				//いいえを描画
+				Novice::DrawSprite(
+					704, 492,
+					noGH,
+					1.0f, 1.0f,
+					0.0f,
+					noButtonColor
+				);
+			}
 
-				//勝利と敗北の画像が移動しきった場合の処理
-				if (winLoseTimer >= 60) {
-					//もう一度プレイしますか？を描画
-					Novice::DrawSprite(
-						352, 336,
-						tryAgainGH,
-						1.0f, 1.0f,
-						0.0f,
-						0xFFFFFFFF
-					);
-					//はいを描画
-					Novice::DrawSprite(
-						288, 492,
-						yesGH,
-						1.0f, 1.0f,
-						0.0f,
-						yesButtonColor
-					);
-					//いいえを描画
-					Novice::DrawSprite(
-						704, 492,
-						noGH,
-						1.0f, 1.0f,
-						0.0f,
-						noButtonColor
-					);
-				}
+			///
+			/// ↑描画処理ここまで
+			///
 
-				///
-				/// ↑描画処理ここまで
-				///
-				
-				break;
+			break;
 		}
 
 		//ステージセレクト画面のシーン遷移で使用する海苔を描画
