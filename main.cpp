@@ -63,7 +63,7 @@ struct Soldier {
 };
 
 //兵士の速さ
-float soldierSpeed = 2.0f;
+float soldierSpeed = 2.5f;
 //兵士の召喚クールダウン用変数
 int soldierCooldownFrames = 64;
 int soldierCurrentCooldown = 0;
@@ -235,12 +235,179 @@ void InitializeGameSceneStage1() {
 
 //ステージ2用の初期化
 void InitializeGameSceneStage2() {
+	//兵士の情報を初期化
+	for (int i = 0; i < SOLDIER_NUM; i++) {
+		soldier[i].pos.x = 1124.0f;
+		soldier[i].pos.y = 288.0f;
+		soldier[i].num = 0;
+		soldier[i].ope = 0;
+		soldier[i].deadCount = 64;
+		soldier[i].isDead = false;
+		soldier[i].isAlive = false;
+	}
+
+	//敵の情報初期化用のデータ（STAGE2用）
+	float speeds[] = {
+		2.0f,2.0f,2.0f,2.0f,1.5f,1.5f, //1~6体目（WAVE1）
+		2.0f,2.0f,1.5f,1.5f,1.5f,1.5f, //7~12体目（WAVE2）
+		1.5f,1.5f,1.0f,1.0f, //13~16体目（WAVE3）
+	};
+	int nums[] = {
+		6,6,55,27,2,27,//1~6体目（WAVE1）
+		720,35,3,6,16,96,//7~12体目（WAVE2）
+		32,957,240,128,//13~16体目（WAVE3）
+	};
+	int targetNums[] = {
+		10,4,110,9,32,3,//1~6体目（WAVE1）
+		360,140,15,36,2,50,//7~12体目（WAVE2）
+		256,320,180,96,//13~16体目（WAVE3）
+	};
+	int summonFlames[] = {
+		320,500,680,860,1100,1460,//1~6体目（WAVE1）
+		2160,2400,2700,3000,3300,3600,//7~12体目（WAVE2）
+		4380,4740,5280,5760,//13~16体目（WAVE3）
+	};
 	
+
+	//敵の情報を初期化
+	for (int i = 0; i < ENEMY_NUM; i++) {
+		enemy[i].pos.x = 60.0f;
+		enemy[i].pos.y = 288.0f;
+		enemy[i].speed = speeds[i];
+		enemy[i].num = nums[i];
+		enemy[i].numTemp = 0;
+		enemy[i].numDigit[0] = 0;
+		enemy[i].numDigit[1] = 0;
+		enemy[i].numDigit[2] = 0;
+		enemy[i].targetNumTemp = 0;
+		enemy[i].targetNumDigit[0] = 0;
+		enemy[i].targetNumDigit[1] = 0;
+		enemy[i].targetNumDigit[2] = 0;
+		enemy[i].targetNum = targetNums[i];
+		enemy[i].summonFlame = summonFlames[i];
+		enemy[i].deadCount = 64;
+		enemy[i].isDead = false;
+		enemy[i].isAlive = false;
+	}
+
+	//兵士召喚数をカウント
+	soldierSummonCount = 0;
+
+	//ゲームの経過フレームをカウント
+	gameCount = 0; //ここを変更してデバッグ 初期値は0
+
+	//プレイヤーのタワーのHP
+	playerTowerHP = 3;
+
+	//プレイヤーが勝利したかのフラグ
+	isPlayerWin = false;
+
+	//WAVE画像を移動させる際のタイマー
+	waveTextTimer = 0.0f;
+
+	wave1InTime = 60;//WAVE1の画像が入ってくる時間（ここで変更）
+	wave1OutTime = wave1InTime + 120;
+
+	wave2InTime = 1900;//WAVE2の画像が入ってくる時間（ここで変更）
+	wave2OutTime = wave2InTime + 120;
+
+	wave3InTime = 4120;//WAVE3の画像が入ってくる時間（ここで変更）
+	wave3OutTime = wave3InTime + 120;
+
+	issueAlpha = 0;
+
+	//プレイヤーの演算子と数字を初期化
+	playerNumber = ONE;
+	playerOperator = ADDITION;
 }
 
 //ステージ3用の初期化
 void InitializeGameSceneStage3() {
-	
+	//兵士の情報を初期化
+	for (int i = 0; i < SOLDIER_NUM; i++) {
+		soldier[i].pos.x = 1124.0f;
+		soldier[i].pos.y = 288.0f;
+		soldier[i].num = 0;
+		soldier[i].ope = 0;
+		soldier[i].deadCount = 64;
+		soldier[i].isDead = false;
+		soldier[i].isAlive = false;
+	}
+
+	//敵の情報初期化用のデータ（STAGE3用）
+	float speeds[] = {
+		1.0f,1.0f,1.0f,1.0f,1.0f,1.0f, //1~6体目（WAVE1）
+		1.0f,1.0f,1.0f,1.0f,1.0f,1.0f, //7~12体目（WAVE2）
+		1.0f,1.0f,0.5f,0.5f, //13~16体目（WAVE3）
+	};
+	int nums[] = {
+		4,24,3,5,42,90,//1~6体目（WAVE1）
+		45,56,600,16,30,28,//7~12体目（WAVE2）
+		66,75,25,39,//13~16体目（WAVE3）
+	};
+	int targetNums[] = {
+		32,10,18,36,10,15, //1~6体目（WAVE1）
+		18,32,100,60,87,124,//7~12体目（WAVE2）
+		88,50,110,60,//13~16体目（WAVE3）
+	};
+	int summonFlames[] = {
+		320,680,1100,1520,1940,2360, //1~6体目（WAVE1）
+		3140,3560,3980,4400,4880,5360, //7~12体目（WAVE2）
+		6200,6620,7100,7760, //13~16体目（WAVE3）
+	};
+
+
+	//敵の情報を初期化
+	for (int i = 0; i < ENEMY_NUM; i++) {
+		enemy[i].pos.x = 60.0f;
+		enemy[i].pos.y = 288.0f;
+		enemy[i].speed = speeds[i];
+		enemy[i].num = nums[i];
+		enemy[i].numTemp = 0;
+		enemy[i].numDigit[0] = 0;
+		enemy[i].numDigit[1] = 0;
+		enemy[i].numDigit[2] = 0;
+		enemy[i].targetNumTemp = 0;
+		enemy[i].targetNumDigit[0] = 0;
+		enemy[i].targetNumDigit[1] = 0;
+		enemy[i].targetNumDigit[2] = 0;
+		enemy[i].targetNum = targetNums[i];
+		enemy[i].summonFlame = summonFlames[i];
+		enemy[i].deadCount = 64;
+		enemy[i].isDead = false;
+		enemy[i].isAlive = false;
+	}
+
+	//兵士召喚数をカウント
+	soldierSummonCount = 0;
+
+	//ゲームの経過フレームをカウント
+	gameCount = 0; //ここを変更してデバッグ 初期値は0
+
+	//プレイヤーのタワーのHP
+	playerTowerHP = 3;
+
+	//プレイヤーが勝利したかのフラグ
+	isPlayerWin = false;
+
+	//WAVE画像を移動させる際のタイマー
+	waveTextTimer = 0.0f;
+
+	wave1InTime = 60;//WAVE1の画像が入ってくる時間（ここで変更）
+	wave1OutTime = wave1InTime + 120;
+
+	wave2InTime = 2880;//WAVE2の画像が入ってくる時間（ここで変更）
+	wave2OutTime = wave2InTime + 120;
+
+	wave3InTime = 5940;//WAVE3の画像が入ってくる時間（ここで変更）
+	wave3OutTime = wave3InTime + 120;
+
+
+	issueAlpha = 0;
+
+	//プレイヤーの演算子と数字を初期化
+	playerNumber = ONE;
+	playerOperator = ADDITION;
 }
 
 // Windowsアプリでのエントリーポイント(main関数)
