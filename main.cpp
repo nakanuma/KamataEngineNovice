@@ -445,6 +445,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	int emptyStarGH = Novice::LoadTexture("./Resources/images/emptyStar.png");//空の星
 	int stageSelectFlameGH = Novice::LoadTexture("./Resources/images/stageSelectFlame.png");//ステージを選択する赤枠
 	int startButtonGH = Novice::LoadTexture("./Resources/images/startButton.png");//スタートボタン
+	int conditionsGH = Novice::LoadTexture("./Resources/images/conditions.png");//兵士xx体以下でクリアの画像
 
 	///
 	/// ↓ゲームで使用する画像
@@ -457,6 +458,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	int selectFlameGH = Novice::LoadTexture("./Resources/images/selectFlame.png"); //数字と演算子の選択中を示す枠
 	int soldierGH = Novice::LoadTexture("./Resources/images/soldier.png"); //兵士の画像
 	int enemyGH = Novice::LoadTexture("./Resources/images/enemy.png"); //敵の画像
+	int soldierCountGH = Novice::LoadTexture("./Resources/images/soldierCount.png"); //兵士出撃数xx体
 	int number48xGH[5] = {
 		Novice::LoadTexture("./Resources/images/48x0.png"),
 		Novice::LoadTexture("./Resources/images/48x1.png"),
@@ -492,6 +494,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	int wave1GH = Novice::LoadTexture("./Resources/images/wave1.png"); //WAVE1の画像
 	int wave2GH = Novice::LoadTexture("./Resources/images/wave2.png"); //WAVE2の画像
 	int wave3GH = Novice::LoadTexture("./Resources/images/wave3.png"); //WAVE3の画像
+
 
 	///
 	/// ↓ゲームクリア・オーバーで使用する画像
@@ -550,6 +553,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	bool stage3Star2 = false;
 	bool stage3Star1 = false;
 
+	//いいえを押してからスタートを押せるようになるまでのタイマー
+	int noTimer = 0;
+
+	//はいといいえを押した際に色を薄くしていく海苔の透明度
+	int yesNoAlpha = 0;
+
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
 		// フレームの開始
@@ -561,6 +570,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		//マウスの位置を取得
 		Novice::GetMousePosition(&mouseX, &mouseY);
+
+		//いいえを押してからスタートを押せるようになるまでのタイマーが0より大きい場合毎フレーム減らす
+		if (noTimer > 0) {
+			noTimer--;
+		}
+
+		//はいといいえを押した際に海苔の色を薄くするための透明度が0より大きい場合、毎フレーム3ずつ減らす
+		if (yesNoAlpha > 0) {
+			yesNoAlpha -= 3;
+		}
 
 		switch (scene) {
 
@@ -707,7 +726,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			}
 
 			//マウスがスタートボタンの上にある場合の処理（シーン遷移時は反応しないようにする）
-			if (mouseX > 822 && mouseX < 1206 && mouseY>552 && mouseY < 648 && isTransitionBox == false) {
+			//いいえを押してからスタートを押せるようになるまでのタイマーが0以下の場合という条件を追加
+			if (mouseX > 822 && mouseX < 1206 && mouseY>552 && mouseY < 648 && isTransitionBox == false && noTimer <= 0) {
 				//押した場合
 				if (Novice::IsPressMouse(0)) {
 					//シーン遷移が行われる
@@ -933,6 +953,232 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				0.0f,
 				startButtonColor
 			);
+
+			//星取得条件の描画
+			for (int i = 0; i < 3; i++) {
+				//兵士xx体以下でクリア
+				Novice::DrawSprite(
+					119, 513 +(i*69),
+					conditionsGH,
+					1.0f, 1.0f,
+					0.0f,
+					0xFFFFFFFF
+				);
+				//上の星を描画
+				Novice::DrawSprite(
+					515 + (i * 36), 511,
+					starGH,
+					0.5f, 0.5f,
+					0.0f,
+					0xFFFFFFFF
+				);
+			}
+			//中の星を描画
+			Novice::DrawSprite(
+				515, 580,
+				starGH,
+				0.5f, 0.5f,
+				0.0f,
+				0xFFFFFFFF
+			);
+			Novice::DrawSprite(
+				515 + 36, 580,
+				starGH,
+				0.5f, 0.5f,
+				0.0f,
+				0xFFFFFFFF
+			);
+			Novice::DrawSprite(
+				515 + 36 + 36, 580,
+				emptyStarGH,
+				0.5f, 0.5f,
+				0.0f,
+				0xFFFFFFFF
+			);
+			//下の星を描画
+			Novice::DrawSprite(
+				515, 649,
+				starGH,
+				0.5f, 0.5f,
+				0.0f,
+				0xFFFFFFFF
+			);
+			Novice::DrawSprite(
+				515 + 36, 649,
+				emptyStarGH,
+				0.5f, 0.5f,
+				0.0f,
+				0xFFFFFFFF
+			);
+			Novice::DrawSprite(
+				515 + 36 + 36, 649,
+				emptyStarGH,
+				0.5f, 0.5f,
+				0.0f,
+				0xFFFFFFFF
+			);
+			//ステージ1の場合
+			if (stage == STAGE1) {
+				//上の段
+				//2
+				Novice::DrawSprite(
+					205, 519,
+					numberGH[2],
+					1.0f, 1.0f,
+					0.0f,
+					0xFFFFFFFF
+				);
+				//0
+				Novice::DrawSprite(
+					205 + 24, 519,
+					numberGH[0],
+					1.0f, 1.0f,
+					0.0f,
+					0xFFFFFFFF
+				);
+				//中の段
+				//2
+				Novice::DrawSprite(
+					205, 588,
+					numberGH[2],
+					1.0f, 1.0f,
+					0.0f,
+					0xFFFFFFFF
+				);
+				//5
+				Novice::DrawSprite(
+					205 + 24, 588,
+					numberGH[5],
+					1.0f, 1.0f,
+					0.0f,
+					0xFFFFFFFF
+				);
+				//下の段
+				//3
+				Novice::DrawSprite(
+					205, 657,
+					numberGH[3],
+					1.0f, 1.0f,
+					0.0f,
+					0xFFFFFFFF
+				);
+				//0
+				Novice::DrawSprite(
+					205 + 24, 657,
+					numberGH[0],
+					1.0f, 1.0f,
+					0.0f,
+					0xFFFFFFFF
+				);
+			}
+			//ステージ2の場合
+			if (stage == STAGE2) {
+				//上の段
+				//2
+				Novice::DrawSprite(
+					205, 519,
+					numberGH[2],
+					1.0f, 1.0f,
+					0.0f,
+					0xFFFFFFFF
+				);
+				//4
+				Novice::DrawSprite(
+					205 + 24, 519,
+					numberGH[4],
+					1.0f, 1.0f,
+					0.0f,
+					0xFFFFFFFF
+				);
+				//中の段
+				//3
+				Novice::DrawSprite(
+					205, 588,
+					numberGH[3],
+					1.0f, 1.0f,
+					0.0f,
+					0xFFFFFFFF
+				);
+				//0
+				Novice::DrawSprite(
+					205 + 24, 588,
+					numberGH[0],
+					1.0f, 1.0f,
+					0.0f,
+					0xFFFFFFFF
+				);
+				//下の段
+				//3
+				Novice::DrawSprite(
+					205, 657,
+					numberGH[3],
+					1.0f, 1.0f,
+					0.0f,
+					0xFFFFFFFF
+				);
+				//6
+				Novice::DrawSprite(
+					205 + 24, 657,
+					numberGH[6],
+					1.0f, 1.0f,
+					0.0f,
+					0xFFFFFFFF
+				);
+			}
+			//ステージ3の場合
+			if (stage == STAGE3) {
+				//上の段
+				//3
+				Novice::DrawSprite(
+					205, 519,
+					numberGH[3],
+					1.0f, 1.0f,
+					0.0f,
+					0xFFFFFFFF
+				);
+				//6
+				Novice::DrawSprite(
+					205 + 24, 519,
+					numberGH[6],
+					1.0f, 1.0f,
+					0.0f,
+					0xFFFFFFFF
+				);
+				//中の段
+				//4
+				Novice::DrawSprite(
+					205, 588,
+					numberGH[4],
+					1.0f, 1.0f,
+					0.0f,
+					0xFFFFFFFF
+				);
+				//2
+				Novice::DrawSprite(
+					205 + 24, 588,
+					numberGH[2],
+					1.0f, 1.0f,
+					0.0f,
+					0xFFFFFFFF
+				);
+				//下の段
+				//4
+				Novice::DrawSprite(
+					205, 657,
+					numberGH[4],
+					1.0f, 1.0f,
+					0.0f,
+					0xFFFFFFFF
+				);
+				//8
+				Novice::DrawSprite(
+					205 + 24, 657,
+					numberGH[8],
+					1.0f, 1.0f,
+					0.0f,
+					0xFFFFFFFF
+				);
+			}
 
 			///
 			/// ↑描画処理ここまで
@@ -1405,6 +1651,31 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				);
 			}
 
+			//兵士の出撃数を描画
+			Novice::DrawSprite(
+				858, 516,
+				soldierCountGH,
+				1.0f, 1.0f,
+				0.0f,
+				0xFFFFFFFF
+			);
+			//10の位
+			Novice::DrawSprite(
+				1100 - 24, 522,
+				numberGH[soldierSummonCount / 10 % 10],
+				1.0f, 1.0f,
+				0.0f,
+				0xFFFFFFFF
+			);
+			//1の位
+			Novice::DrawSprite(
+				1100, 522,
+				numberGH[soldierSummonCount % 10],
+				1.0f, 1.0f,
+				0.0f,
+				0xFFFFFFFF
+			);
+
 			//浮かび上がる海苔を描画
 			Novice::DrawBox(
 				0, 0,
@@ -1491,6 +1762,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			if (mouseX > 288 && mouseX < 576 && mouseY>492 && mouseY < 598) {
 				//押した場合、ゲームを初期化してゲームシーンに戻る
 				if (Novice::IsPressMouse(0)) {
+					//はいといいえを押した際に海苔の色を薄くするための透明度を255で初期化
+					yesNoAlpha = 255;
 					//現在のステージによって初期化するステージを変更する
 					if (stage == STAGE1) {
 						winLoseAlpha = 0;
@@ -1526,6 +1799,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			if (mouseX > 704 && mouseX < 992 && mouseY>492 && mouseY < 598) {
 				//押した場合、ステージセレクトに戻る（初期化する）
 				if (Novice::IsPressMouse(0)) {
+					//いいえを押してからスタートを押せるようになるまでのタイマーを30で初期化
+					noTimer = 30;
+					//はいといいえを押した際に海苔の色を薄くするための透明度を255で初期化
+					yesNoAlpha = 255;
 					if (stage == STAGE1) {
 						transitionBoxPosX = 1280;
 						isTransitionBox = false;
@@ -1654,7 +1931,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			}
 		}
 
-		//デバッグ用
+		//はいといいえを押した際に表示する海苔を描画
+		Novice::DrawBox(
+			0, 0,
+			1280, 720,
+			0.0f,
+			0x000000 + yesNoAlpha,
+			kFillModeSolid
+		);
 
 		// フレームの終了
 		Novice::EndFrame();
