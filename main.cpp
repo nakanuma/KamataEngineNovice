@@ -559,6 +559,28 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	//はいといいえを押した際に色を薄くしていく海苔の透明度
 	int yesNoAlpha = 0;
 
+	///
+	/// ↓ゲームで使用する変数
+	/// 
+
+	unsigned int normalColor = 0xFFFFFFFF;      // 通常の色 (白)
+	unsigned int translucentColor = 0xFFFFFF40; // 半透明の色
+
+	//ステージ1の星取得条件の色を格納
+	int stage1Star3Color = 0xFFFFFFFF;
+	int stage1Star2Color = 0xFFFFFFFF;
+	int stage1Star1Color = 0xFFFFFFFF;
+
+	//ステージ2の星取得条件の色を格納
+	int stage2Star3Color = 0xFFFFFFFF;
+	int stage2Star2Color = 0xFFFFFFFF;
+	int stage2Star1Color = 0xFFFFFFFF;
+
+	//ステージ3の星取得条件の色を格納
+	int stage3Star3Color = 0xFFFFFFFF;
+	int stage3Star2Color = 0xFFFFFFFF;
+	int stage3Star1Color = 0xFFFFFFFF;
+
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
 		// フレームの開始
@@ -578,7 +600,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		//はいといいえを押した際に海苔の色を薄くするための透明度が0より大きい場合、毎フレーム3ずつ減らす
 		if (yesNoAlpha > 0) {
-			yesNoAlpha -= 3;
+			yesNoAlpha -= 5;
 		}
 
 		switch (scene) {
@@ -596,6 +618,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			if (mouseX > 400 && mouseX < 880 && mouseY>432 && mouseY < 528) {
 				//押した場合、シーンをステージセレクトに遷移
 				if (Novice::IsPressMouse(0)) {
+					yesNoAlpha = 255;
 					scene = STAGESELECT;
 				}
 				//色を濃くする
@@ -677,6 +700,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			if (mouseX > 12 && mouseX < 108 && mouseY>12 && mouseY < 108 && isTransitionBox == false) {
 				//押した場合、タイトルに戻る
 				if (Novice::IsPressMouse(0)) {
+					yesNoAlpha = 255;
 					scene = TITLE;
 				}
 				//色を濃くする
@@ -958,7 +982,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			for (int i = 0; i < 3; i++) {
 				//兵士xx体以下でクリア
 				Novice::DrawSprite(
-					119, 513 +(i*69),
+					119, 513 + (i * 69),
 					conditionsGH,
 					1.0f, 1.0f,
 					0.0f,
@@ -1364,6 +1388,71 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				playerTowerHP = 0;
 			}
 
+			//出現させた兵士の数に応じてテキストの色を透明にする
+			//ステージ1の場合
+			if (stage == STAGE1) {
+				//星3取得条件を20を超えた場合半透明にする
+				if (soldierSummonCount > 20) {
+					stage1Star3Color = translucentColor;
+				} else {
+					stage1Star3Color = normalColor;
+				}
+				//星2取得条件を25を超えた場合半透明にする
+				if (soldierSummonCount > 25) {
+					stage1Star2Color = translucentColor;
+				} else {
+					stage1Star2Color = normalColor;
+				}
+				//星1取得条件を30を超えた場合半透明にする
+				if (soldierSummonCount > 30) {
+					stage1Star1Color = translucentColor;
+				} else {
+					stage1Star1Color = normalColor;
+				}
+			}
+			//ステージ2の場合
+			if (stage == STAGE2) {
+				//星3取得条件を24を超えた場合半透明にする
+				if (soldierSummonCount > 24) {
+					stage2Star3Color = translucentColor;
+				} else {
+					stage2Star3Color = normalColor;
+				}
+				//星2取得条件を30を超えた場合半透明にする
+				if (soldierSummonCount > 30) {
+					stage2Star2Color = translucentColor;
+				} else {
+					stage2Star2Color = normalColor;
+				}
+				//星1取得条件を36を超えた場合半透明にする
+				if (soldierSummonCount > 36) {
+					stage2Star1Color = translucentColor;
+				} else {
+					stage2Star1Color = normalColor;
+				}
+			}
+			//ステージ3の場合
+			if (stage == STAGE3) {
+				//星3取得条件を24を超えた場合半透明にする
+				if (soldierSummonCount > 36) {
+					stage3Star3Color = translucentColor;
+				} else {
+					stage3Star3Color = normalColor;
+				}
+				//星2取得条件を30を超えた場合半透明にする
+				if (soldierSummonCount > 42) {
+					stage3Star2Color = translucentColor;
+				} else {
+					stage3Star2Color = normalColor;
+				}
+				//星1取得条件を36を超えた場合半透明にする
+				if (soldierSummonCount > 48) {
+					stage3Star1Color = translucentColor;
+				} else {
+					stage3Star1Color = normalColor;
+				}
+			}
+
 			//勝った時の処理
 			if (playerTowerHP >= 1 && enemy[15].deadCount <= 0) {
 				//プレイヤーの勝利フラグをtrueにする
@@ -1675,6 +1764,379 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				0.0f,
 				0xFFFFFFFF
 			);
+
+			//星取得条件を描画
+			//ステージ1の場合
+			if (stage == STAGE1) {
+				//星3の条件
+				Novice::DrawSprite(
+					58, 461,
+					conditionsGH,
+					0.75f, 0.75f,
+					0.0f,
+					stage1Star3Color
+				);
+				//2
+				Novice::DrawSprite(
+					123, 467,
+					numberGH[2],
+					0.75f, 0.75f,
+					0.0f,
+					stage1Star3Color
+				);
+				//0
+				Novice::DrawSprite(
+					123 + 18, 467,
+					numberGH[0],
+					0.75f, 0.75f,
+					0.0f,
+					stage1Star3Color
+				);
+				//星を描画
+				for (int i = 0; i < 3; i++) {
+					Novice::DrawSprite(
+						355 + (i * 36), 455,
+						starGH,
+						0.5f, 0.5f,
+						0.0f,
+						stage1Star3Color
+					);
+				}
+
+				//星2の条件
+				Novice::DrawSprite(
+					58, 538,
+					conditionsGH,
+					0.75f, 0.75f,
+					0.0f,
+					stage1Star2Color
+				);
+				//2
+				Novice::DrawSprite(
+					123, 544,
+					numberGH[2],
+					0.75f, 0.75f,
+					0.0f,
+					stage1Star2Color
+				);
+				//5
+				Novice::DrawSprite(
+					123 + 18, 544,
+					numberGH[5],
+					0.75f, 0.75f,
+					0.0f,
+					stage1Star2Color
+				);
+				//星を描画
+				for (int i = 0; i < 2; i++) {
+					Novice::DrawSprite(
+						355 + (i * 36), 532,
+						starGH,
+						0.5f, 0.5f,
+						0.0f,
+						stage1Star2Color
+					);
+				}
+				//空の星を描画
+				Novice::DrawSprite(
+					427, 532,
+					emptyStarGH,
+					0.5f, 0.5f,
+					0.0f,
+					stage1Star2Color
+				);
+
+				//星1の条件
+				Novice::DrawSprite(
+					58, 615,
+					conditionsGH,
+					0.75f, 0.75f,
+					0.0f,
+					stage1Star1Color
+				);
+				//3
+				Novice::DrawSprite(
+					123, 621,
+					numberGH[3],
+					0.75f, 0.75f,
+					0.0f,
+					stage1Star1Color
+				);
+				//0
+				Novice::DrawSprite(
+					123 + 18, 621,
+					numberGH[0],
+					0.75f, 0.75f,
+					0.0f,
+					stage1Star1Color
+				);
+				//星を描画
+				Novice::DrawSprite(
+					355, 609,
+					starGH,
+					0.5f, 0.5f,
+					0.0f,
+					stage1Star1Color
+				);
+				//空の星を描画
+				for (int i = 0; i < 2; i++) {
+					Novice::DrawSprite(
+						391+(i*36), 609,
+						emptyStarGH,
+						0.5f, 0.5f,
+						0.0f,
+						stage1Star1Color
+					);
+				}
+			}
+
+			//ステージ2の場合
+			if (stage == STAGE2) {
+				//星3の条件
+				Novice::DrawSprite(
+					58, 461,
+					conditionsGH,
+					0.75f, 0.75f,
+					0.0f,
+					stage2Star3Color
+				);
+				//2
+				Novice::DrawSprite(
+					123, 467,
+					numberGH[2],
+					0.75f, 0.75f,
+					0.0f,
+					stage2Star3Color
+				);
+				//4
+				Novice::DrawSprite(
+					123 + 18, 467,
+					numberGH[4],
+					0.75f, 0.75f,
+					0.0f,
+					stage2Star3Color
+				);
+				//星を描画
+				for (int i = 0; i < 3; i++) {
+					Novice::DrawSprite(
+						355 + (i * 36), 455,
+						starGH,
+						0.5f, 0.5f,
+						0.0f,
+						stage2Star3Color
+					);
+				}
+
+				//星2の条件
+				Novice::DrawSprite(
+					58, 538,
+					conditionsGH,
+					0.75f, 0.75f,
+					0.0f,
+					stage2Star2Color
+				);
+				//3
+				Novice::DrawSprite(
+					123, 544,
+					numberGH[3],
+					0.75f, 0.75f,
+					0.0f,
+					stage2Star2Color
+				);
+				//0
+				Novice::DrawSprite(
+					123 + 18, 544,
+					numberGH[0],
+					0.75f, 0.75f,
+					0.0f,
+					stage2Star2Color
+				);
+				//星を描画
+				for (int i = 0; i < 2; i++) {
+					Novice::DrawSprite(
+						355 + (i * 36), 532,
+						starGH,
+						0.5f, 0.5f,
+						0.0f,
+						stage2Star2Color
+					);
+				}
+				//空の星を描画
+				Novice::DrawSprite(
+					427, 532,
+					emptyStarGH,
+					0.5f, 0.5f,
+					0.0f,
+					stage2Star2Color
+				);
+
+				//星1の条件
+				Novice::DrawSprite(
+					58, 615,
+					conditionsGH,
+					0.75f, 0.75f,
+					0.0f,
+					stage2Star1Color
+				);
+				//3
+				Novice::DrawSprite(
+					123, 621,
+					numberGH[3],
+					0.75f, 0.75f,
+					0.0f,
+					stage2Star1Color
+				);
+				//6
+				Novice::DrawSprite(
+					123 + 18, 621,
+					numberGH[6],
+					0.75f, 0.75f,
+					0.0f,
+					stage2Star1Color
+				);
+				//星を描画
+				Novice::DrawSprite(
+					355, 609,
+					starGH,
+					0.5f, 0.5f,
+					0.0f,
+					stage2Star1Color
+				);
+				//空の星を描画
+				for (int i = 0; i < 2; i++) {
+					Novice::DrawSprite(
+						391 + (i * 36), 609,
+						emptyStarGH,
+						0.5f, 0.5f,
+						0.0f,
+						stage2Star1Color
+					);
+				}
+			}
+
+			//ステージ3の場合
+			if (stage == STAGE3) {
+				//星3の条件
+				Novice::DrawSprite(
+					58, 461,
+					conditionsGH,
+					0.75f, 0.75f,
+					0.0f,
+					stage3Star3Color
+				);
+				//3
+				Novice::DrawSprite(
+					123, 467,
+					numberGH[3],
+					0.75f, 0.75f,
+					0.0f,
+					stage3Star3Color
+				);
+				//6
+				Novice::DrawSprite(
+					123 + 18, 467,
+					numberGH[6],
+					0.75f, 0.75f,
+					0.0f,
+					stage3Star3Color
+				);
+				//星を描画
+				for (int i = 0; i < 3; i++) {
+					Novice::DrawSprite(
+						355 + (i * 36), 455,
+						starGH,
+						0.5f, 0.5f,
+						0.0f,
+						stage3Star3Color
+					);
+				}
+
+				//星2の条件
+				Novice::DrawSprite(
+					58, 538,
+					conditionsGH,
+					0.75f, 0.75f,
+					0.0f,
+					stage3Star2Color
+				);
+				//4
+				Novice::DrawSprite(
+					123, 544,
+					numberGH[4],
+					0.75f, 0.75f,
+					0.0f,
+					stage3Star2Color
+				);
+				//2
+				Novice::DrawSprite(
+					123 + 18, 544,
+					numberGH[2],
+					0.75f, 0.75f,
+					0.0f,
+					stage3Star2Color
+				);
+				//星を描画
+				for (int i = 0; i < 2; i++) {
+					Novice::DrawSprite(
+						355 + (i * 36), 532,
+						starGH,
+						0.5f, 0.5f,
+						0.0f,
+						stage3Star2Color
+					);
+				}
+				//空の星を描画
+				Novice::DrawSprite(
+					427, 532,
+					emptyStarGH,
+					0.5f, 0.5f,
+					0.0f,
+					stage3Star2Color
+				);
+
+				//星1の条件
+				Novice::DrawSprite(
+					58, 615,
+					conditionsGH,
+					0.75f, 0.75f,
+					0.0f,
+					stage3Star1Color
+				);
+				//4
+				Novice::DrawSprite(
+					123, 621,
+					numberGH[4],
+					0.75f, 0.75f,
+					0.0f,
+					stage3Star1Color
+				);
+				//8
+				Novice::DrawSprite(
+					123 + 18, 621,
+					numberGH[8],
+					0.75f, 0.75f,
+					0.0f,
+					stage3Star1Color
+				);
+				//星を描画
+				Novice::DrawSprite(
+					355, 609,
+					starGH,
+					0.5f, 0.5f,
+					0.0f,
+					stage3Star1Color
+				);
+				//空の星を描画
+				for (int i = 0; i < 2; i++) {
+					Novice::DrawSprite(
+						391 + (i * 36), 609,
+						emptyStarGH,
+						0.5f, 0.5f,
+						0.0f,
+						stage3Star1Color
+					);
+				}
+			}
 
 			//浮かび上がる海苔を描画
 			Novice::DrawBox(
