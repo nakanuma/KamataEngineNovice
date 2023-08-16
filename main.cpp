@@ -446,6 +446,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	int stageSelectFlameGH = Novice::LoadTexture("./Resources/images/stageSelectFlame.png");//ステージを選択する赤枠
 	int startButtonGH = Novice::LoadTexture("./Resources/images/startButton.png");//スタートボタン
 	int conditionsGH = Novice::LoadTexture("./Resources/images/conditions.png");//兵士xx体以下でクリアの画像
+	int transitionGH = Novice::LoadTexture("./Resources/images/transition.png");//画面遷移時の背景
+	int howToPlayButtonGH = Novice::LoadTexture("./Resources/images/howToPlayButton.png");//遊び方のボタン
+	int howToPlayGH = Novice::LoadTexture("./Resources/images/howToPlay.png");//遊び方の説明の画像
+	int okButtonGH = Novice::LoadTexture("./Resources/images/okButton.png");//OKボタン
 
 	///
 	/// ↓ゲームで使用する画像
@@ -527,7 +531,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	//シーン遷移で使用する海苔
 	int transitionBoxPosX = 1280;//海苔のx座標。ステージセレクトに戻る際に初期化し直す必要がある
 	bool isTransitionBox = false;//シーン遷移が行われているかのフラグ。ステージセレクトに戻る際に初期化し直す必要がある
-	int sceneTransitionCount = 45;//シーンが切り替わるまでのカウント。ステージセレクトに戻る際に初期化し直す必要がある
+	int sceneTransitionCount = 60;//シーンが切り替わるまでのカウント。ステージセレクトに戻る際に初期化し直す必要がある
+
+	//遊び方の画像を表示しているかどうかのフラグ
+	bool isDisplayHowToPlay = false;
+	//遊び方のボタンの色を格納
+	int howToPlayButtonColor = 0xFFFFFFFF;
+	//OKボタンの色を格納
+	int okButtonColor = 0xFFFFFFFF;
 
 	///
 	/// ↓ゲームクリア・オーバー画面で使用する変数
@@ -696,8 +707,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			/// 
 
 
-			//マウスが戻るボタンの上にある場合の処理（シーン遷移時は反応しないようにする）
-			if (mouseX > 12 && mouseX < 108 && mouseY>12 && mouseY < 108 && isTransitionBox == false) {
+			//マウスが戻るボタンの上にある場合の処理（シーン遷移時は反応しないようにする）（遊び方を表示している時は反応しないようにする）
+			if (mouseX > 12 && mouseX < 108 && mouseY>12 && mouseY < 108 && isTransitionBox == false && isDisplayHowToPlay == false) {
 				//押した場合、タイトルに戻る
 				if (Novice::IsPressMouse(0)) {
 					yesNoAlpha = 255;
@@ -710,8 +721,34 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				returnButtonColor = 0xFFFFFFFF;
 			}
 
-			//マウスがステージ1ボタンの上にある場合の処理（シーン遷移時は反応しないようにする）
-			if (mouseX > 158 && mouseX < 374 && mouseY>156 && mouseY < 372 && isTransitionBox == false) {
+			//マウスが遊び方ボタンの上にある場合の処理（シーン遷移時は反応しないようにする）（遊び方を表示している時は反応しないようにする）
+			if (mouseX > 1022 && mouseX < 1238 && mouseY>24 && mouseY < 96 && isTransitionBox == false && isDisplayHowToPlay == false) {
+				//押した場合、遊び方の画像を描画
+				if (Novice::IsPressMouse(0)) {
+					isDisplayHowToPlay = true;
+				}
+				//色を濃くする
+				howToPlayButtonColor = 0x808080FF;
+			} else {
+				//マウスがボタンの上に無い場合、色をそのままにする
+				howToPlayButtonColor = 0xFFFFFFFF;
+			}
+
+			//マウスがOKボタンの上にある場合の処理（isDisplayHowToPlayがtrueのとき）
+			if (mouseX > 544 && mouseX < 736 && mouseY>612 && mouseY < 708 && isTransitionBox == false && isDisplayHowToPlay == true) {
+				//押した場合、遊び方の画像を描画を終わる
+				if (Novice::IsPressMouse(0)) {
+					isDisplayHowToPlay = false;
+				}
+				//色を濃くする
+				okButtonColor = 0x808080FF;
+			} else {
+				//マウスがボタンの上に無い場合、色をそのままにする
+				okButtonColor = 0xFFFFFFFF;
+			}
+
+			//マウスがステージ1ボタンの上にある場合の処理（シーン遷移時は反応しないようにする）（遊び方を表示している時は反応しないようにする）
+			if (mouseX > 158 && mouseX < 374 && mouseY>156 && mouseY < 372 && isTransitionBox == false && isDisplayHowToPlay == false) {
 				//押した場合、ステージ1にする
 				if (Novice::IsPressMouse(0)) {
 					stage = STAGE1;
@@ -723,8 +760,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				stage1ButtonColor = 0xFFFFFFFF;
 			}
 
-			//マウスがステージ2ボタンの上にある場合の処理（シーン遷移時は反応しないようにする）
-			if (mouseX > 532 && mouseX < 748 && mouseY>156 && mouseY < 372 && isTransitionBox == false) {
+			//マウスがステージ2ボタンの上にある場合の処理（シーン遷移時は反応しないようにする）（遊び方を表示している時は反応しないようにする）
+			if (mouseX > 532 && mouseX < 748 && mouseY>156 && mouseY < 372 && isTransitionBox == false && isDisplayHowToPlay == false) {
 				//押した場合、ステージ2にする
 				if (Novice::IsPressMouse(0)) {
 					stage = STAGE2;
@@ -736,8 +773,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				stage2ButtonColor = 0xFFFFFFFF;
 			}
 
-			//マウスがステージ3ボタンの上にある場合の処理（シーン遷移時は反応しないようにする）
-			if (mouseX > 906 && mouseX < 1122 && mouseY>156 && mouseY < 372 && isTransitionBox == false) {
+			//マウスがステージ3ボタンの上にある場合の処理（シーン遷移時は反応しないようにする）（遊び方を表示している時は反応しないようにする）
+			if (mouseX > 906 && mouseX < 1122 && mouseY>156 && mouseY < 372 && isTransitionBox == false && isDisplayHowToPlay == false) {
 				//押した場合、ステージ3にする
 				if (Novice::IsPressMouse(0)) {
 					stage = STAGE3;
@@ -749,9 +786,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				stage3ButtonColor = 0xFFFFFFFF;
 			}
 
-			//マウスがスタートボタンの上にある場合の処理（シーン遷移時は反応しないようにする）
+			//マウスがスタートボタンの上にある場合の処理（シーン遷移時は反応しないようにする）（遊び方を表示している時は反応しないようにする）
 			//いいえを押してからスタートを押せるようになるまでのタイマーが0以下の場合という条件を追加
-			if (mouseX > 822 && mouseX < 1206 && mouseY>552 && mouseY < 648 && isTransitionBox == false && noTimer <= 0) {
+			if (mouseX > 822 && mouseX < 1206 && mouseY>552 && mouseY < 648 && isTransitionBox == false && noTimer <= 0 && isDisplayHowToPlay == false) {
 				//押した場合
 				if (Novice::IsPressMouse(0)) {
 					//シーン遷移が行われる
@@ -774,7 +811,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				startButtonColor = 0xFFFFFFFF;
 			}
 
-			//シーン遷移カウント（45フレーム）が0になったらシーン遷移する
+			//シーン遷移カウント（60フレーム）が0になったらシーン遷移する
 			if (sceneTransitionCount <= 0) {
 				scene = GAME;
 			}
@@ -803,6 +840,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				1.0f, 1.0f,
 				0.0f,
 				returnButtonColor
+			);
+
+			//遊び方ボタンを描画
+			Novice::DrawSprite(
+				1022, 24,
+				howToPlayButtonGH,
+				1.0f, 1.0f,
+				0.0f,
+				howToPlayButtonColor
 			);
 
 			//ステージ1ボタンを描画
@@ -1201,6 +1247,25 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 					1.0f, 1.0f,
 					0.0f,
 					0xFFFFFFFF
+				);
+			}
+
+			//遊び方ボタンが押された時、遊び方の画像を描画する
+			if (isDisplayHowToPlay == true) {
+				Novice::DrawSprite(
+					0, 0,
+					howToPlayGH,
+					1.0f, 1.0f,
+					0.0f,
+					0xFFFFFFFF
+				);
+				//OKボタンを描画する
+				Novice::DrawSprite(
+					544, 612,
+					okButtonGH,
+					1.0f, 1.0f,
+					0.0f,
+					okButtonColor
 				);
 			}
 
@@ -1742,27 +1807,35 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 			//兵士の出撃数を描画
 			Novice::DrawSprite(
-				858, 516,
+				930, 426,
 				soldierCountGH,
 				1.0f, 1.0f,
 				0.0f,
 				0xFFFFFFFF
 			);
-			//10の位
+			//兵士に使っている画像を描画
 			Novice::DrawSprite(
-				1100 - 24, 522,
-				numberGH[soldierSummonCount / 10 % 10],
+				972, 504 - 20,
+				soldierGH,
 				1.0f, 1.0f,
 				0.0f,
 				0xFFFFFFFF
 			);
-			//1の位
+			//10の位を描画
 			Novice::DrawSprite(
-				1100, 522,
+				972 + 24, 504 + 36 - 20,
+				numberGH[soldierSummonCount / 10 % 10],
+				1.0f, 1.0f,
+				0.0f,
+				0x000000FF
+			);
+			//1の位を描画
+			Novice::DrawSprite(
+				972 + 24 + 24, 504 + 36 - 20,
 				numberGH[soldierSummonCount % 10],
 				1.0f, 1.0f,
 				0.0f,
-				0xFFFFFFFF
+				0x000000FF
 			);
 
 			//星取得条件を描画
@@ -2148,9 +2221,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			);
 
 			//デバッグ用文字列
-			Novice::ScreenPrintf(20, 10, "gameCount:%d", gameCount);
+			/*Novice::ScreenPrintf(20, 10, "gameCount:%d", gameCount);
 			Novice::ScreenPrintf(20, 30, "cooldown:%d", soldierCurrentCooldown);
-			Novice::ScreenPrintf(20, 50, "soldierSummonCount:%d", soldierSummonCount);
+			Novice::ScreenPrintf(20, 50, "soldierSummonCount:%d", soldierSummonCount);*/
 
 			///
 			/// ↑描画処理ここまで
@@ -2268,7 +2341,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 					if (stage == STAGE1) {
 						transitionBoxPosX = 1280;
 						isTransitionBox = false;
-						sceneTransitionCount = 45;
+						sceneTransitionCount = 60;
 						winLoseAlpha = 0;
 						winLoseY = 0.0f;
 						winLoseTimer = 0;
@@ -2278,7 +2351,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 					} else if (stage == STAGE2) {
 						transitionBoxPosX = 1280;
 						isTransitionBox = false;
-						sceneTransitionCount = 45;
+						sceneTransitionCount = 60;
 						winLoseAlpha = 0;
 						winLoseY = 0.0f;
 						winLoseTimer = 0;
@@ -2288,7 +2361,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 					} else if (stage == STAGE3) {
 						transitionBoxPosX = 1280;
 						isTransitionBox = false;
-						sceneTransitionCount = 45;
+						sceneTransitionCount = 60;
 						winLoseAlpha = 0;
 						winLoseY = 0.0f;
 						winLoseTimer = 0;
@@ -2377,15 +2450,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		//ステージセレクト画面のシーン遷移で使用する海苔を描画
 		if (isTransitionBox == true) {
-			Novice::DrawBox(
+			Novice::DrawSprite(
 				transitionBoxPosX, 0,
-				1920, 720,
+				transitionGH,
+				1.0f, 1.0f,
 				0.0f,
-				BLACK,
-				kFillModeSolid
+				0xFFFFFFFF
 			);
 			//海苔を移動させる
-			if (transitionBoxPosX > -1920) {
+			if (transitionBoxPosX > -2160) {
 				transitionBoxPosX -= 30;
 			}
 			if (sceneTransitionCount > 0) {
