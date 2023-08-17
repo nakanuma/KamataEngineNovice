@@ -17,7 +17,7 @@ enum Scene {
 	GAMERESULT,
 };
 
-Scene scene = STAGESELECT;//初期値を代入。ここを変更でデバッグを行う
+Scene scene = TITLE;//初期値を代入。ここを変更でデバッグを行う
 
 //ステージの選択
 enum Stage {
@@ -106,43 +106,6 @@ int wave3InTime, wave3OutTime; //WAVE3の画像が入ってくる時間と出て
 int issueAlpha;//勝敗確定時の浮き出てくる海苔の色
 
 bool isPlayerWin;//プレイヤーが勝利したかのフラグ
-
-//プレイヤーが兵士の数字と演算子を選択する関数
-void PlayerOpeNumSelect(int x, int y) {
-	//加算の場合
-	if (x > 520 && x < 568 && y>624 && y < 672 && Novice::IsTriggerMouse(0)) {
-		playerOperator = ADDITION;
-	}
-	//減算の場合
-	if (x > 568 && x < 616 && y>624 && y < 672 && Novice::IsTriggerMouse(0)) {
-		playerOperator = SUBTRACTION;
-	}
-	//乗算の場合
-	if (x > 616 && x < 664 && y>624 && y < 672 && Novice::IsTriggerMouse(0)) {
-		playerOperator = MULTIPLICATION;
-	}
-	//除算の場合
-	if (x > 664 && x < 712 && y>624 && y < 672 && Novice::IsTriggerMouse(0)) {
-		playerOperator = DIVISION;
-	}
-
-	//1の場合
-	if (x > 712 && x < 760 && y>576 && y < 624 && Novice::IsTriggerMouse(0)) {
-		playerNumber = ONE;
-	}
-	//2の場合
-	if (x > 712 && x < 760 && y>528 && y < 576 && Novice::IsTriggerMouse(0)) {
-		playerNumber = TWO;
-	}
-	//3の場合
-	if (x > 712 && x < 760 && y>480 && y < 528 && Novice::IsTriggerMouse(0)) {
-		playerNumber = THREE;
-	}
-	//4の場合
-	if (x > 712 && x < 760 && y>432 && y < 480 && Novice::IsTriggerMouse(0)) {
-		playerNumber = FOUR;
-	}
-}
 
 //ゲームの初期化処理
 
@@ -511,6 +474,30 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	int noGH = Novice::LoadTexture("./Resources/images/no.png");//いいえ
 
 	///
+	/// ↓音読み込み
+	/// 
+
+	//BGM
+	int titleSH = Novice::LoadAudio("./Resources/sounds/title.wav");//タイトルBGM
+	int stageSelectSH = Novice::LoadAudio("./Resources/sounds/stageSelect.wav");//ステージセレクトBGM
+	int gameSH = Novice::LoadAudio("./Resources/sounds/game.wav");//ゲームBGM
+	int winSH = Novice::LoadAudio("./Resources/sounds/win.wav");//勝利BGM
+	int loseSH = Novice::LoadAudio("./Resources/sounds/lose.wav");//敗北BGM
+
+	//効果音
+	int button1SH = Novice::LoadAudio("./Resources/sounds/button1.wav");//ボタンを押した時
+	int button2SH = Novice::LoadAudio("./Resources/sounds/button2.wav");//ボタンを押した時
+	int button3SH = Novice::LoadAudio("./Resources/sounds/button3.wav");//ボタンを押した時
+	int towerDamageSH = Novice::LoadAudio("./Resources/sounds/towerDamage.wav");//タワーに衝突した時
+	int damageSH = Novice::LoadAudio("./Resources/sounds/damage.wav");//兵士と敵が消滅した時
+	int plusSH = Novice::LoadAudio("./Resources/sounds/plus.wav");//兵士が敵に衝突したとき（加算・乗算）
+	int minusSH = Novice::LoadAudio("./Resources/sounds/minus.wav");//兵士が敵に衝突したとき（減算・除算）
+	int summonSH = Novice::LoadAudio("./Resources/sounds/summon.wav");//兵士を召喚する時
+
+
+	int bgmPH = -114514;//音がバグらないようにするための変数
+
+	///
 	/// ↓タイトルで使用する変数
 	/// 
 
@@ -625,10 +612,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			/// ↓更新処理ここから
 			/// 
 
+			//BGMを流す
+			if (bgmPH == -114514) {
+				bgmPH = Novice::PlayAudio(titleSH, 1, 1);
+			}
+
 			//マウスがゲーム開始ボタンの上にある場合の処理
 			if (mouseX > 400 && mouseX < 880 && mouseY>432 && mouseY < 528) {
 				//押した場合、シーンをステージセレクトに遷移
 				if (Novice::IsPressMouse(0)) {
+					Novice::PlayAudio(button2SH, false, 1.0f);//ボタンの効果音
+					//BGMを止める
+					Novice::StopAudio(bgmPH);
+					bgmPH = -114514;
 					yesNoAlpha = 255;
 					scene = STAGESELECT;
 				}
@@ -706,11 +702,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			/// ↓更新処理ここから
 			/// 
 
+			//BGMを流す
+			if (bgmPH == -114514) {
+				bgmPH = Novice::PlayAudio(stageSelectSH, 1, 1);
+			}
 
 			//マウスが戻るボタンの上にある場合の処理（シーン遷移時は反応しないようにする）（遊び方を表示している時は反応しないようにする）
 			if (mouseX > 12 && mouseX < 108 && mouseY>12 && mouseY < 108 && isTransitionBox == false && isDisplayHowToPlay == false) {
 				//押した場合、タイトルに戻る
 				if (Novice::IsPressMouse(0)) {
+					Novice::PlayAudio(button2SH, false, 1.0f);//ボタンの効果音
+					//BGMを止める
+					Novice::StopAudio(bgmPH);
+					bgmPH = -114514;
 					yesNoAlpha = 255;
 					scene = TITLE;
 				}
@@ -725,6 +729,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			if (mouseX > 1022 && mouseX < 1238 && mouseY>24 && mouseY < 96 && isTransitionBox == false && isDisplayHowToPlay == false) {
 				//押した場合、遊び方の画像を描画
 				if (Novice::IsPressMouse(0)) {
+					Novice::PlayAudio(button1SH, false, 1.0f);//ボタンの効果音
 					isDisplayHowToPlay = true;
 				}
 				//色を濃くする
@@ -738,6 +743,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			if (mouseX > 544 && mouseX < 736 && mouseY>612 && mouseY < 708 && isTransitionBox == false && isDisplayHowToPlay == true) {
 				//押した場合、遊び方の画像を描画を終わる
 				if (Novice::IsPressMouse(0)) {
+					Novice::PlayAudio(button1SH, false, 1.0f);//ボタンの効果音
 					isDisplayHowToPlay = false;
 				}
 				//色を濃くする
@@ -751,6 +757,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			if (mouseX > 158 && mouseX < 374 && mouseY>156 && mouseY < 372 && isTransitionBox == false && isDisplayHowToPlay == false) {
 				//押した場合、ステージ1にする
 				if (Novice::IsPressMouse(0)) {
+					//トリガーされていない場合（この条件にしないと長押しでずっと鳴ってしまう）
+					if (Novice::IsTriggerMouse(0)) {
+						Novice::PlayAudio(button3SH, false, 1.0f);//ボタンの効果音
+					}
 					stage = STAGE1;
 				}
 				//色を濃くする
@@ -764,6 +774,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			if (mouseX > 532 && mouseX < 748 && mouseY>156 && mouseY < 372 && isTransitionBox == false && isDisplayHowToPlay == false) {
 				//押した場合、ステージ2にする
 				if (Novice::IsPressMouse(0)) {
+					//トリガーされていない場合（この条件にしないと長押しでずっと鳴ってしまう）
+					if (Novice::IsTriggerMouse(0)) {
+						Novice::PlayAudio(button3SH, false, 1.0f);//ボタンの効果音
+					}
 					stage = STAGE2;
 				}
 				//色を濃くする
@@ -777,6 +791,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			if (mouseX > 906 && mouseX < 1122 && mouseY>156 && mouseY < 372 && isTransitionBox == false && isDisplayHowToPlay == false) {
 				//押した場合、ステージ3にする
 				if (Novice::IsPressMouse(0)) {
+					//トリガーされていない場合（この条件にしないと長押しでずっと鳴ってしまう）
+					if (Novice::IsTriggerMouse(0)) {
+						Novice::PlayAudio(button3SH, false, 1.0f);//ボタンの効果音
+					}
 					stage = STAGE3;
 				}
 				//色を濃くする
@@ -791,6 +809,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			if (mouseX > 822 && mouseX < 1206 && mouseY>552 && mouseY < 648 && isTransitionBox == false && noTimer <= 0 && isDisplayHowToPlay == false) {
 				//押した場合
 				if (Novice::IsPressMouse(0)) {
+					Novice::PlayAudio(button2SH, false, 1.0f);//ボタンの効果音
+					//BGMを止める
+					Novice::StopAudio(bgmPH);
 					//シーン遷移が行われる
 					isTransitionBox = true;
 					//選択したステージ毎に初期化を行う
@@ -813,6 +834,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 			//シーン遷移カウント（60フレーム）が0になったらシーン遷移する
 			if (sceneTransitionCount <= 0) {
+				//BGM変数をここで初期化
+				bgmPH = -114514;
 				scene = GAME;
 			}
 
@@ -1287,7 +1310,45 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			/// ↓更新処理ここから
 			/// 
 
-			PlayerOpeNumSelect(mouseX, mouseY);//プレイヤーが兵士の演算子と数字を選択する処理
+			//BGMを流す
+			if (bgmPH == -114514) {
+				bgmPH = Novice::PlayAudio(gameSH, 1, 0.1f);
+			}
+
+			//プレイヤーが兵士の数字と演算子を選択する処理
+			//加算の場合
+			if (mouseX > 520 && mouseX < 568 && mouseY>624 && mouseY < 672 && Novice::IsTriggerMouse(0)) {
+				playerOperator = ADDITION;
+			}
+			//減算の場合
+			if (mouseX > 568 && mouseX < 616 && mouseY>624 && mouseY < 672 && Novice::IsTriggerMouse(0)) {
+				playerOperator = SUBTRACTION;
+			}
+			//乗算の場合
+			if (mouseX > 616 && mouseX < 664 && mouseY>624 && mouseY < 672 && Novice::IsTriggerMouse(0)) {
+				playerOperator = MULTIPLICATION;
+			}
+			//除算の場合
+			if (mouseX > 664 && mouseX < 712 && mouseY>624 && mouseY < 672 && Novice::IsTriggerMouse(0)) {
+				playerOperator = DIVISION;
+			}
+
+			//1の場合
+			if (mouseX > 712 && mouseX < 760 && mouseY>576 && mouseY < 624 && Novice::IsTriggerMouse(0)) {
+				playerNumber = ONE;
+			}
+			//2の場合
+			if (mouseX > 712 && mouseX < 760 && mouseY>528 && mouseY < 576 && Novice::IsTriggerMouse(0)) {
+				playerNumber = TWO;
+			}
+			//3の場合
+			if (mouseX > 712 && mouseX < 760 && mouseY>480 && mouseY < 528 && Novice::IsTriggerMouse(0)) {
+				playerNumber = THREE;
+			}
+			//4の場合
+			if (mouseX > 712 && mouseX < 760 && mouseY>432 && mouseY < 480 && Novice::IsTriggerMouse(0)) {
+				playerNumber = FOUR;
+			}
 
 			//WAVE1の表示
 			if (gameCount > wave1InTime) {
@@ -1320,6 +1381,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			if (mouseX > 520 && mouseX < 712 && mouseY>432 && mouseY < 624 && Novice::IsTriggerMouse(0) && canSummonSoldier) {
 				for (int i = 0; i < SOLDIER_NUM; i++) {
 					if (soldier[i].isAlive == false) {
+						Novice::PlayAudio(summonSH, false, 1.0f);//召喚時の効果音
 						soldier[i].isAlive = true;
 						soldier[i].isDead = false;
 						soldier[i].deadCount = 64;
@@ -1350,12 +1412,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				}
 				//兵士が敵のタワーに当たったら消滅する処理
 				if (soldier[i].isAlive == true && soldier[i].pos.x < 24 + 168) {
+					Novice::PlayAudio(towerDamageSH, false, 1.0f);//タワー衝突時の音
 					soldier[i].isAlive = false;
 					soldier[i].isDead = true;
 				}
 				//兵士が消滅した際、消滅時のカウントを減らす（画像表示用）
 				if (soldier[i].isDead == true) {
 					soldier[i].deadCount--;
+				}
+				//消滅時に効果音を鳴らす
+				if (soldier[i].isDead == true) {
+					if (soldier[i].deadCount == 63) {
+						Novice::PlayAudio(damageSH, false, 0.5f);//消滅する時の音
+					}
 				}
 			}
 
@@ -1373,6 +1442,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				}
 				//敵がプレイヤーのタワーに当たったら消滅する処理
 				if (enemy[i].isAlive == true && enemy[i].pos.x > 1088 - 96) {
+					Novice::PlayAudio(towerDamageSH, false, 1.0f);//タワー衝突時の音
 					playerTowerHP--;
 					enemy[i].isAlive = false;
 					enemy[i].isDead = true;
@@ -1386,6 +1456,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				if (enemy[i].isDead == true) {
 					enemy[i].deadCount--;
 				}
+				//消滅した時の効果音
+				if (enemy[i].isDead == true) {
+					if (enemy[i].deadCount == 63) {
+						Novice::PlayAudio(damageSH, false, 0.5f);//消滅する時の音
+					}
+				}
 			}
 
 			//兵士と敵が衝突した際の処理
@@ -1395,15 +1471,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 					if (soldier[i].pos.x < enemy[j].pos.x + 96 && soldier[i].isAlive == true && enemy[j].isAlive == true) {
 						//プレイヤーの演算子が加算のとき
 						if (soldier[i].ope == ADDITION) {
+							Novice::PlayAudio(plusSH, false, 1.0f);//敵に衝突した時
 							enemy[j].num += soldier[i].num + 1;
 							//プレイヤーの演算子が減算のとき
 						} else if (soldier[i].ope == SUBTRACTION) {
+							Novice::PlayAudio(minusSH, false, 1.0f);//敵に衝突した時
 							enemy[j].num -= soldier[i].num + 1;
 							//プレイヤーの演算子が乗算のとき
 						} else if (soldier[i].ope == MULTIPLICATION) {
+							Novice::PlayAudio(plusSH, false, 1.0f);//敵に衝突した時
 							enemy[j].num *= soldier[i].num + 1;
 							//プレイヤーの演算子が除算のとき
 						} else if (soldier[i].ope == DIVISION) {
+							Novice::PlayAudio(minusSH, false, 1.0f);//敵に衝突した時
 							enemy[j].num /= soldier[i].num + 1;
 						}
 						soldier[i].isAlive = false;
@@ -1526,6 +1606,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				if (issueAlpha < 255) {
 					issueAlpha += 3;
 				} else {
+					//音楽を止める
+					Novice::StopAudio(bgmPH);
+					bgmPH = -114514;
 					scene = GAMERESULT;
 				}
 			}
@@ -1536,6 +1619,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				if (issueAlpha < 255) {
 					issueAlpha += 3;
 				} else {
+					//音楽を止める
+					Novice::StopAudio(bgmPH);
+					bgmPH = -114514;
 					scene = GAMERESULT;
 				}
 			}
@@ -1954,7 +2040,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				//空の星を描画
 				for (int i = 0; i < 2; i++) {
 					Novice::DrawSprite(
-						391+(i*36), 609,
+						391 + (i * 36), 609,
 						emptyStarGH,
 						0.5f, 0.5f,
 						0.0f,
@@ -2237,6 +2323,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			/// ↓更新処理ここから
 			///
 
+			//BGMを流す
+			if (bgmPH == -114514) {
+				//勝利の場合
+				if (isPlayerWin == true) {
+					bgmPH = Novice::PlayAudio(winSH, 0, 1);
+					//敗北の場合
+				} else {
+					bgmPH = Novice::PlayAudio(loseSH, 0, 1);
+				}
+			}
+
 			//実績を解除して星フラグを操作
 			//ステージ1の場合
 			if (stage == STAGE1) {
@@ -2297,6 +2394,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			if (mouseX > 288 && mouseX < 576 && mouseY>492 && mouseY < 598) {
 				//押した場合、ゲームを初期化してゲームシーンに戻る
 				if (Novice::IsPressMouse(0)) {
+					Novice::PlayAudio(button2SH, false, 1.0f);//ボタンの効果音
+					//BGMの変数を初期化
+					bgmPH = -114514;
 					//はいといいえを押した際に海苔の色を薄くするための透明度を255で初期化
 					yesNoAlpha = 255;
 					//現在のステージによって初期化するステージを変更する
@@ -2334,6 +2434,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			if (mouseX > 704 && mouseX < 992 && mouseY>492 && mouseY < 598) {
 				//押した場合、ステージセレクトに戻る（初期化する）
 				if (Novice::IsPressMouse(0)) {
+					Novice::PlayAudio(button2SH, false, 1.0f);//ボタンの効果音
+					//BGMの変数を初期化
+					bgmPH = -114514;
 					//いいえを押してからスタートを押せるようになるまでのタイマーを30で初期化
 					noTimer = 30;
 					//はいといいえを押した際に海苔の色を薄くするための透明度を255で初期化
