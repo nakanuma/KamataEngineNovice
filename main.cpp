@@ -488,11 +488,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	int button1SH = Novice::LoadAudio("./Resources/sounds/button1.wav");//ボタンを押した時
 	int button2SH = Novice::LoadAudio("./Resources/sounds/button2.wav");//ボタンを押した時
 	int button3SH = Novice::LoadAudio("./Resources/sounds/button3.wav");//ボタンを押した時
+	int button4SH = Novice::LoadAudio("./Resources/sounds/button4.wav");//ボタンを押した時
 	int towerDamageSH = Novice::LoadAudio("./Resources/sounds/towerDamage.wav");//タワーに衝突した時
 	int damageSH = Novice::LoadAudio("./Resources/sounds/damage.wav");//兵士と敵が消滅した時
 	int plusSH = Novice::LoadAudio("./Resources/sounds/plus.wav");//兵士が敵に衝突したとき（加算・乗算）
 	int minusSH = Novice::LoadAudio("./Resources/sounds/minus.wav");//兵士が敵に衝突したとき（減算・除算）
 	int summonSH = Novice::LoadAudio("./Resources/sounds/summon.wav");//兵士を召喚する時
+	int appearingSH = Novice::LoadAudio("./Resources/sounds/appearing.wav");//敵が出現した時
+	int waveSH = Novice::LoadAudio("./Resources/sounds/wave.wav");//WAVE表示の音
 
 
 	int bgmPH = -114514;//音がバグらないようにするための変数
@@ -1318,35 +1321,43 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			//プレイヤーが兵士の数字と演算子を選択する処理
 			//加算の場合
 			if (mouseX > 520 && mouseX < 568 && mouseY>624 && mouseY < 672 && Novice::IsTriggerMouse(0)) {
+				Novice::PlayAudio(button3SH, false, 1.0f);//ボタンの効果音
 				playerOperator = ADDITION;
 			}
 			//減算の場合
 			if (mouseX > 568 && mouseX < 616 && mouseY>624 && mouseY < 672 && Novice::IsTriggerMouse(0)) {
+				Novice::PlayAudio(button3SH, false, 1.0f);//ボタンの効果音
 				playerOperator = SUBTRACTION;
 			}
 			//乗算の場合
 			if (mouseX > 616 && mouseX < 664 && mouseY>624 && mouseY < 672 && Novice::IsTriggerMouse(0)) {
+				Novice::PlayAudio(button3SH, false, 1.0f);//ボタンの効果音
 				playerOperator = MULTIPLICATION;
 			}
 			//除算の場合
 			if (mouseX > 664 && mouseX < 712 && mouseY>624 && mouseY < 672 && Novice::IsTriggerMouse(0)) {
+				Novice::PlayAudio(button3SH, false, 1.0f);//ボタンの効果音
 				playerOperator = DIVISION;
 			}
 
 			//1の場合
 			if (mouseX > 712 && mouseX < 760 && mouseY>576 && mouseY < 624 && Novice::IsTriggerMouse(0)) {
+				Novice::PlayAudio(button4SH, false, 1.0f);//ボタンの効果音
 				playerNumber = ONE;
 			}
 			//2の場合
 			if (mouseX > 712 && mouseX < 760 && mouseY>528 && mouseY < 576 && Novice::IsTriggerMouse(0)) {
+				Novice::PlayAudio(button4SH, false, 1.0f);//ボタンの効果音
 				playerNumber = TWO;
 			}
 			//3の場合
 			if (mouseX > 712 && mouseX < 760 && mouseY>480 && mouseY < 528 && Novice::IsTriggerMouse(0)) {
+				Novice::PlayAudio(button4SH, false, 1.0f);//ボタンの効果音
 				playerNumber = THREE;
 			}
 			//4の場合
 			if (mouseX > 712 && mouseX < 760 && mouseY>432 && mouseY < 480 && Novice::IsTriggerMouse(0)) {
+				Novice::PlayAudio(button4SH, false, 1.0f);//ボタンの効果音
 				playerNumber = FOUR;
 			}
 
@@ -1432,6 +1443,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			for (int i = 0; i < ENEMY_NUM; i++) {
 				//出現時間になった敵が出現
 				if (gameCount == enemy[i].summonFlame) {
+					Novice::PlayAudio(appearingSH, false, 1.0f);//敵が出現した時の音
 					if (enemy[i].isAlive == false) {
 						enemy[i].isAlive = true;
 					}
@@ -1531,6 +1543,20 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			//プレイヤーのタワーHPが0未満にならないようにする（エラー回避）
 			if (playerTowerHP < 0) {
 				playerTowerHP = 0;
+			}
+
+			//WAVE表示の際に効果音を鳴らす
+			//WAVE1
+			if (gameCount == wave1InTime + 50) {
+				Novice::PlayAudio(waveSH, false, 1.0f);//wave表示の音
+			}
+			//WAVE2
+			if (gameCount == wave2InTime + 50) {
+				Novice::PlayAudio(waveSH, false, 1.0f);//wave表示の音
+			}
+			//WAVE3
+			if (gameCount == wave3InTime + 50) {
+				Novice::PlayAudio(waveSH, false, 1.0f);//wave表示の音
 			}
 
 			//出現させた兵士の数に応じてテキストの色を透明にする
